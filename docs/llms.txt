@@ -1,7 +1,10 @@
 # NewRecall Salon
 
-> On-device salon CRM for follow-ups, recall dates, and closed-app alerts.
+> On-device salon CRM for recall dates, follow-up, Paystack billing, closed-app alerts, and the operator desk.
 
-- [Overview](index.mdx): Product model and what stays on the device
-- [Local setup](quickstart.mdx): Install, Paystack env, PWA preview
-- [Closed-app alerts](alerts.mdx): VAPID, Upstash, cron, and schedule upload
+- [Overview](index.mdx): Product identity, stack, and what stays on the device
+- [Setup](setup.mdx): Local Vite, Vercel, environment variables, PWA
+- [The book](book.mdx): Routes, recall math, follow-up, messages, settings, backup
+- [Billing](billing.mdx): Paystack trial, entitlement, APIs
+- [Alerts](alerts.mdx): Local notifications, Web Push, cron, what is uploaded
+- [Operator desk](admin.mdx): `/admin`, cookie session, Paystack lists, repair, Redis notes

@@ -1,0 +1,40 @@
+---
+title: Operator desk
+description: Password-gated /admin for Paystack lists, stuck-trial repair, and support notes.
+---
+
+The operator desk is `/admin` (`src/pages/Admin.tsx`). It is **not** linked from the marketing footer. It is not a salon login and it does not use `AppShell`.
+
+## Auth
+
+Requires `ADMIN_EMAIL`, `ADMIN_PASSWORD`, and `ADMIN_SESSION_SECRET`. If any are missing, login returns that admin is not configured.
+
+Sign-in sets httpOnly cookie `nr_admin` (12 hours, SameSite=Lax, Secure on Vercel/production). Session check is HMAC (`api/_lib/adminAuth.ts`).
+
+## What it shows
+
+Paystack data is filtered to the **current secret key mode**. Test and live money are never mixed. Card numbers are not shown.
+
+Sections include lookup by email, subscriptions, trial clock, R1 card check (a Paystack `reversed` transaction counts as refunded), transactions, refunds, disputes, failed renewals, abandoned checkout, 30-day money, CSV download, entitlement vs `/app`, who should have `/app`, plan health, site legal HEAD checks, and read-only recall wording (`DEFAULT_MESSAGE_TEMPLATE`).
+
+**Repair** re-runs trial complete for R1 success without an open subscription (`POST /api/admin/repair` → existing `completeTrial`).
+
+**Tenants** and **scheduled backups** are shown empty and disabled until salon books are stored off-device. Do not invent tenant rows.
+
+**Support** and the **audit log** use Upstash (`admin:support`, `admin:audit`) when Redis is set. Without Redis, billing still works; notes are not stored.
+
+## APIs
+
+| Path | Role |
+| --- | --- |
+| `POST /api/admin/login` | Set session cookie |
+| `POST /api/admin/logout` | Clear cookie |
+| `GET /api/admin/session` | Current operator email |
+| `GET /api/admin/overview` | Assembled lists and health |
+| `GET /api/admin/lookup?email=` | One customer |
+| `POST /api/admin/repair` | Finish stuck trial complete |
+| `POST /api/admin/portal` | Paystack portal for a subscription |
+| `POST /api/admin/support` | Support note (`book_locked` or `billing`) |
+| `GET /api/admin/csv` | Billing CSV (`newrecall-billing.csv`) |
+
+Local Vite serves these through `vite.admin-api.ts`. Classification helpers are in `src/lib/adminClassify.ts` (shared with `api/_lib`).

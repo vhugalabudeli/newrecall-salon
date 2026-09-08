@@ -40,8 +40,7 @@ export function Login() {
             <p className="eyebrow">Account</p>
             <h1>Log in</h1>
             <p className="lead">
-              Use the email and password for this device. There is no cloud
-              account — your book stays here.
+              Use the email and password for this device. Your book stays here.
             </p>
             <form className="auth-form" onSubmit={onSubmit}>
               <label>

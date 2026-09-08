@@ -56,7 +56,7 @@ export function ServiceTypes() {
 
       {fromBook ? (
         <p className="mb-4 rounded-2xl bg-rose-mist/50 px-4 py-3 text-sm text-cocoa">
-          Add the type, then add the service. You’ll go back to the book.
+          Add the type, then add the service. You will return to the book.
         </p>
       ) : null}
 

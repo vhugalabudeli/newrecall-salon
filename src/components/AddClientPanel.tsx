@@ -354,7 +354,7 @@ export function AddClientPanel({ client, onClose }: AddClientPanelProps) {
               placeholder="Select a type"
               emptyText="No service types yet."
               extraAction={{
-                label: "Can't find this type? Add one",
+                label: 'Add a service type',
                 onClick: () =>
                   leaveToAdd(`${paths.serviceTypes}?from=book`),
               }}
@@ -365,7 +365,7 @@ export function AddClientPanel({ client, onClose }: AddClientPanelProps) {
               className="pt-1 text-left text-sm font-medium text-blush-dark"
               onClick={() => leaveToAdd(`${paths.serviceTypes}?from=book`)}
             >
-              Can’t find this type? Add one
+              Add a service type
             </button>
           </Field>
 
@@ -378,7 +378,7 @@ export function AddClientPanel({ client, onClose }: AddClientPanelProps) {
               placeholder="Select a service"
               emptyText="No services in this type yet."
               extraAction={{
-                label: "Can't find this service? Add one",
+                label: 'Add a service',
                 onClick: () =>
                   leaveToAdd(
                     `${paths.serviceType(draft.serviceType || DEFAULT_SERVICE_TYPE)}?from=book`,
@@ -395,7 +395,7 @@ export function AddClientPanel({ client, onClose }: AddClientPanelProps) {
                 )
               }
             >
-              Can’t find this service? Add one
+              Add a service
             </button>
           </Field>
 
@@ -468,7 +468,7 @@ export function AddClientPanel({ client, onClose }: AddClientPanelProps) {
             <span>
               This booking is for the client
               <span className="mt-0.5 block text-cocoa-soft">
-                Untick if the booking is for someone else.
+                Clear this if the visit is for someone else.
               </span>
             </span>
           </label>
@@ -482,7 +482,7 @@ export function AddClientPanel({ client, onClose }: AddClientPanelProps) {
                   onChange={(event) =>
                     patch({ guestName: event.target.value })
                   }
-                  placeholder="Who the booking is for"
+                  placeholder="Guest name"
                 />
               </Field>
             </div>

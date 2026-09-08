@@ -1,0 +1,66 @@
+---
+title: The book
+description: Screens, recall dates, follow-up, messages, settings, and on-device backup.
+---
+
+Routes live in `src/lib/routes.ts` and `src/App.tsx`.
+
+## Screens
+
+| Path | What |
+| --- | --- |
+| `/` | Landing and walkthrough form |
+| `/login`, `/register` | Device login. Logged-in users are sent to `/app`. |
+| `/subscribe` | Trial checkout. Requires login. Entitled users go to `/app`. |
+| `/app` | Dashboard: overdue, due today, due this week, later schedule |
+| `/app/clients` | Book: All, Follow-up, Cleared. Search name, phone, or guest |
+| `/app/calendar` | Next three months that have recalls (week starts Monday) |
+| `/app/calendar/:offset` | One day. Offset is integer days from today, −90 to 120 |
+| `/app/settings` | Salon name, service types, backup, subscription, alerts, log out |
+| `/app/settings/service-types` | Types and services. Lifespan is 2–16 weeks |
+| `/pricing`, `/terms`, `/privacy`, `/refunds` | Legal |
+| `/thank-you` | Walkthrough request received |
+| `/admin` | Operator desk (separate login) |
+
+`/app/settings/message-template` redirects to Settings. `/app/recalls` redirects to Calendar.
+
+Shell nav is Dashboard, Clients, Calendar, Settings. The mark in the shell is the salon name.
+
+## Recall date
+
+From `src/lib/schedule.ts`:
+
+- **Lapse** = last visit + lifespan weeks
+- **Recall** = lapse minus lead: on the day (0), 1 day before (1), or 1 week before (7)
+
+Entering a new last visit resets Contact to not yet contacted and Response to not yet booked (`src/lib/db.ts`).
+
+## Follow-up vs the bell
+
+**Follow-up** (Clients segment) is status only — `isOnDueList`:
+
+- Contact is `not_yet_contacted` or `contacted_unreachable`
+- and Response is `not_yet_booked`
+
+Recall date does not decide Follow-up.
+
+**Bell**, **Due today**, and **Overdue** use that same status rule **and** the recall date: today, or already past. The bell is overdue count + due-today count.
+
+Contact labels: Not yet contacted, Contacted but unreachable, Contacted.  
+Response labels: Not yet responded, Acknowledged, Booked, Declined.
+
+## Messages
+
+SMS, WhatsApp, and Call on the recall card open this device (`sms:`, `wa.me`, `tel:`). There is no NewRecall message server.
+
+Wording is `DEFAULT_MESSAGE_TEMPLATE` in `src/lib/messageTemplate.ts`. Guest bookings switch `whose_visit` and `book_who`. There is no Settings editor. `/app/settings/message-template` is a redirect.
+
+## Settings and backup
+
+- Salon name (default **Your salon**)
+- Service types catalog (localStorage)
+- Backup: export/import JSON on this device. Import replaces the book after confirm
+- Subscription: plan, trial/next payment, Manage subscription (Paystack portal). Hidden when the paywall is bypassed
+- Alerts: Due today and Overdue switches (default off)
+
+The backup file includes salon name, clients, optional catalog, and a copy of the code template. Import does not add a template editor; the running app still uses the code constant.

@@ -162,7 +162,7 @@ export function ServiceTypeDetail() {
   function onDeleteType() {
     if (!type) return
     if (inUse) {
-      setTypeError('This type is on clients in the book. Remove those first.')
+      setTypeError('This type is still used on clients. Remove those first.')
       return
     }
     const confirmed = window.confirm(`Remove ${type.name} and its services?`)
@@ -223,7 +223,7 @@ export function ServiceTypeDetail() {
 
       {fromBook ? (
         <p className="mb-4 rounded-2xl bg-rose-mist/50 px-4 py-3 text-sm text-cocoa">
-          Add the service, then you’ll go back to the book.
+          Add the service, then return to the book.
         </p>
       ) : null}
 

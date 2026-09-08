@@ -1,24 +1,39 @@
 ---
-title: Closed-app alerts
-description: Local notifications while open, Web Push when the PWA is closed.
+title: Alerts
+description: Local notifications while the app is open, Web Push when the PWA is closed.
 ---
 
-Local alerts can fire while the app is open. To alert when the PWA is closed (including iPhone installed to Home Screen), configure Web Push.
+Settings has two switches: **Due today** and **Overdue**. Both default off. They use the same people as the bell: follow-up status **and** recall date today or already past.
 
-## Environment
+While the app is open, the browser can show a local notification. Bodies are built in `src/lib/recallAlerts.ts` (client first names, not the full book upload).
 
-Set these on the server (Vercel Production, Preview, and Development):
+## Closed-app push
 
-- `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` (from `npx web-push generate-vapid-keys`)
+To alert when the PWA is closed (including iPhone on the Home Screen), configure Web Push. If VAPID or Redis is missing, Settings says alerts when the app is closed are not available yet.
+
+Set on the server (Vercel Production, Preview, and Development):
+
+- `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` (`npx web-push generate-vapid-keys`)
 - `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`
 - optional `CRON_SECRET` for `/api/alerts/dispatch`
 
-Vercel runs an hourly cron against `/api/alerts/dispatch`. After changing these values, redeploy so the functions pick them up.
+After changing these, redeploy so the functions pick them up. On iPhone, add the salon to the Home Screen so alerts arrive reliably.
+
+The schedule hour is **8:00** in the device timezone (`src/lib/pushAlerts.ts`). Vercel cron hits `/api/alerts/dispatch` hourly (`0 * * * *`). Dispatch sends in that local hour, and the next hour as catch-up (`api/_lib/alerts.ts`).
 
 ## What is uploaded
 
-The app uploads only a minimal daily schedule: alert titles and bodies for due/overdue, timezone, and preference flags. It does **not** upload the full client book.
+The app uploads only a daily schedule: alert titles and bodies for due/overdue, timezone, hour, preference flags. It does **not** upload the full client book.
 
-## Settings
+Redis keys: `alert:sub:{email}`, `alert:schedule:{email}`, index `alert:emails`.
 
-In Settings, **Due today** and **Overdue** must be on, and the browser must grant notification permission. Closed-app push attaches when the service worker is ready.
+## APIs
+
+| Path | Role |
+| --- | --- |
+| `GET /api/alerts/vapid` | Whether push is configured, plus public key |
+| `POST /api/alerts/subscribe` | Store or clear the Web Push subscription |
+| `POST /api/alerts/schedule` | Store the daily title/body schedule |
+| `GET` or `POST /api/alerts/dispatch` | Cron: send due pushes |
+
+The service worker is `public/sw-recall-alerts.js`, imported from the PWA workbox config. A separate IndexedDB snapshot on the device is for local/periodic checks, not a server book.

@@ -1,0 +1,38 @@
+---
+title: Setup
+description: Run NewRecall locally, set environment variables, and deploy on Vercel.
+---
+
+```bash
+npm install
+cp .env.example .env.local
+npm run dev
+```
+
+Open http://localhost:5173/. Register or log in, then start the free trial to open the book.
+
+```bash
+npm test
+npm run build && npm run preview
+```
+
+The production build is a PWA (`vite-plugin-pwa`). `start_url` is `/app`. Closed-app alerts work best from an installed PWA (Chrome/Android or iOS Home Screen), not an embedded tab without a ready service worker.
+
+On Vercel, set the same **server** keys as project environment variables. Production checkout needs the **live** Paystack secret key (`sk_live_…`).
+
+## Environment
+
+From `.env.example`. Never expose `PAYSTACK_SECRET_KEY`, VAPID private key, Redis token, or `ADMIN_*` to the client.
+
+| Variable | Role |
+| --- | --- |
+| `PAYSTACK_SECRET_KEY` | Server secret. `sk_test_…` vs `sk_live_…` sets test vs live mode. |
+| `PAYSTACK_PLAN_CODE` | Optional. If unset, first checkout can create plan **NewRecall Salon Monthly**, R200 / month ZAR. |
+| `VITE_PAYSTACK_PUBLIC_KEY` | Optional. Checkout uses the access code from the server, not this key. |
+| `VITE_PAYWALL_BYPASS` | Local only. `true` skips `/subscribe` and treats the session as entitled. |
+| `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` | Closed-app Web Push. Generate with `npx web-push generate-vapid-keys`. |
+| `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | Push schedules, and operator support/audit. |
+| `CRON_SECRET` | Optional. If set, `/api/alerts/dispatch` requires `Authorization: Bearer …`. |
+| `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET` | Operator desk at `/admin`. Server only. |
+
+`vercel.json` rewrites all non-`/api` paths to `index.html` and runs hourly cron `0 * * * *` against `/api/alerts/dispatch`.

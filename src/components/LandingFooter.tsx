@@ -5,7 +5,7 @@ export function LandingFooter() {
   return (
     <footer className="site-footer">
       <div className="wrap">
-        <span>NewRecall — salon CRM</span>
+        <span>NewRecall — Salon CRM</span>
         <nav className="footer-legal" aria-label="Legal">
           <Link to={paths.pricing}>Pricing</Link>
           <Link to={paths.terms}>Terms</Link>

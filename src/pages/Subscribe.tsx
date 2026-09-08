@@ -57,7 +57,7 @@ export function Subscribe() {
       setMessage(
         error instanceof Error
           ? error.message
-          : 'Could not open Paystack checkout.',
+          : 'Could not open checkout.',
       )
     } finally {
       setBusy(false)
@@ -76,9 +76,9 @@ export function Subscribe() {
             <p className="eyebrow">Subscription</p>
             <h1>Free for 30 days, then R200 / month</h1>
             <p className="lead">
-              Paystack collects a South African card to start the trial. We
-              charge <strong>R1.00</strong> now to verify the card, then refund
-              it. After 30 days the plan is R200 per month until you cancel.
+              A South African card is required to start the trial. We charge{' '}
+              <strong>R1.00</strong> now to verify the card, then refund it.
+              After 30 days the plan is R200 per month until you cancel.
             </p>
             {status === 'cancelled' || status === 'error' || accessError ? (
               <p className="form-error">{message || accessError}</p>
@@ -90,7 +90,7 @@ export function Subscribe() {
                 disabled={busy}
                 onClick={() => void present()}
               >
-                {busy ? 'Opening Paystack…' : 'Start free trial'}
+                {busy ? 'Opening checkout…' : 'Start free trial'}
               </button>
             </div>
             <p className="legal-inline">

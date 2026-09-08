@@ -17,6 +17,7 @@ import { Settings } from './pages/Settings'
 import { Subscribe } from './pages/Subscribe'
 import { Terms } from './pages/Terms'
 import { ThankYou } from './pages/ThankYou'
+import { Admin } from './pages/Admin'
 import { paths } from './lib/routes'
 
 export default function App() {
@@ -29,6 +30,7 @@ export default function App() {
         <Route path={paths.privacy} element={<Privacy />} />
         <Route path={paths.refunds} element={<Refunds />} />
         <Route path={paths.pricing} element={<Pricing />} />
+        <Route path={paths.admin} element={<Admin />} />
         <Route
           path={paths.login}
           element={

@@ -95,7 +95,7 @@ export function timeFrameLabel(target: Date, today = new Date()): string {
     parts.push(unitLabel(Math.abs(days), 'day', 'days'))
   }
 
-  const body = parts.slice(0, 2).join(' ')
+  const body = parts.slice(0, 2).join(' and ')
   return later ? `in ${body}` : `${body} overdue`
 }
 
@@ -185,7 +185,7 @@ export type DayGroup = {
 function dayTitle(offset: number): string {
   if (offset === 0) return 'Due today'
   if (offset === 1) return 'Due tomorrow'
-  if (offset === 2) return 'Due day after tomorrow'
+  if (offset === 2) return 'Due in 2 days'
   return `Due in ${offset} days`
 }
 

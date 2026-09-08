@@ -19,5 +19,5 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["vite.config.ts", "vite.paystack-api.ts"]
+  "include": ["vite.config.ts", "vite.paystack-api.ts", "vite.alerts-api.ts", "vite.admin-api.ts"]
 }

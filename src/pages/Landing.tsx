@@ -54,8 +54,7 @@ export function Landing() {
             <div className="section-head">
               <h2 id="features-heading">Built for salon recall calls</h2>
               <p className="muted">
-                Built around lifespan after the last visit — not a random check-in
-                interval.
+                Each visit sets the next recall from that service’s lifespan.
               </p>
             </div>
             <div className="feature-grid">
@@ -105,8 +104,7 @@ export function Landing() {
                 <h3>Hair, nails, and more</h3>
                 <p>
                   Pick a service type — hair, nail, waxing, eyelash, massage, tanning,
-                  or facials — then track the lifespan that fits that treatment, not
-                  one generic check-in schedule.
+                  or facials — then track the lifespan that fits that treatment.
                 </p>
               </article>
               <article className="card feature-card">
@@ -123,8 +121,8 @@ export function Landing() {
                 <h3>Recall SMS</h3>
                 <p>
                   One template. Wording switches when the booking is for someone else.
-                  SMS, WhatsApp, or call from the recall card — this device only, no
-                  message server.
+                  SMS, WhatsApp, or call from the recall card — messages send from
+                  this device.
                 </p>
               </article>
             </div>
@@ -174,7 +172,7 @@ export function Landing() {
                   <textarea
                     name="message"
                     rows={4}
-                    placeholder="When should we walk through salon NewRecall?"
+                    placeholder="When would you like a walkthrough?"
                   />
                 </label>
               </div>

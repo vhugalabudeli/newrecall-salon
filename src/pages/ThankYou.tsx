@@ -20,7 +20,7 @@ export function ThankYou() {
             </p>
             <div className="cta-row">
               <Link className="btn btn-primary" to={paths.landing}>
-                Back to salon NewRecall
+                Back to NewRecall
               </Link>
               <Link className="btn btn-secondary" to={paths.login}>
                 Log in

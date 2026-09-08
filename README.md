@@ -19,6 +19,8 @@ Open http://localhost:5173/. Register or log in, then start the free trial to op
 
 On Vercel, set `PAYSTACK_SECRET_KEY` (and optional `PAYSTACK_PLAN_CODE`) as project environment variables. Production checkout needs the **live** secret key.
 
+The operator desk is at `/admin` (`salon.newrecall.com/admin`). Set `ADMIN_EMAIL`, `ADMIN_PASSWORD`, and `ADMIN_SESSION_SECRET` on Vercel (and in `.env.local` for development). Support notes and the audit log use the same Upstash Redis as closed-app alerts when those variables are set. Tenant backup/restore stays empty until salon books are stored off-device.
+
 To work on the CRM without Paystack, set `VITE_PAYWALL_BYPASS=true` in `.env.local`.
 
 Installable as a PWA (`npm run build && npm run preview`). The live app is meant to serve on salon.newrecall.com.
@@ -38,5 +40,5 @@ Vercel runs an hourly cron against `/api/alerts/dispatch`. The app uploads only 
 This repo is set up so coding agents can read current library docs and NewRecall’s own guides.
 
 - **Context7 MCP** is in `.cursor/mcp.json` (OAuth). In Cursor, open **Customize → MCP**, enable `context7`, and complete the sign-in prompt if it appears.
-- Product docs for Docs7 live in `docs/` (`docs.json` + MDX). Connect this GitHub repo at [context7.com/docs7](https://context7.com/docs7). Each Docs7 deploy refreshes the Context7 library.
-- `context7.json` tells Context7 to index `docs/` and to keep the client book on-device.
+- Product docs for Docs7 live in `docs/` (`docs.json` + MDX: overview, setup, book, billing, alerts, operator desk). Connect this GitHub repo at [context7.com/docs7](https://context7.com/docs7). Each Docs7 deploy refreshes the Context7 library.
+- `context7.json` tells Context7 to index `docs/` and to keep the on-device book, Paystack, and `/admin` rules.

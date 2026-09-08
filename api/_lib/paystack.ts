@@ -1,14 +1,28 @@
+import {
+  CURRENCY,
+  PLAN_AMOUNT_CENTS,
+  PLAN_NAME,
+  SETUP_AMOUNT_CENTS,
+  TRIAL_DAYS,
+  isOpenSubscription,
+  keyModeFromSecret,
+  periodForTrialEnd,
+  trialEndFromDates,
+  type PaystackDomain,
+} from '../../src/lib/adminClassify.ts'
+
 const PAYSTACK_BASE = 'https://api.paystack.co'
-const PLAN_NAME = 'NewRecall Salon Monthly'
-const PLAN_AMOUNT_CENTS = 20_000
-const SETUP_AMOUNT_CENTS = 100
-const TRIAL_DAYS = 30
-const CURRENCY = 'ZAR'
 
 type PaystackEnvelope<T> = {
   status: boolean
   message: string
   data: T
+  meta?: {
+    total?: number
+    page?: number
+    pageCount?: number
+    next?: string | null
+  }
 }
 
 export type BillingPeriod = 'trial' | 'monthly'
@@ -23,18 +37,20 @@ export type BillingStatus = {
   email: string
 }
 
-type PaystackCustomer = {
+export type PaystackCustomer = {
   id?: number
   customer_code: string
-  email: string
+  email?: string
+  domain?: string
 }
 
-type PaystackPlan = {
+export type PaystackPlan = {
   plan_code: string
   name: string
   amount: number
   interval: string
   currency: string
+  domain?: string
 }
 
 type PaystackAuthorization = {
@@ -42,28 +58,59 @@ type PaystackAuthorization = {
   reusable: boolean
 }
 
-type PaystackTransaction = {
+export type PaystackTransaction = {
   id: number
   status: string
   reference: string
   amount: number
   currency: string
+  domain?: string
+  paid_at?: string | null
+  paidAt?: string | null
+  created_at?: string
+  createdAt?: string
   customer: PaystackCustomer
-  authorization: PaystackAuthorization
+  authorization?: PaystackAuthorization
   metadata?: {
     user_id?: string
     purpose?: string
-  }
+  } | null
 }
 
-type PaystackSubscription = {
+export type PaystackSubscription = {
   status: string
   subscription_code: string
+  amount?: number
+  domain?: string
   next_payment_date?: string
   createdAt?: string
   created_at?: string
   customer: PaystackCustomer | number
   plan: PaystackPlan | number
+}
+
+export type PaystackRefund = {
+  id: number
+  status: string
+  amount: number
+  currency?: string
+  domain?: string
+  transaction: number | { id?: number }
+  customer?: PaystackCustomer | null
+  createdAt?: string
+  created_at?: string
+}
+
+export type PaystackDispute = {
+  id: number
+  status: string
+  resolution?: string | null
+  domain?: string
+  amount?: number
+  createdAt?: string
+  created_at?: string
+  customer?: PaystackCustomer | null
+  transaction?: { customer?: PaystackCustomer } | null
 }
 
 function secretKey(): string {
@@ -72,10 +119,18 @@ function secretKey(): string {
   return key
 }
 
-async function paystack<T>(
+export function paystackKeyPresent(): boolean {
+  return Boolean(process.env.PAYSTACK_SECRET_KEY?.trim())
+}
+
+export function paystackMode(): PaystackDomain | 'missing' {
+  return keyModeFromSecret(process.env.PAYSTACK_SECRET_KEY)
+}
+
+async function paystackFull<T>(
   path: string,
   init: RequestInit = {},
-): Promise<T> {
+): Promise<PaystackEnvelope<T>> {
   const res = await fetch(`${PAYSTACK_BASE}${path}`, {
     ...init,
     headers: {
@@ -88,6 +143,14 @@ async function paystack<T>(
   if (!res.ok || !json.status) {
     throw new Error(json.message || `Paystack ${path} failed`)
   }
+  return json
+}
+
+async function paystack<T>(
+  path: string,
+  init: RequestInit = {},
+): Promise<T> {
+  const json = await paystackFull<T>(path, init)
   return json.data
 }
 
@@ -103,24 +166,120 @@ function planCodeOf(plan: PaystackSubscription['plan']): string | null {
 }
 
 function isOpenStatus(status: string): boolean {
-  return status === 'active' || status === 'non-renewing' || status === 'attention'
+  return isOpenSubscription(status)
 }
 
 function periodFor(trialEndsAt: string | null): BillingPeriod {
-  if (trialEndsAt && Date.now() < new Date(trialEndsAt).getTime()) return 'trial'
-  return 'monthly'
+  return periodForTrialEnd(trialEndsAt)
 }
 
 function trialEndFrom(sub: PaystackSubscription): string | null {
-  const next = sub.next_payment_date
-  if (!next) return null
-  const created = Date.parse(sub.createdAt || sub.created_at || '')
-  const nextAt = Date.parse(next)
-  if (Number.isNaN(nextAt)) return null
-  if (!Number.isNaN(created) && nextAt - created >= 20 * 24 * 60 * 60 * 1000) {
-    return new Date(nextAt).toISOString()
+  return trialEndFromDates(
+    sub.next_payment_date,
+    sub.createdAt || sub.created_at,
+  )
+}
+
+export async function listPaystackPages<T>(
+  path: string,
+  maxPages = 2,
+): Promise<{ rows: T[]; truncated: boolean }> {
+  const rows: T[] = []
+  let truncated = false
+  for (let page = 1; page <= maxPages; page += 1) {
+    const sep = path.includes('?') ? '&' : '?'
+    const envelope = await paystackFull<T[]>(
+      `${path}${sep}perPage=50&page=${page}`,
+    )
+    const batch = Array.isArray(envelope.data) ? envelope.data : []
+    rows.push(...batch)
+    const pageCount = envelope.meta?.pageCount
+    if (batch.length < 50) break
+    if (page === maxPages && (pageCount ? page < pageCount : batch.length === 50)) {
+      truncated = true
+    }
   }
-  return null
+  return { rows, truncated }
+}
+
+export async function listSubscriptionsPage() {
+  return listPaystackPages<PaystackSubscription>('/subscription')
+}
+
+export async function listTransactionsPage(fromIso?: string) {
+  const extra = fromIso ? `?from=${encodeURIComponent(fromIso)}` : ''
+  return listPaystackPages<PaystackTransaction>(`/transaction${extra}`)
+}
+
+export async function listRefundsPage() {
+  return listPaystackPages<PaystackRefund>('/refund')
+}
+
+export async function listDisputesPage() {
+  return listPaystackPages<PaystackDispute>('/dispute')
+}
+
+export async function listCustomersPage() {
+  return listPaystackPages<PaystackCustomer>('/customer')
+}
+
+export async function listPlansPage() {
+  return listPaystackPages<PaystackPlan>('/plan')
+}
+
+export function customerEmail(
+  customer: PaystackCustomer | number | null | undefined,
+): string {
+  if (!customer || typeof customer === 'number') return ''
+  return (customer.email || '').trim().toLowerCase()
+}
+
+export function customerCodeOf(
+  customer: PaystackCustomer | number | null | undefined,
+): string | null {
+  if (!customer || typeof customer === 'number') return null
+  return customer.customer_code || null
+}
+
+export function planFields(plan: PaystackSubscription['plan']): {
+  name: string
+  amount: number
+  currency: string
+  code: string | null
+} {
+  if (typeof plan === 'object' && plan) {
+    return {
+      name: plan.name,
+      amount: plan.amount,
+      currency: plan.currency,
+      code: plan.plan_code,
+    }
+  }
+  return { name: '', amount: 0, currency: '', code: null }
+}
+
+export function paystackCustomerUrl(customerCode: string | null): string | null {
+  if (!customerCode) return null
+  return `https://dashboard.paystack.com/#/customers/${encodeURIComponent(customerCode)}`
+}
+
+export function paystackTransactionUrl(id: number | null | undefined): string | null {
+  if (!id) return null
+  return `https://dashboard.paystack.com/#/transactions/${id}`
+}
+
+export async function ensurePlan(): Promise<PaystackPlan | null> {
+  const listed = await listPlansPage()
+  const envCode = process.env.PAYSTACK_PLAN_CODE?.trim()
+  const match = listed.rows.find(
+    (plan) =>
+      (envCode && plan.plan_code === envCode) ||
+      (plan.name === PLAN_NAME &&
+        plan.amount === PLAN_AMOUNT_CENTS &&
+        plan.interval === 'monthly' &&
+        plan.currency === CURRENCY),
+  )
+  return match ?? null
 }
 
 let cachedPlanCode: string | null = process.env.PAYSTACK_PLAN_CODE?.trim() || null

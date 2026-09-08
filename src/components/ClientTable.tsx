@@ -172,7 +172,7 @@ export function ClientTable({ clients, ready, onAdd, onUpdate }: ClientTableProp
         )}
         <input
           className="w-full min-w-0 rounded-lg border border-line bg-ivory px-3 py-2.5 text-base outline-none focus:border-blush sm:ml-auto sm:w-72 md:text-sm"
-          placeholder="Search name, phone, who it's for"
+          placeholder="Search name, phone, or guest"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
         />

@@ -128,7 +128,7 @@ export function RecallCard({ client, onEdit }: RecallCardProps) {
             ) : null}
           </Row>
           <Row>
-            <Field label="Contact client via">
+            <Field label="Contact">
               <div className="flex flex-wrap items-center gap-2">
                 <a href={smsHref(client, message)} className={contactActionClassName}>
                   <SmsMark />

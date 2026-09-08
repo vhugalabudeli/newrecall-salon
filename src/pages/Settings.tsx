@@ -65,7 +65,7 @@ export function Settings() {
   const nameCanSave = nameDraft.trim().length > 0
   const canManageBilling = Boolean(user) && !paywallBypassed()
   const plan = paywallBypassed()
-    ? 'Local bypass'
+    ? 'Complimentary access'
     : billingError
       ? null
       : accessLabel(info)
@@ -131,7 +131,7 @@ export function Settings() {
       return
     }
     if (!user?.email) {
-      setPermissionNote('Log in to enable closed-app alerts.')
+      setPermissionNote('Log in to receive alerts when the app is closed.')
       return
     }
     const permission = await ensureNotificationPermission()
@@ -151,14 +151,14 @@ export function Settings() {
     }
     setPrefs({ ...prefs, [key]: true })
     if (push === 'ok') {
-      setPermissionNote('Alerts on — including when the app is closed.')
+      setPermissionNote('Alerts are on, including when the app is closed.')
     } else if (!pushReady) {
       setPermissionNote(
-        'Closed-app alerts need server push setup (VAPID + Upstash). Local alerts still work while the app is open.',
+        'Alerts will appear while the app is open. Alerts when the app is closed are not available yet.',
       )
     } else {
       setPermissionNote(
-        'Alerts on for this device. Closed-app push will attach when the service worker is ready.',
+        'Alerts are on for this device. Alerts when the app is closed will start shortly.',
       )
     }
     showLiveAlert({
@@ -167,7 +167,7 @@ export function Settings() {
           title: key === 'dueToday' ? 'Due today' : 'Overdue',
           body:
             push === 'ok'
-              ? 'You will get a push around 8:00 local time when recalls need attention.'
+              ? 'You will get an alert around 8:00 when recalls need attention.'
               : 'You will get a local alert when recalls need attention.',
         },
       ],
@@ -410,8 +410,8 @@ export function Settings() {
           <h2 className="text-sm font-medium">Notification alerts</h2>
           <p className="mt-1 text-sm text-cocoa-soft">
             {pushReady
-              ? 'Push alerts can fire around 8:00 even when the app is closed. Install the app on iPhone for best results.'
-              : 'Local alerts work while the app is open. Closed-app push needs VAPID + Upstash on the server.'}
+              ? `You will receive an alert around 8:00, even if the app is closed. On iPhone, add ${salonName} to your Home Screen so alerts arrive reliably.`
+              : 'Alerts appear while the app is open. Alerts when the app is closed are not available yet.'}
           </p>
           <div className="mt-3 space-y-1">
             <div className="flex items-center justify-between gap-3">
@@ -438,7 +438,7 @@ export function Settings() {
               className={`${fieldActionClassName} mt-3`}
               onClick={() => void onSendTestAlert()}
             >
-              Send test
+              Send a test alert
             </button>
           ) : null}
           {permissionNote ? (

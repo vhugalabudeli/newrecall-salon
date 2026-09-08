@@ -77,7 +77,7 @@ export function openPaystackPopup(
         },
         onCancel: () => resolve('cancelled'),
         onError: (error: { message?: string }) => {
-          reject(new Error(error?.message || 'Paystack checkout failed.'))
+          reject(new Error(error?.message || 'Checkout could not be completed.'))
         },
       })
     })

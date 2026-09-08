@@ -10,6 +10,7 @@ export const paths = {
   refunds: '/refunds',
   pricing: '/pricing',
   subscribe: '/subscribe',
+  admin: '/admin',
   dashboard: APP_BASE,
   clients: `${APP_BASE}/clients`,
   calendar: `${APP_BASE}/calendar`,

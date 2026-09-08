@@ -4,6 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import { paystackApiPlugin } from './vite.paystack-api.ts'
 import { alertsApiPlugin } from './vite.alerts-api.ts'
+import { adminApiPlugin } from './vite.admin-api.ts'
 
 export default defineConfig({
   base: '/',
@@ -12,6 +13,7 @@ export default defineConfig({
     tailwindcss(),
     paystackApiPlugin(),
     alertsApiPlugin(),
+    adminApiPlugin(),
     VitePWA({
       registerType: 'prompt',
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],

@@ -10,16 +10,16 @@ export function Privacy() {
 
       <h2>On this device</h2>
       <p>
-        Your salon client book stays in this browser (IndexedDB). Your login
-        (name, email, and a hashed password) stays in this browser’s storage.
-        We do not operate a NewRecall server that stores your client list.
+        Your salon client book stays on this device, in this browser. Your
+        login stays here too. We do not operate a NewRecall server that stores
+        your client list.
       </p>
 
       <h2>Account and access</h2>
       <p>
         If you register, we keep on this device the name, email, optional salon
-        name, and password hash needed to log you in here. Paystack uses your
-        email so the subscription is tied to you.
+        name, and login needed to sign you in here. Paystack uses your email so
+        the subscription is tied to you.
       </p>
 
       <h2>Payments</h2>
@@ -36,11 +36,10 @@ export function Privacy() {
       <h2>Walkthrough requests</h2>
       <p>
         If you send the walkthrough form, the name, email, phone, salon name,
-        and message you type are emailed to us via Formsubmit so we can reply
-        and book a time.
+        and message you type are emailed to us so we can reply and book a time.
       </p>
 
-      <h2>What we do not do</h2>
+      <h2>What we do not share</h2>
       <p>
         We do not sell your client book. We do not use your salon’s client
         names for advertising.
@@ -48,12 +47,12 @@ export function Privacy() {
 
       <h2>Notification alerts</h2>
       <p>
-        If you turn on Due today or Overdue alerts, this device may show local
+        If you turn on Due today or Overdue alerts, this device may show
         notifications while the app is open. To alert you when the app is
-        closed, we also use Web Push: we store your push subscription and a
-        small daily alert schedule (alert titles and bodies for due/overdue,
-        your timezone, and preference flags)—not your full client book—so a
-        scheduled job can send the push. You can turn alerts off in Settings.
+        closed, we store a push subscription and a small daily alert schedule
+        (alert titles and bodies for due and overdue, your timezone, and
+        preference flags)—not your full client book—so a scheduled job can
+        send the alert. You can turn alerts off in Settings.
       </p>
 
       <h2>How long data stays</h2>
