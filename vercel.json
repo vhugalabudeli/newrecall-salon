@@ -4,12 +4,16 @@
   "outputDirectory": "dist",
   "framework": "vite",
   "rewrites": [
+    { "source": "/api/admin/:action", "destination": "/api/admin?action=:action" },
+    { "source": "/api/alerts/:action", "destination": "/api/alerts?action=:action" },
+    { "source": "/api/paystack/:action", "destination": "/api/paystack?action=:action" },
+    { "source": "/api/salon/:action", "destination": "/api/salon?action=:action" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],
   "crons": [
     {
       "path": "/api/alerts/dispatch",
-      "schedule": "0 * * * *"
+      "schedule": "0 6 * * *"
     }
   ]
 }

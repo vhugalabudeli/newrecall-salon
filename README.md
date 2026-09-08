@@ -35,7 +35,7 @@ Local alerts still fire while the app is open. For alerts when the PWA is closed
 - `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`
 - optional `CRON_SECRET` for `/api/alerts/dispatch`
 
-Vercel runs an hourly cron against `/api/alerts/dispatch`. The app uploads only a minimal daily schedule (titles/bodies + prefs), not the full client book.
+Vercel runs a daily cron at 06:00 UTC against `/api/alerts/dispatch` (Hobby plan limit). The app uploads only a minimal daily schedule (titles/bodies + prefs), not the full client book.
 
 ### Agent docs (Context7 / Docs7)
 

@@ -11,7 +11,7 @@ import {
   actorFromRequest,
   billingEmailForSalon,
   requireOwner,
-} from './salonAuth.ts'
+} from './salonAuth'
 
 async function readBody(req: VercelRequest): Promise<Record<string, string>> {
   if (typeof req.body === 'string') {

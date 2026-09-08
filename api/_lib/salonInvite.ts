@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { httpErrorStatus } from '../_lib/paystack.ts'
-import { requireOwner } from '../_lib/salonAuth.ts'
-import { supabaseAdmin } from '../_lib/supabaseAdmin.ts'
+import { httpErrorStatus } from './paystack.ts'
+import { requireOwner } from './salonAuth.ts'
+import { supabaseAdmin } from './supabaseAdmin.ts'
 
 function authHeader(req: VercelRequest): string | undefined {
   const value = req.headers.authorization
@@ -37,16 +37,15 @@ async function findUserIdByEmail(email: string): Promise<string | null> {
   for (let page = 1; page <= 5; page += 1) {
     const { data, error } = await admin.auth.admin.listUsers({ page, perPage })
     if (error) break
-    const match = data.users.find(
-      (user) => user.email?.trim().toLowerCase() === email,
-    )
+    const users = (data.users ?? []) as { id: string; email?: string | null }[]
+    const match = users.find((user) => user.email?.trim().toLowerCase() === email)
     if (match) return match.id
-    if (data.users.length < perPage) break
+    if (users.length < perPage) break
   }
   return null
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export async function postInvite(req: VercelRequest, res: VercelResponse) {
   if (req.method === 'OPTIONS') {
     res.status(204).end()
     return
@@ -134,7 +133,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (authError) throw new Error(authError.message)
     res.status(200).json({ ok: true })
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Could not send the invite.'
+    const message =
+      error instanceof Error ? error.message : 'Could not send the invite.'
     res.status(httpErrorStatus(error)).json({ error: message })
   }
 }

@@ -1,5 +1,5 @@
 import { loadEnv, type Plugin } from 'vite'
-import inviteHandler from './api/salon/invite.ts'
+import { postInvite } from './api/_lib/salonInvite.ts'
 
 function applyEnv(mode: string) {
   const env = loadEnv(mode, process.cwd(), '')
@@ -62,7 +62,7 @@ export function salonApiPlugin(): Plugin {
               }
             },
           } as import('@vercel/node').VercelResponse
-          await inviteHandler(vercelReq, vercelRes)
+          await postInvite(vercelReq, vercelRes)
         })()
       })
     },

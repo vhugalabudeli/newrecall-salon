@@ -19,7 +19,7 @@ Set on the server (Vercel Production, Preview, and Development):
 
 After changing these, redeploy so the functions pick them up. On iPhone, add the salon to the Home Screen so alerts arrive reliably.
 
-The schedule hour is **8:00** in the device timezone (`src/lib/pushAlerts.ts`). Vercel cron hits `/api/alerts/dispatch` hourly (`0 * * * *`). Dispatch sends in that local hour, and the next hour as catch-up (`api/_lib/alerts.ts`).
+The schedule hour is **8:00** in the device timezone (`src/lib/pushAlerts.ts`). Vercel Hobby allows one cron per day, so `vercel.json` hits `/api/alerts/dispatch` at **06:00 UTC** (`0 6 * * *`, 08:00 SAST). Dispatch sends in that local hour, and the next hour as catch-up (`api/_lib/alerts.ts`).
 
 ## What is uploaded
 

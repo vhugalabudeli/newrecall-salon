@@ -40,4 +40,4 @@ From `.env.example`. Never expose `PAYSTACK_SECRET_KEY`, `SUPABASE_SERVICE_ROLE_
 | `CRON_SECRET` | Optional. If set, `/api/alerts/dispatch` requires `Authorization: Bearer …`. |
 | `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET` | Operator desk at `/admin`. Server only. |
 
-`vercel.json` rewrites all non-`/api` paths to `index.html` and runs hourly cron `0 * * * *` against `/api/alerts/dispatch`.
+`vercel.json` rewrites all non-`/api` paths to `index.html` and runs a daily cron `0 6 * * *` (06:00 UTC) against `/api/alerts/dispatch`. Hobby accounts cannot use hourly crons.
