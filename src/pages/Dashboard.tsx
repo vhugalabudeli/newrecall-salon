@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { AddClientPanel } from '../components/AddClientPanel'
 import { AppPage } from '../components/AppPage'
+import { ImportDeviceBook } from '../components/ImportDeviceBook'
 import { NearDayCards } from '../components/NearDayCards'
 import { PageHeader } from '../components/PageHeader'
 import { RecallCard } from '../components/RecallCard'
@@ -54,6 +55,8 @@ export function Dashboard() {
         titleClassName="text-blush-dark"
         onAdd={() => setAdding(true)}
       />
+
+      <ImportDeviceBook />
 
       <div className="space-y-8">
         <NearDayCards

@@ -7,15 +7,17 @@ Trials and monthly billing are Paystack in South African rand. NewRecall is the 
 
 Constants are in `src/lib/adminClassify.ts`: plan name **NewRecall Salon Monthly**, **R200 / month**, **R1.00** setup charge, **30-day** trial, currency **ZAR**.
 
+Entitlement is **salon-level**. Paystack looks up the salon owner’s `billing_email` (set on first successful trial, then left as-is). Staff emails are members, not Paystack customers.
+
 ## Customer path
 
-1. Register on this device.
-2. `/subscribe` starts checkout (`src/pages/Subscribe.tsx`).
-3. Paystack charges **R1.00** to verify the card (`purpose: trial_setup`), then refunds it.
-4. `/api/paystack/complete` creates a subscription that starts in 30 days.
-5. Entitlement is an **open** Paystack subscription for that plan (`active`, `non-renewing`, or `attention`). Status is `/api/paystack/status`.
+1. Register as the salon owner.
+2. `/subscribe` starts checkout (`src/pages/Subscribe.tsx`). Staff who land here see that the owner needs to start the trial.
+3. Paystack charges **R1.00** to verify the owner’s card (`purpose: trial_setup`, metadata includes `salon_id`), then refunds it.
+4. `/api/paystack/complete` creates a subscription that starts in 30 days. Only owners may call initialize / complete / portal.
+5. Entitlement is an **open** Paystack subscription for that plan (`active`, `non-renewing`, or `attention`) on the salon billing email. Status is `/api/paystack/status` (any member of the salon).
 6. After 30 days the plan is R200 per month until cancel.
-7. **Manage subscription** in Settings opens the Paystack customer portal (`/api/paystack/portal`).
+7. **Manage subscription** in Settings (owner-only) opens the Paystack customer portal (`/api/paystack/portal`).
 
 If the R1 charge succeeds but `/complete` never created a subscription, the salon stays on `/subscribe`. The operator desk can repair that by re-running complete (see [Operator desk](admin)).
 
@@ -23,12 +25,14 @@ If the R1 charge succeeds but `/complete` never created a subscription, the salo
 
 ## APIs
 
+All Paystack routes require `Authorization: Bearer` with the Supabase access token.
+
 | Path | Role |
 | --- | --- |
-| `POST /api/paystack/initialize` | Access code for the R1 trial setup charge |
-| `POST /api/paystack/complete` | Verify, refund R1, create subscription |
-| `POST /api/paystack/status` | Entitlement, period, trial end, next payment |
-| `POST /api/paystack/portal` | Paystack management link |
+| `POST /api/paystack/initialize` | Owner: access code for the R1 trial setup charge |
+| `POST /api/paystack/complete` | Owner: verify, refund R1, create subscription, set `billing_email` once |
+| `POST /api/paystack/status` | Member: entitlement, period, trial end, next payment |
+| `POST /api/paystack/portal` | Owner: Paystack management link |
 
 Checkout uses `@paystack/inline-js` with the access code (`src/lib/billing.ts`). Test and live money follow the secret key prefix (`sk_test_` vs `sk_live_`). Do not mix them.
 

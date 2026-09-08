@@ -34,7 +34,7 @@ export function useSubscription(): {
       return false
     }
     try {
-      const status = await fetchBillingStatus(user.email)
+      const status = await fetchBillingStatus()
       setInfo(status)
       setEntitled(status.entitled)
       setError(null)

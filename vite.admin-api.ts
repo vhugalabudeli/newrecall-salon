@@ -12,6 +12,8 @@ const ACTIONS: Record<string, AdminAction> = {
   '/api/admin/portal': 'portal',
   '/api/admin/support': 'support',
   '/api/admin/csv': 'csv',
+  '/api/admin/tenant-export': 'tenant-export',
+  '/api/admin/tenant-restore': 'tenant-restore',
 }
 
 async function readJson(
@@ -40,6 +42,11 @@ function applyEnv(mode: string) {
     'ADMIN_SESSION_SECRET',
     'UPSTASH_REDIS_REST_URL',
     'UPSTASH_REDIS_REST_TOKEN',
+    'SUPABASE_URL',
+    'SUPABASE_ANON_KEY',
+    'SUPABASE_SERVICE_ROLE_KEY',
+    'VITE_SUPABASE_URL',
+    'VITE_SUPABASE_ANON_KEY',
   ]) {
     if (env[key]) process.env[key] = env[key]
   }

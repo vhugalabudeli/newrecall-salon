@@ -93,9 +93,9 @@ export function ServiceTypeDetail() {
     setServiceEditError('')
   }
 
-  function saveServiceUpdate() {
+  async function saveServiceUpdate() {
     if (!type || !editingServiceId) return
-    const result = updateService(type.id, editingServiceId, {
+    const result = await updateService(type.id, editingServiceId, {
       name: serviceDraftName,
       lifespanWeeks: serviceDraftWeeks,
     })
@@ -104,13 +104,13 @@ export function ServiceTypeDetail() {
     setEditingServiceId(null)
   }
 
-  function onDeleteService(service: CatalogService) {
+  async function onDeleteService(service: CatalogService) {
     if (!type) return
     const confirmed = window.confirm(
       `Remove ${service.name} from ${type.name}?`,
     )
     if (!confirmed) return
-    deleteService(type.id, service.id)
+    await deleteService(type.id, service.id)
     if (editingServiceId === service.id) cancelServiceUpdate()
   }
 
@@ -120,19 +120,19 @@ export function ServiceTypeDetail() {
     setUpdating(false)
   }
 
-  function saveTypeName() {
+  async function saveTypeName() {
     if (!type) return
-    const result = renameServiceType(type.id, nameDraft)
+    const result = await renameServiceType(type.id, nameDraft)
     setTypeError(result.error ?? '')
     if (result.error) return
     setNameDraft(nameDraft.trim())
     setUpdating(false)
   }
 
-  function onAddService(event: FormEvent) {
+  async function onAddService(event: FormEvent) {
     event.preventDefault()
     if (!type) return
-    const result = addService(type.id, serviceName, weeks)
+    const result = await addService(type.id, serviceName, weeks)
     if ('error' in result) {
       setError(result.error)
       return
@@ -159,7 +159,7 @@ export function ServiceTypeDetail() {
     setAdding(false)
   }
 
-  function onDeleteType() {
+  async function onDeleteType() {
     if (!type) return
     if (inUse) {
       setTypeError('This type is still used on clients. Remove those first.')
@@ -167,7 +167,7 @@ export function ServiceTypeDetail() {
     }
     const confirmed = window.confirm(`Remove ${type.name} and its services?`)
     if (!confirmed) return
-    const result = deleteServiceType(type.id)
+    const result = await deleteServiceType(type.id)
     if (result.error) {
       setTypeError(result.error)
       return
@@ -243,7 +243,7 @@ export function ServiceTypeDetail() {
               onKeyDown={(event) => {
                 if (event.key === 'Enter') {
                   event.preventDefault()
-                  saveTypeName()
+                    saveTypeName()
                 }
                 if (event.key === 'Escape') {
                   event.preventDefault()
@@ -258,7 +258,7 @@ export function ServiceTypeDetail() {
               <button
                 type="button"
                 className="rounded-lg bg-blush px-3 py-2 text-sm font-semibold text-ivory hover:bg-blush-dark"
-                onClick={saveTypeName}
+                onClick={() => void saveTypeName()}
               >
                 Save
               </button>
@@ -273,7 +273,7 @@ export function ServiceTypeDetail() {
             <button
               type="button"
               className="mt-3 text-sm text-overdue hover:underline"
-              onClick={onDeleteType}
+              onClick={() => void onDeleteType()}
             >
               Remove type
             </button>
@@ -282,7 +282,7 @@ export function ServiceTypeDetail() {
 
         {adding ? (
           <form
-            onSubmit={onAddService}
+            onSubmit={(event) => void onAddService(event)}
             className="rounded-2xl bg-ivory p-4 ring-1 ring-line"
           >
             <h2 className="text-sm font-medium">New service</h2>
@@ -350,7 +350,7 @@ export function ServiceTypeDetail() {
                 key={service.id}
                 onSubmit={(event) => {
                   event.preventDefault()
-                  saveServiceUpdate()
+                  void saveServiceUpdate()
                 }}
                 className="rounded-2xl bg-ivory p-4 ring-1 ring-line"
               >
@@ -407,7 +407,7 @@ export function ServiceTypeDetail() {
                   <button
                     type="button"
                     className="mt-3 text-sm text-overdue hover:underline"
-                    onClick={() => onDeleteService(service)}
+                    onClick={() => void onDeleteService(service)}
                   >
                     Remove
                   </button>

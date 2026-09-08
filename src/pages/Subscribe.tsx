@@ -30,10 +30,7 @@ export function Subscribe() {
     setStatus('open')
     setMessage('')
     try {
-      const checkout = await startTrialCheckout({
-        email: user.email,
-        userId: user.id,
-      })
+      const checkout = await startTrialCheckout()
       const result = await openPaystackPopup(checkout.accessCode)
       if (result === 'cancelled') {
         setStatus('cancelled')
@@ -41,8 +38,6 @@ export function Subscribe() {
         return
       }
       const billed = await finishTrialCheckout({
-        email: user.email,
-        userId: user.id,
         reference: result.reference,
       })
       const ok = billed.entitled || (await refresh())
@@ -67,6 +62,8 @@ export function Subscribe() {
   if (!ready) return <ScreenWait label="Loading…" />
   if (entitled) return <Navigate to={paths.dashboard} replace />
 
+  const isStaff = user?.role === 'staff'
+
   return (
     <div className="landing-page" data-page="salon">
       <LandingHeader />
@@ -76,23 +73,31 @@ export function Subscribe() {
             <p className="eyebrow">Subscription</p>
             <h1>Free for 30 days, then R200 / month</h1>
             <p className="lead">
-              A South African card is required to start the trial. We charge{' '}
-              <strong>R1.00</strong> now to verify the card, then refund it.
-              After 30 days the plan is R200 per month until you cancel.
+              {isStaff
+                ? 'This salon is not on a plan yet. Ask the owner to start the free trial. Staff do not create a second Paystack customer.'
+                : 'A South African card is required to start the trial. We charge '}
+              {isStaff ? null : (
+                <>
+                  <strong>R1.00</strong> now to verify the card, then refund it.
+                  After 30 days the plan is R200 per month until you cancel.
+                </>
+              )}
             </p>
             {status === 'cancelled' || status === 'error' || accessError ? (
               <p className="form-error">{message || accessError}</p>
             ) : null}
-            <div className="cta-row">
-              <button
-                className="btn btn-primary"
-                type="button"
-                disabled={busy}
-                onClick={() => void present()}
-              >
-                {busy ? 'Opening checkout…' : 'Start free trial'}
-              </button>
-            </div>
+            {isStaff ? null : (
+              <div className="cta-row">
+                <button
+                  className="btn btn-primary"
+                  type="button"
+                  disabled={busy}
+                  onClick={() => void present()}
+                >
+                  {busy ? 'Opening checkout…' : 'Start free trial'}
+                </button>
+              </div>
+            )}
             <p className="legal-inline">
               <Link to={paths.terms}>Terms</Link>
               {' · '}

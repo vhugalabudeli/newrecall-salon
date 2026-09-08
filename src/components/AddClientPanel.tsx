@@ -98,7 +98,7 @@ export function AddClientPanel({ client, onClose }: AddClientPanelProps) {
   const revealFor = useRef(false)
 
   useEffect(() => {
-    ensureTypesForClients(clients)
+    void ensureTypesForClients(clients)
   }, [clients])
 
   useEffect(() => {
@@ -234,7 +234,7 @@ export function AddClientPanel({ client, onClose }: AddClientPanelProps) {
       } else {
         await addClient(draft)
       }
-      rememberCatalogService(draft.serviceType, draft.service, draft.lifespanWeeks)
+      await rememberCatalogService(draft.serviceType, draft.service, draft.lifespanWeeks)
       closePanel()
     } catch {
       setError('Could not save this client. Try again.')

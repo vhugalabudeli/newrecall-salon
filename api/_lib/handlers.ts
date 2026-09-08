@@ -7,6 +7,11 @@ import {
   parseBody,
   statusForEmail,
 } from './paystack'
+import {
+  actorFromRequest,
+  billingEmailForSalon,
+  requireOwner,
+} from './salonAuth.ts'
 
 async function readBody(req: VercelRequest): Promise<Record<string, string>> {
   if (typeof req.body === 'string') {
@@ -20,6 +25,11 @@ async function readBody(req: VercelRequest): Promise<Record<string, string>> {
   return {}
 }
 
+function authHeader(req: VercelRequest): string | undefined {
+  const value = req.headers.authorization
+  return typeof value === 'string' ? value : undefined
+}
+
 function sendError(res: VercelResponse, error: unknown) {
   const message = error instanceof Error ? error.message : 'Request failed.'
   res.status(httpErrorStatus(error)).json({ error: message })
@@ -27,10 +37,12 @@ function sendError(res: VercelResponse, error: unknown) {
 
 export async function postInitialize(req: VercelRequest, res: VercelResponse) {
   try {
-    const body = await readBody(req)
+    const owner = await requireOwner(authHeader(req))
+    const email = await billingEmailForSalon(owner)
     const data = await initializeTrial({
-      email: body.email,
-      userId: body.userId,
+      email,
+      userId: owner.userId,
+      salonId: owner.salonId,
     })
     res.status(200).json(data)
   } catch (error) {
@@ -40,11 +52,14 @@ export async function postInitialize(req: VercelRequest, res: VercelResponse) {
 
 export async function postComplete(req: VercelRequest, res: VercelResponse) {
   try {
+    const owner = await requireOwner(authHeader(req))
     const body = await readBody(req)
+    const email = await billingEmailForSalon(owner)
     const data = await completeTrial({
       reference: body.reference,
-      email: body.email,
-      userId: body.userId,
+      email,
+      userId: owner.userId,
+      salonId: owner.salonId,
     })
     res.status(200).json(data)
   } catch (error) {
@@ -54,8 +69,9 @@ export async function postComplete(req: VercelRequest, res: VercelResponse) {
 
 export async function postStatus(req: VercelRequest, res: VercelResponse) {
   try {
-    const body = await readBody(req)
-    const data = await statusForEmail(body.email)
+    const actor = await actorFromRequest(authHeader(req))
+    const email = await billingEmailForSalon(actor)
+    const data = await statusForEmail(email)
     res.status(200).json(data)
   } catch (error) {
     sendError(res, error)
@@ -64,9 +80,11 @@ export async function postStatus(req: VercelRequest, res: VercelResponse) {
 
 export async function postPortal(req: VercelRequest, res: VercelResponse) {
   try {
+    const owner = await requireOwner(authHeader(req))
     const body = await readBody(req)
+    const email = await billingEmailForSalon(owner)
     const link = await managementLink({
-      email: body.email,
+      email,
       subscriptionCode: body.subscriptionCode,
     })
     res.status(200).json({ link })

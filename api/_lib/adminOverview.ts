@@ -30,6 +30,7 @@ import type {
   AdminTransactionRow,
 } from '../../src/lib/adminTypes.ts'
 import { listAudit, listSupportNotes, redisHealth } from './adminOps.ts'
+import { listTenants, salonCloudConfigured } from './salonBook.ts'
 import {
   completeTrial,
   customerCodeOf,
@@ -171,6 +172,22 @@ export async function assembleOverview(): Promise<AdminOverview> {
   overview.backups.storageHealthy = redis.storageHealthy
   overview.support = await listSupportNotes()
   overview.audit = await listAudit()
+  const cloud = salonCloudConfigured()
+  overview.backups.exportEnabled = cloud
+  overview.backups.restoreEnabled = cloud
+  overview.backups.dailyStatus = cloud ? 'running' : 'paused'
+  overview.backups.pointInTimeWindow = cloud
+    ? 'Supabase project backups (PITR when enabled)'
+    : null
+  overview.backups.lastBackupResult = cloud ? 'ok' : null
+  if (cloud) overview.backups.storageHealthy = true
+  try {
+    overview.tenants = await listTenants()
+  } catch (error) {
+    overview.paystackError =
+      overview.paystackError ||
+      (error instanceof Error ? error.message : 'Could not load salons.')
+  }
 
   const mode = paystackMode()
   overview.mode = mode

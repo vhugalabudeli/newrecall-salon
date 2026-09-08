@@ -36,4 +36,4 @@ Redis keys: `alert:sub:{email}`, `alert:schedule:{email}`, index `alert:emails`.
 | `POST /api/alerts/schedule` | Store the daily title/body schedule |
 | `GET` or `POST /api/alerts/dispatch` | Cron: send due pushes |
 
-The service worker is `public/sw-recall-alerts.js`, imported from the PWA workbox config. A separate IndexedDB snapshot on the device is for local/periodic checks, not a server book.
+The service worker is `public/sw-recall-alerts.js`, imported from the PWA workbox config. A separate IndexedDB snapshot on the device is for local/periodic checks, not a copy of the salon book.

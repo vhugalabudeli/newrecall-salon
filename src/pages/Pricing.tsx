@@ -21,9 +21,9 @@ export function Pricing() {
 
       <h2>What is included</h2>
       <p>
-        The salon recall book on this device: clients, recall calendar, and
-        settings. Client records stay on the device. There is no NewRecall
-        cloud copy of your client list.
+        The salon recall book in the cloud: clients, recall calendar, staff
+        access, and settings. Staff invited by the owner share the same book.
+        The owner’s Paystack subscription unlocks the salon.
       </p>
 
       <h2>Cancel</h2>

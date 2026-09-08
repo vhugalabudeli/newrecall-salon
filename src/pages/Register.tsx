@@ -4,7 +4,6 @@ import { LandingHeader } from '../components/LandingHeader'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import { registerAccount } from '../lib/auth'
 import { paths } from '../lib/routes'
-import { writeSalonName } from '../lib/settings'
 import '../styles/landing.css'
 
 export function Register() {
@@ -32,9 +31,6 @@ export function Register() {
       setError(result.error)
       return
     }
-    if (result.user.salonName) {
-      writeSalonName(result.user.salonName)
-    }
     navigate(paths.subscribe, { replace: true })
   }
 
@@ -47,8 +43,10 @@ export function Register() {
             <p className="eyebrow">Account</p>
             <h1>Register</h1>
             <p className="lead">
-              Create a login for this device, then start a free trial to open
-              the book. Data stays on this phone or computer.
+              Create an account for your salon, then start a free trial. Staff
+              join from an invite and share the same book. Old device-only
+              passwords cannot be moved — register again with the same email
+              and import the book.
             </p>
             <form className="auth-form" onSubmit={onSubmit}>
               <label>

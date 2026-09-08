@@ -2,7 +2,7 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "NewRecall Salon",
-  "description": "On-device salon CRM: recall dates, follow-up, Paystack billing, closed-app alerts, and the operator desk.",
+  "description": "Cloud salon CRM: recall dates, follow-up, Paystack billing, closed-app alerts, and the operator desk.",
   "colors": {
     "primary": "#C45C6A",
     "light": "#C45C6A",

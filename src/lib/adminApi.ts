@@ -108,3 +108,34 @@ export async function downloadBillingCsv(): Promise<void> {
   link.remove()
   URL.revokeObjectURL(url)
 }
+
+export async function exportAdminTenant(salonId: string): Promise<void> {
+  const res = await fetch(
+    `/api/admin/tenant-export?salonId=${encodeURIComponent(salonId)}`,
+    { credentials: 'include' },
+  )
+  if (!res.ok) {
+    const json: unknown = await res.json().catch(() => ({}))
+    const error =
+      json && typeof json === 'object' && 'error' in json
+        ? String((json as { error: unknown }).error)
+        : 'Could not export that salon.'
+    throw new Error(error)
+  }
+  const blob = await res.blob()
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `newrecall-tenant-${salonId}.json`
+  document.body.append(link)
+  link.click()
+  link.remove()
+  URL.revokeObjectURL(url)
+}
+
+export function restoreAdminTenant(salonId: string, backup: unknown) {
+  return request<{ ok: boolean }>('/api/admin/tenant-restore', {
+    method: 'POST',
+    body: JSON.stringify({ salonId, backup: JSON.stringify(backup) }),
+  })
+}

@@ -6,6 +6,11 @@ import {
   parseBody,
   statusForEmail,
 } from './api/_lib/paystack.ts'
+import {
+  actorFromRequest,
+  billingEmailForSalon,
+  requireOwner,
+} from './api/_lib/salonAuth.ts'
 import { loadEnv, type Plugin } from 'vite'
 
 async function readJson(
@@ -20,13 +25,25 @@ async function readJson(
   return JSON.parse(raw) as unknown
 }
 
+function header(req: import('http').IncomingMessage, name: string): string | undefined {
+  const value = req.headers[name]
+  if (typeof value === 'string') return value
+  if (Array.isArray(value)) return value[0]
+  return undefined
+}
+
 function applyEnv(mode: string) {
   const env = loadEnv(mode, process.cwd(), '')
-  if (env.PAYSTACK_SECRET_KEY) {
-    process.env.PAYSTACK_SECRET_KEY = env.PAYSTACK_SECRET_KEY
-  }
-  if (env.PAYSTACK_PLAN_CODE) {
-    process.env.PAYSTACK_PLAN_CODE = env.PAYSTACK_PLAN_CODE
+  for (const key of [
+    'PAYSTACK_SECRET_KEY',
+    'PAYSTACK_PLAN_CODE',
+    'SUPABASE_URL',
+    'SUPABASE_ANON_KEY',
+    'SUPABASE_SERVICE_ROLE_KEY',
+    'VITE_SUPABASE_URL',
+    'VITE_SUPABASE_ANON_KEY',
+  ]) {
+    if (env[key]) process.env[key] = env[key]
   }
 }
 
@@ -57,25 +74,36 @@ export function paystackApiPlugin(): Plugin {
               res.end(JSON.stringify({ error: 'Method not allowed' }))
               return
             }
+            const auth = header(req, 'authorization')
             const body = parseBody(await readJson(req))
             let payload: unknown
             if (path === '/api/paystack/initialize') {
+              const owner = await requireOwner(auth)
+              const email = await billingEmailForSalon(owner)
               payload = await initializeTrial({
-                email: body.email,
-                userId: body.userId,
+                email,
+                userId: owner.userId,
+                salonId: owner.salonId,
               })
             } else if (path === '/api/paystack/complete') {
+              const owner = await requireOwner(auth)
+              const email = await billingEmailForSalon(owner)
               payload = await completeTrial({
                 reference: body.reference,
-                email: body.email,
-                userId: body.userId,
+                email,
+                userId: owner.userId,
+                salonId: owner.salonId,
               })
             } else if (path === '/api/paystack/status') {
-              payload = await statusForEmail(body.email)
+              const actor = await actorFromRequest(auth)
+              const email = await billingEmailForSalon(actor)
+              payload = await statusForEmail(email)
             } else if (path === '/api/paystack/portal') {
+              const owner = await requireOwner(auth)
+              const email = await billingEmailForSalon(owner)
               payload = {
                 link: await managementLink({
-                  email: body.email,
+                  email,
                   subscriptionCode: body.subscriptionCode,
                 }),
               }

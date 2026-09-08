@@ -1,45 +1,24 @@
-import type { ServiceType } from '../types'
+import { BUILTIN_SERVICE_TYPES, DEFAULT_LIFESPAN_WEEKS } from './labels'
 import {
-  BUILTIN_SERVICE_TYPES,
-  DEFAULT_LIFESPAN_WEEKS,
-  DEFAULT_SERVICE_TYPE,
-} from './labels'
+  clampWeeks,
+  parseCatalog,
+  type CatalogService,
+  type CatalogType,
+  type ServiceCatalog,
+} from './catalogParse'
+import { requireSalonId } from './salonSession'
+import { supabase } from './supabase'
 
 export const CATALOG_CHANGED = 'service-catalog-changed'
+export type { CatalogService, CatalogType, ServiceCatalog }
+export { parseCatalog }
 
-const STORAGE_KEY = 'salon-app-service-catalog'
-const LEGACY_MEMORY_KEY = 'salon-app-services'
-
-export type CatalogService = {
-  id: string
-  name: string
-  lifespanWeeks: number
-}
-
-export type CatalogType = {
-  id: ServiceType
-  name: string
-  services: CatalogService[]
-}
-
-export type ServiceCatalog = {
-  types: CatalogType[]
-}
-
-type LegacyRemembered = {
-  label: string
-  lifespanWeeks: number
-  serviceType?: string
-}
+let cache: ServiceCatalog | null = null
 
 function notify() {
-  window.dispatchEvent(new Event(CATALOG_CHANGED))
-}
-
-function clampWeeks(value: unknown): number {
-  const weeks = Number(value)
-  if (!Number.isFinite(weeks)) return DEFAULT_LIFESPAN_WEEKS
-  return Math.min(16, Math.max(2, Math.round(weeks)))
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event(CATALOG_CHANGED))
+  }
 }
 
 function slugify(name: string): string {
@@ -96,82 +75,16 @@ function seedCatalog(): ServiceCatalog {
   }
 }
 
-function isService(value: unknown): value is CatalogService {
-  if (!value || typeof value !== 'object') return false
-  const row = value as Partial<CatalogService>
-  return typeof row.id === 'string' && typeof row.name === 'string'
-}
-
-function isType(value: unknown): value is CatalogType {
-  if (!value || typeof value !== 'object') return false
-  const row = value as Partial<CatalogType>
-  return (
-    typeof row.id === 'string' &&
-    typeof row.name === 'string' &&
-    Array.isArray(row.services) &&
-    row.services.every(isService)
-  )
-}
-
-export function parseCatalog(raw: unknown): ServiceCatalog | null {
-  if (!raw || typeof raw !== 'object') return null
-  const data = raw as Partial<ServiceCatalog>
-  if (!Array.isArray(data.types) || !data.types.every(isType)) return null
-  return {
-    types: data.types.map((type) => ({
-      id: type.id,
-      name: type.name.trim() || type.id,
-      services: type.services.map((service) => ({
-        id: service.id,
-        name: service.name.trim(),
-        lifespanWeeks: clampWeeks(service.lifespanWeeks),
-      })),
-    })),
-  }
-}
-
-function importLegacyMemory(catalog: ServiceCatalog): ServiceCatalog {
-  try {
-    const raw = localStorage.getItem(LEGACY_MEMORY_KEY)
-    if (!raw) return catalog
-    const parsed = JSON.parse(raw) as Record<string, LegacyRemembered>
-    if (!parsed || typeof parsed !== 'object') return catalog
-    const next = structuredClone(catalog)
-    for (const [key, entry] of Object.entries(parsed)) {
-      if (!entry || typeof entry.label !== 'string') continue
-      const name = entry.label.trim()
-      if (!name) continue
-      const typeId =
-        (typeof entry.serviceType === 'string' && entry.serviceType) ||
-        key.split(':')[0] ||
-        DEFAULT_SERVICE_TYPE
-      let type = next.types.find((item) => item.id === typeId)
-      if (!type) {
-        type = { id: typeId, name: titleCase(typeId), services: [] }
-        next.types.push(type)
-      }
-      if (type.services.some((service) => sameName(service.name, name))) continue
-      type.services.push({
-        id: crypto.randomUUID(),
-        name,
-        lifespanWeeks: clampWeeks(entry.lifespanWeeks),
-      })
-    }
-    sortCatalog(next)
-    return next
-  } catch {
-    return catalog
-  }
-}
-
 function titleCase(id: string): string {
   const builtin = BUILTIN_SERVICE_TYPES.find((type) => type.id === id)
   if (builtin) return builtin.name
-  return id
-    .split(/[-_]/)
-    .filter(Boolean)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(' ') || id
+  return (
+    id
+      .split(/[-_]/)
+      .filter(Boolean)
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(' ') || id
+  )
 }
 
 function sameName(a: string, b: string) {
@@ -193,33 +106,118 @@ function sortCatalog(catalog: ServiceCatalog) {
   }
 }
 
-function persist(catalog: ServiceCatalog) {
+function throwIf(error: { message: string } | null, fallback: string) {
+  if (error) throw new Error(error.message || fallback)
+}
+
+async function persist(catalog: ServiceCatalog) {
+  const salonId = requireSalonId()
   ensureGeneralOnCatalog(catalog)
   sortCatalog(catalog)
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(catalog))
+
+  const [{ data: existingTypes, error: typeErr }, { data: existingServices, error: serviceErr }] =
+    await Promise.all([
+      supabase.from('service_types').select('id').eq('salon_id', salonId),
+      supabase.from('services').select('id').eq('salon_id', salonId),
+    ])
+  throwIf(typeErr, 'Could not load service types.')
+  throwIf(serviceErr, 'Could not load services.')
+
+  const nextTypeIds = new Set(catalog.types.map((type) => type.id))
+  const nextServiceIds = new Set(
+    catalog.types.flatMap((type) => type.services.map((service) => service.id)),
+  )
+  const typesToDelete = (existingTypes ?? [])
+    .map((row) => row.id as string)
+    .filter((id) => !nextTypeIds.has(id))
+  if (typesToDelete.length > 0) {
+    const { error } = await supabase
+      .from('service_types')
+      .delete()
+      .eq('salon_id', salonId)
+      .in('id', typesToDelete)
+    throwIf(error, 'Could not update service types.')
+  }
+
+  const { error: upsertTypesError } = await supabase.from('service_types').upsert(
+    catalog.types.map((type) => ({
+      id: type.id,
+      salon_id: salonId,
+      name: type.name,
+    })),
+    { onConflict: 'salon_id,id' },
+  )
+  throwIf(upsertTypesError, 'Could not save service types.')
+
+  const servicesToDelete = (existingServices ?? [])
+    .map((row) => row.id as string)
+    .filter((id) => !nextServiceIds.has(id))
+  if (servicesToDelete.length > 0) {
+    const { error } = await supabase.from('services').delete().in('id', servicesToDelete)
+    throwIf(error, 'Could not update services.')
+  }
+
+  const rows = catalog.types.flatMap((type) =>
+    type.services.map((service) => ({
+      id: service.id,
+      salon_id: salonId,
+      type_id: type.id,
+      name: service.name,
+      lifespan_weeks: service.lifespanWeeks,
+    })),
+  )
+  if (rows.length > 0) {
+    const { error: upsertServicesError } = await supabase.from('services').upsert(rows)
+    throwIf(upsertServicesError, 'Could not save services.')
+  }
+
+  cache = structuredClone(catalog)
   notify()
 }
 
 export function readCatalog(): ServiceCatalog {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (raw) {
-      const parsed = parseCatalog(JSON.parse(raw) as unknown)
-      if (parsed) {
-        if (ensureGeneralOnCatalog(parsed)) persist(parsed)
-        return parsed
-      }
-    }
-  } catch {
-    /* seed below */
-  }
-  const seeded = importLegacyMemory(seedCatalog())
-  persist(seeded)
-  return seeded
+  if (cache) return structuredClone(cache)
+  return seedCatalog()
 }
 
-export function writeCatalog(catalog: ServiceCatalog) {
-  persist(catalog)
+export async function loadCatalog(salonId: string): Promise<ServiceCatalog> {
+  const [{ data: types, error: typeErr }, { data: services, error: serviceErr }] =
+    await Promise.all([
+      supabase.from('service_types').select('id, name').eq('salon_id', salonId),
+      supabase
+        .from('services')
+        .select('id, type_id, name, lifespan_weeks')
+        .eq('salon_id', salonId),
+    ])
+  throwIf(typeErr, 'Could not load service types.')
+  throwIf(serviceErr, 'Could not load services.')
+  const catalog: ServiceCatalog = {
+    types: (types ?? []).map((type) => ({
+      id: type.id as string,
+      name: type.name as string,
+      services: (services ?? [])
+        .filter((service) => service.type_id === type.id)
+        .map((service) => ({
+          id: service.id as string,
+          name: service.name as string,
+          lifespanWeeks: clampWeeks(service.lifespan_weeks),
+        })),
+    })),
+  }
+  if (catalog.types.length === 0) {
+    cache = seedCatalog()
+    notify()
+    return structuredClone(cache)
+  }
+  ensureGeneralOnCatalog(catalog)
+  sortCatalog(catalog)
+  cache = catalog
+  notify()
+  return structuredClone(cache)
+}
+
+export async function writeCatalog(catalog: ServiceCatalog) {
+  await persist(structuredClone(catalog))
 }
 
 export function catalogTypes(): CatalogType[] {
@@ -238,7 +236,9 @@ export function servicesForType(id: string): CatalogService[] {
   return catalogType(id)?.services ?? []
 }
 
-export function addServiceType(name: string): CatalogType | { error: string } {
+export async function addServiceType(
+  name: string,
+): Promise<CatalogType | { error: string }> {
   const trimmed = name.trim()
   if (!trimmed) return { error: 'Enter a service type.' }
   const catalog = readCatalog()
@@ -254,14 +254,14 @@ export function addServiceType(name: string): CatalogType | { error: string } {
     services: [generalService()],
   }
   catalog.types.push(type)
-  persist(catalog)
+  await persist(catalog)
   return type
 }
 
-export function renameServiceType(
+export async function renameServiceType(
   id: string,
   name: string,
-): { error?: string } {
+): Promise<{ error?: string }> {
   const trimmed = name.trim()
   if (!trimmed) return { error: 'Enter a service type.' }
   const catalog = readCatalog()
@@ -275,25 +275,25 @@ export function renameServiceType(
     return { error: 'That service type is already in the list.' }
   }
   type.name = trimmed
-  persist(catalog)
+  await persist(catalog)
   return {}
 }
 
-export function deleteServiceType(id: string): { error?: string } {
+export async function deleteServiceType(id: string): Promise<{ error?: string }> {
   const catalog = readCatalog()
   if (!catalog.types.some((type) => type.id === id)) {
     return { error: 'That service type is gone.' }
   }
   catalog.types = catalog.types.filter((type) => type.id !== id)
-  persist(catalog)
+  await persist(catalog)
   return {}
 }
 
-export function addService(
+export async function addService(
   typeId: string,
   name: string,
   lifespanWeeks: number,
-): CatalogService | { error: string } {
+): Promise<CatalogService | { error: string }> {
   const trimmed = name.trim()
   if (!trimmed) return { error: 'Enter a service.' }
   const catalog = readCatalog()
@@ -308,15 +308,15 @@ export function addService(
     lifespanWeeks: clampWeeks(lifespanWeeks),
   }
   type.services.push(service)
-  persist(catalog)
+  await persist(catalog)
   return service
 }
 
-export function updateService(
+export async function updateService(
   typeId: string,
   serviceId: string,
   patch: { name?: string; lifespanWeeks?: number },
-): { error?: string } {
+): Promise<{ error?: string }> {
   const catalog = readCatalog()
   const type = catalog.types.find((item) => item.id === typeId)
   const service = type?.services.find((item) => item.id === serviceId)
@@ -342,14 +342,14 @@ export function updateService(
   if (patch.lifespanWeeks != null) {
     service.lifespanWeeks = clampWeeks(patch.lifespanWeeks)
   }
-  persist(catalog)
+  await persist(catalog)
   return {}
 }
 
-export function deleteService(
+export async function deleteService(
   typeId: string,
   serviceId: string,
-): { error?: string } {
+): Promise<{ error?: string }> {
   const catalog = readCatalog()
   const type = catalog.types.find((item) => item.id === typeId)
   if (!type) return { error: 'That service type is gone.' }
@@ -359,11 +359,11 @@ export function deleteService(
     return { error: 'General stays on every type.' }
   }
   type.services = type.services.filter((item) => item.id !== serviceId)
-  persist(catalog)
+  await persist(catalog)
   return {}
 }
 
-export function rememberCatalogService(
+export async function rememberCatalogService(
   typeId: string,
   name: string,
   lifespanWeeks: number,
@@ -389,10 +389,10 @@ export function rememberCatalogService(
       lifespanWeeks: clampWeeks(lifespanWeeks),
     })
   }
-  persist(catalog)
+  await persist(catalog)
 }
 
-export function ensureTypesForClients(
+export async function ensureTypesForClients(
   clients: { serviceType?: string }[],
 ) {
   const catalog = readCatalog()
@@ -408,5 +408,5 @@ export function ensureTypesForClients(
     })
     changed = true
   }
-  if (changed) persist(catalog)
+  if (changed) await persist(catalog)
 }

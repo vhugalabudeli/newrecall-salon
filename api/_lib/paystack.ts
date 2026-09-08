@@ -73,6 +73,7 @@ export type PaystackTransaction = {
   authorization?: PaystackAuthorization
   metadata?: {
     user_id?: string
+    salon_id?: string
     purpose?: string
   } | null
 }
@@ -347,10 +348,14 @@ async function findCustomer(email: string): Promise<PaystackCustomer | null> {
 export async function initializeTrial(input: {
   email: string
   userId: string
+  salonId: string
 }): Promise<{ accessCode: string; reference: string }> {
   const email = input.email.trim().toLowerCase()
   const userId = input.userId.trim()
-  if (!email || !userId) throw new Error('Email and account id are required.')
+  const salonId = input.salonId.trim()
+  if (!email || !userId || !salonId) {
+    throw new Error('Email and account id are required.')
+  }
   await ensurePlanCode()
   const data = await paystack<{ access_code: string; reference: string }>(
     '/transaction/initialize',
@@ -363,6 +368,7 @@ export async function initializeTrial(input: {
         channels: ['card'],
         metadata: {
           user_id: userId,
+          salon_id: salonId,
           purpose: 'trial_setup',
         },
       }),
@@ -375,11 +381,12 @@ export async function completeTrial(input: {
   reference: string
   email: string
   userId: string
+  salonId?: string
 }): Promise<BillingStatus> {
   const email = input.email.trim().toLowerCase()
   const userId = input.userId.trim()
   const reference = input.reference.trim()
-  if (!email || !userId || !reference) {
+  if (!email || !reference) {
     throw new Error('Missing checkout details.')
   }
   const tx = await paystack<PaystackTransaction>(
@@ -393,14 +400,18 @@ export async function completeTrial(input: {
   }
   const txEmail = (tx.customer?.email || '').toLowerCase()
   if (txEmail && txEmail !== email) {
-    throw new Error('This payment does not match the signed-in email.')
+    throw new Error('This payment does not match the salon billing email.')
   }
-  if (tx.metadata?.user_id && tx.metadata.user_id !== userId) {
+  if (input.salonId && tx.metadata?.salon_id && tx.metadata.salon_id !== input.salonId) {
+    throw new Error('This payment does not match this salon.')
+  }
+  if (userId && userId !== 'admin-repair' && tx.metadata?.user_id && tx.metadata.user_id !== userId) {
     throw new Error('This payment does not match the signed-in account.')
   }
   if (!tx.authorization?.authorization_code || !tx.authorization.reusable) {
     throw new Error('Use a card that can be charged monthly.')
   }
+  const authorizationCode = tx.authorization.authorization_code
   try {
     await paystack('/refund', {
       method: 'POST',
@@ -422,14 +433,27 @@ export async function completeTrial(input: {
   }
   const existing = await subscriptionsForCustomer(customer, planCode)
   const open = existing.find((row) => isOpenStatus(row.status))
-  if (open) return statusForEmail(email)
+  const billed = open
+    ? await statusForEmail(email)
+    : await createTrialSubscription(customer, authorizationCode, email)
+  const salonId = input.salonId || tx.metadata?.salon_id
+  if (salonId) await setSalonBillingEmail(salonId, email)
+  return billed
+}
+
+async function createTrialSubscription(
+  customer: PaystackCustomer,
+  authorization: string,
+  email: string,
+): Promise<BillingStatus> {
+  const planCode = await ensurePlanCode()
   const start = addDays(TRIAL_DAYS)
   const created = await paystack<PaystackSubscription>('/subscription', {
     method: 'POST',
     body: JSON.stringify({
       customer: customer.customer_code,
       plan: planCode,
-      authorization: tx.authorization.authorization_code,
+      authorization,
       start_date: start.toISOString(),
     }),
   })
@@ -441,6 +465,28 @@ export async function completeTrial(input: {
     subscriptionCode: created.subscription_code,
     customerCode: customer.customer_code,
     email,
+  }
+}
+
+async function setSalonBillingEmail(salonId: string, email: string) {
+  try {
+    const { supabaseAdmin } = await import('./supabaseAdmin.ts')
+    const admin = supabaseAdmin()
+    const { data } = await admin
+      .from('salons')
+      .select('billing_email')
+      .eq('id', salonId)
+      .maybeSingle()
+    if (data?.billing_email) return
+    await admin
+      .from('salons')
+      .update({
+        billing_email: email,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', salonId)
+  } catch {
+    // Admin repair can run without a salon row; Paystack still records the customer.
   }
 }
 
@@ -507,6 +553,9 @@ export function parseBody(raw: unknown): Record<string, string> {
 export function httpErrorStatus(error: unknown): number {
   const message = error instanceof Error ? error.message : ''
   if (message.includes('Missing PAYSTACK_SECRET_KEY')) return 503
+  if (message.includes('Supabase is not configured')) return 503
+  if (message.toLowerCase().includes('sign in required')) return 401
+  if (message.toLowerCase().includes('the owner needs')) return 403
   if (message.toLowerCase().includes('required')) return 400
   if (message.toLowerCase().includes('does not match')) return 403
   return 400

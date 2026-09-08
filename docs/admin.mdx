@@ -1,6 +1,6 @@
 ---
 title: Operator desk
-description: Password-gated /admin for Paystack lists, stuck-trial repair, and support notes.
+description: Password-gated /admin for Paystack lists, tenant export/restore, and support notes.
 ---
 
 The operator desk is `/admin` (`src/pages/Admin.tsx`). It is **not** linked from the marketing footer. It is not a salon login and it does not use `AppShell`.
@@ -19,7 +19,9 @@ Sections include lookup by email, subscriptions, trial clock, R1 card check (a P
 
 **Repair** re-runs trial complete for R1 success without an open subscription (`POST /api/admin/repair` → existing `completeTrial`).
 
-**Tenants** and **scheduled backups** are shown empty and disabled until salon books are stored off-device. Do not invent tenant rows.
+**Tenants** lists salon name, owner email, and plan from Postgres + Paystack — never client names. **Export this tenant** / **Restore this tenant** use the Settings JSON shape (`kind: newrecall-salon-book`), service role only, and write an audit row.
+
+Platform backups are Supabase project backups / PITR. The desk reports that those exist rather than running a second backup worker.
 
 **Support** and the **audit log** use Upstash (`admin:support`, `admin:audit`) when Redis is set. Without Redis, billing still works; notes are not stored.
 
@@ -36,5 +38,7 @@ Sections include lookup by email, subscriptions, trial clock, R1 card check (a P
 | `POST /api/admin/portal` | Paystack portal for a subscription |
 | `POST /api/admin/support` | Support note (`book_locked` or `billing`) |
 | `GET /api/admin/csv` | Billing CSV (`newrecall-billing.csv`) |
+| `GET /api/admin/tenant-export?salonId=` | Tenant JSON book |
+| `POST /api/admin/tenant-restore` | Restore tenant JSON (`salonId` + `backup`) |
 
 Local Vite serves these through `vite.admin-api.ts`. Classification helpers are in `src/lib/adminClassify.ts` (shared with `api/_lib`).

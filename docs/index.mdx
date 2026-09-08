@@ -1,6 +1,6 @@
 ---
 title: Overview
-description: What NewRecall is, what stays on the device, and how the repo is split.
+description: What NewRecall is, where the book lives, and how the repo is split.
 ---
 
 NewRecall is a salon CRM. You track who to contact when their last visit is due to lapse. The live app is meant to serve on [salon.newrecall.com](https://salon.newrecall.com).
@@ -9,34 +9,39 @@ NewRecall is a salon CRM. You track who to contact when their last visit is due 
 
 ## Stack
 
-Vite 8, React 19, React Router 7, Tailwind 4, Dexie, date-fns, Paystack Inline, Upstash Redis, `web-push`. Tests are Vitest. Hosting is Vercel (`framework: vite`, SPA rewrite except `/api/*`).
+Vite 8, React 19, React Router 7, Tailwind 4, Supabase (Auth + Postgres), date-fns, Paystack Inline, Upstash Redis, `web-push`. Tests are Vitest. Hosting is Vercel (`framework: vite`, SPA rewrite except `/api/*`).
 
-Local `npm run dev` mounts the same Paystack, alerts, and admin HTTP handlers as Vercel (`vite.paystack-api.ts`, `vite.alerts-api.ts`, `vite.admin-api.ts`).
+Local `npm run dev` mounts the same Paystack, alerts, salon invite, and admin HTTP handlers as Vercel (`vite.paystack-api.ts`, `vite.alerts-api.ts`, `vite.salon-api.ts`, `vite.admin-api.ts`).
 
-## What stays on the device
+## Where the book lives
 
-There is no NewRecall server copy of the client list.
+Postgres is the source of truth. One salon, many staff. The app needs a network connection; there is no offline replica.
 
 | Store | What |
 | --- | --- |
-| IndexedDB `NewRecallSalon` (`src/lib/db.ts`) | Client rows: name, phone, guest, service, last visit, lifespan, lead, contact/response, notes |
+| Supabase `clients` / `notes` (`src/lib/db.ts`) | Client rows: name, phone, guest, service, last visit, lifespan, lead, contact/response, notes |
+| Supabase `service_types` / `services` | Catalog |
+| Supabase `salons` / `salon_members` / `salon_invites` | Tenancy and staff |
 | IndexedDB `salon-recall-alerts` | Local notification snapshot (titles, bodies, prefs) — not the full book |
-| `localStorage` | Login (salted SHA-256 password), session, salon name, service catalog, alert prefs, last export time |
+| `localStorage` | Alert prefs, last export time |
 
-Export/import in Settings writes a JSON book file (`kind: newrecall-salon-book`). Import replaces the book on that device.
+Export/import in Settings writes a JSON book file (`kind: newrecall-salon-book`). Import replaces the salon book. On first owner session, if this browser still has an old IndexedDB book and the cloud salon is empty, the dashboard offers **Import this device’s book**.
 
 Walkthrough requests from the landing form are emailed through the form provider. They are not written into the client book.
 
 ## What the server does hold
 
-- Paystack billing (trial charge, refund, subscription, portal)
+- The salon book (Supabase)
+- Paystack billing (trial charge, refund, subscription, portal) on the **owner** `billing_email`
 - Optional Web Push subscription + daily alert schedule in Upstash (titles/bodies, timezone, prefs — not the book)
 - Optional operator support notes and audit log in the same Redis
 
 ## Access
 
-1. Register or log in on this device (`src/lib/auth.ts`). There is no cloud account.
-2. Start the free trial on `/subscribe` unless `VITE_PAYWALL_BYPASS=true`.
-3. Entitled sessions open `/app`. Everyone else on `/app` is sent to `/subscribe`.
+1. Register (owner) or log in with Supabase Auth (`src/lib/auth.ts`). Staff join from an invite (`POST /api/salon/invite`, service role). Email confirmation is off by default so register → trial still works; turn confirmations on in the Supabase Auth settings later if you want them.
+2. Start the free trial on `/subscribe` unless `VITE_PAYWALL_BYPASS=true`. Staff do not start a second Paystack customer.
+3. Entitled **salons** open `/app`. Everyone else on `/app` is sent to `/subscribe`.
 
 `/admin` is a separate operator login. It is not linked from the marketing footer.
+
+Schema lives in `supabase/migrations/`.

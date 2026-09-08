@@ -1,3 +1,5 @@
+import { accessToken } from './auth'
+
 export type BillingPeriod = 'trial' | 'monthly'
 
 export type BillingStatus = {
@@ -21,10 +23,14 @@ export function accessLabel(info: BillingStatus | null): string {
   return 'No plan'
 }
 
-async function post<T>(path: string, body: Record<string, string>): Promise<T> {
+async function post<T>(path: string, body: Record<string, string> = {}): Promise<T> {
+  const token = await accessToken()
   const res = await fetch(path, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
     body: JSON.stringify(body),
   })
   const json: unknown = await res.json().catch(() => ({}))
@@ -38,27 +44,24 @@ async function post<T>(path: string, body: Record<string, string>): Promise<T> {
   return json as T
 }
 
-export function fetchBillingStatus(email: string): Promise<BillingStatus> {
-  return post<BillingStatus>('/api/paystack/status', { email })
+export function fetchBillingStatus(): Promise<BillingStatus> {
+  return post<BillingStatus>('/api/paystack/status')
 }
 
-export function startTrialCheckout(input: {
-  email: string
-  userId: string
-}): Promise<{ accessCode: string; reference: string }> {
-  return post('/api/paystack/initialize', input)
+export function startTrialCheckout(): Promise<{
+  accessCode: string
+  reference: string
+}> {
+  return post('/api/paystack/initialize')
 }
 
 export function finishTrialCheckout(input: {
-  email: string
-  userId: string
   reference: string
 }): Promise<BillingStatus> {
   return post<BillingStatus>('/api/paystack/complete', input)
 }
 
 export async function openBillingPortal(input: {
-  email: string
   subscriptionCode: string
 }): Promise<string> {
   const data = await post<{ link: string }>('/api/paystack/portal', input)

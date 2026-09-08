@@ -40,7 +40,8 @@ export function Login() {
             <p className="eyebrow">Account</p>
             <h1>Log in</h1>
             <p className="lead">
-              Use the email and password for this device. Your book stays here.
+              Use your NewRecall email and password. Staff share the salon book
+              with the owner.
             </p>
             <form className="auth-form" onSubmit={onSubmit}>
               <label>

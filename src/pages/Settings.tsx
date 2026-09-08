@@ -38,6 +38,15 @@ import {
 import { showLiveAlert } from '../lib/liveAlert'
 import { paths } from '../lib/routes'
 import { DEFAULT_SALON_NAME } from '../lib/settings'
+import {
+  cancelInvite,
+  inviteStaff,
+  listOpenInvites,
+  listSalonMembers,
+  removeStaff,
+  type SalonInviteRow,
+  type SalonMemberRow,
+} from '../lib/salonStaff'
 
 function currentNotificationPermission(): NotificationPermissionResult {
   if (typeof Notification === 'undefined') return 'unavailable'
@@ -63,7 +72,8 @@ export function Settings() {
   const [lastExportAt, setLastExportAt] = useState(readLastExportAt)
   const importInputRef = useRef<HTMLInputElement>(null)
   const nameCanSave = nameDraft.trim().length > 0
-  const canManageBilling = Boolean(user) && !paywallBypassed()
+  const isOwner = user?.role === 'owner'
+  const canManageBilling = Boolean(user) && isOwner && !paywallBypassed()
   const plan = paywallBypassed()
     ? 'Complimentary access'
     : billingError
@@ -116,8 +126,7 @@ export function Settings() {
   function saveSalonName() {
     const next = nameDraft.trim()
     if (!next) return
-    setSalonName(next)
-    setUpdatingName(false)
+    void setSalonName(next).then(() => setUpdatingName(false))
   }
 
   async function setAlertEnabled(key: 'dueToday' | 'overdue', on: boolean) {
@@ -208,7 +217,7 @@ export function Settings() {
   async function onImportFile(file: File | undefined) {
     if (!file) return
     const replace = window.confirm(
-      'Import replaces the book on this device. Continue?',
+      'Import replaces the salon book for everyone in this salon. Continue?',
     )
     if (!replace) return
     const result = await importBook(file)
@@ -219,13 +228,12 @@ export function Settings() {
     if (!user) return
     setPortalError(null)
     try {
-      const status = await fetchBillingStatus(user.email)
+      const status = await fetchBillingStatus()
       if (!status.subscriptionCode) {
         setPortalError('Could not open billing.')
         return
       }
       const link = await openBillingPortal({
-        email: user.email,
         subscriptionCode: status.subscriptionCode,
       })
       window.open(link, '_blank', 'noopener,noreferrer')
@@ -289,13 +297,15 @@ export function Settings() {
                   {salonName}
                 </p>
               </div>
-              <button
-                type="button"
-                className="shrink-0 text-sm font-medium text-blush-dark hover:underline"
-                onClick={startNameUpdate}
-              >
-                Update
-              </button>
+              {isOwner ? (
+                <button
+                  type="button"
+                  className="shrink-0 text-sm font-medium text-blush-dark hover:underline"
+                  onClick={startNameUpdate}
+                >
+                  Update
+                </button>
+              ) : null}
             </div>
           )}
         </section>
@@ -314,6 +324,8 @@ export function Settings() {
           </span>
           <Chevron />
         </Link>
+
+        {isOwner ? <StaffSettings /> : null}
 
         <section className="rounded-2xl bg-ivory p-4 ring-1 ring-line">
           <button
@@ -387,7 +399,16 @@ export function Settings() {
             <p className="mt-1 text-sm text-cocoa-soft">{nextPaymentLabel}</p>
           ) : null}
           {user?.email ? (
-            <p className="mt-1 truncate text-sm text-cocoa-soft">{user.email}</p>
+            <p className="mt-1 truncate text-sm text-cocoa-soft">
+              {isOwner
+                ? user.email
+                : `Billed to the owner${user.billingEmail ? ` (${user.billingEmail})` : ''}`}
+            </p>
+          ) : null}
+          {!isOwner ? (
+            <p className="mt-1 text-sm text-cocoa-soft">
+              Only the owner can manage the subscription.
+            </p>
           ) : null}
           {billingError ? (
             <p className="mt-2 text-sm text-cocoa-soft">{billingError}</p>
@@ -455,6 +476,114 @@ export function Settings() {
         </button>
       </div>
     </AppPage>
+  )
+}
+
+function StaffSettings() {
+  const { user } = useAuth()
+  const [email, setEmail] = useState('')
+  const [members, setMembers] = useState<SalonMemberRow[]>([])
+  const [invites, setInvites] = useState<SalonInviteRow[]>([])
+  const [note, setNote] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
+
+  async function refresh() {
+    const [nextMembers, nextInvites] = await Promise.all([
+      listSalonMembers(),
+      listOpenInvites(),
+    ])
+    setMembers(nextMembers)
+    setInvites(nextInvites)
+  }
+
+  useEffect(() => {
+    void refresh().catch(() => setNote('Could not load staff.'))
+  }, [])
+
+  async function onInvite() {
+    setBusy(true)
+    setNote(null)
+    const result = await inviteStaff(email)
+    setBusy(false)
+    if (result.error) {
+      setNote(result.error)
+      return
+    }
+    setEmail('')
+    setNote('Invite sent.')
+    await refresh()
+  }
+
+  return (
+    <section className="rounded-2xl bg-ivory p-4 ring-1 ring-line">
+      <h2 className="text-sm font-medium">Staff</h2>
+      <p className="mt-1 text-sm text-cocoa-soft">
+        Staff share this salon’s book. They do not start a second trial.
+      </p>
+      <div className="mt-3 flex gap-2">
+        <input
+          className="min-w-0 flex-1 rounded-lg border border-line bg-ivory px-3 py-2 text-sm outline-none focus:border-blush"
+          type="email"
+          placeholder="staff@example.com"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+        />
+        <button
+          type="button"
+          className={fieldActionClassName}
+          disabled={busy || !email.includes('@')}
+          onClick={() => void onInvite()}
+        >
+          Invite
+        </button>
+      </div>
+      {note ? <p className="mt-2 text-sm text-cocoa-soft">{note}</p> : null}
+      <ul className="mt-3 space-y-2">
+        {members.map((member) => (
+          <li key={member.userId} className="flex items-start justify-between gap-3">
+            <span className="min-w-0">
+              <span className="block text-sm">{member.name}</span>
+              <span className="block truncate text-sm text-cocoa-soft">
+                {member.email} · {member.role}
+              </span>
+            </span>
+            {member.role === 'staff' && member.userId !== user?.id ? (
+              <button
+                type="button"
+                className="shrink-0 text-sm text-overdue hover:underline"
+                onClick={() => {
+                  void removeStaff(member.userId).then((result) => {
+                    setNote(result.error ?? 'Staff removed.')
+                    void refresh()
+                  })
+                }}
+              >
+                Remove
+              </button>
+            ) : null}
+          </li>
+        ))}
+        {invites.map((invite) => (
+          <li key={invite.id} className="flex items-start justify-between gap-3">
+            <span className="min-w-0 text-sm text-cocoa-soft">
+              Invite pending · {invite.email}
+            </span>
+            <button
+              type="button"
+              className="shrink-0 text-sm text-overdue hover:underline"
+              onClick={() => {
+                void cancelInvite(invite.id).then((result) => {
+                  setNote(result.error ?? 'Invite cancelled.')
+                  void refresh()
+                })
+              }}
+            >
+              Cancel
+            </button>
+          </li>
+        ))}
+      </ul>
+    </section>
   )
 }
 

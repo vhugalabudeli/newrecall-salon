@@ -24,9 +24,9 @@ export function ServiceTypes() {
     navigate(paths.settings)
   }
 
-  function onAdd(event: FormEvent) {
+  async function onAdd(event: FormEvent) {
     event.preventDefault()
-    const result = addServiceType(name)
+    const result = await addServiceType(name)
     if ('error' in result) {
       setError(result.error)
       return
@@ -63,7 +63,7 @@ export function ServiceTypes() {
       <div className="space-y-3">
         {adding ? (
           <form
-            onSubmit={onAdd}
+            onSubmit={(event) => void onAdd(event)}
             className="rounded-2xl bg-ivory p-4 ring-1 ring-line"
           >
             <label className="block">

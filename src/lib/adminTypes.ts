@@ -146,13 +146,14 @@ export type AdminOverview = {
   }>
   abandoned: AdminTransactionRow[]
   stuckEntitlement: AdminStuckRow[]
-  tenants: Array<{
-    salonName: string
-    ownerEmail: string
-    plan: string
-    lastBackupAt: string | null
-    lastRestoreAt: string | null
-  }>
+    tenants: Array<{
+      salonId: string
+      salonName: string
+      ownerEmail: string
+      plan: string
+      lastBackupAt: string | null
+      lastRestoreAt: string | null
+    }>
   backups: {
     lastBackupAt: string | null
     lastBackupResult: 'ok' | 'fail' | null

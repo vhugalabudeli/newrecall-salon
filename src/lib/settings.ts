@@ -1,22 +1,30 @@
-export const DEFAULT_SALON_NAME = 'Your salon'
+import { getActiveSalon, isSalonOwner, setActiveSalon } from './salonSession'
+import { supabase } from './supabase'
 
-const SALON_NAME_KEY = 'salon-app-salon-name'
+export const DEFAULT_SALON_NAME = 'Your salon'
+export const SALON_NAME_CHANGED = 'salon-name-changed'
 
 export function shopMarkLabel(salonName: string): string {
   return salonName
 }
 
 export function readSalonName(): string {
-  const stored = localStorage.getItem(SALON_NAME_KEY)?.trim()
-  if (!stored) {
-    return DEFAULT_SALON_NAME
-  }
-  return stored
+  return getActiveSalon()?.salonName?.trim() || DEFAULT_SALON_NAME
 }
 
-export function writeSalonName(name: string): string {
+export async function writeSalonName(name: string): Promise<string> {
   const value = name.trim() || DEFAULT_SALON_NAME
-  localStorage.setItem(SALON_NAME_KEY, value)
-  window.dispatchEvent(new Event('salon-name-changed'))
+  const salon = getActiveSalon()
+  if (!salon || !isSalonOwner()) {
+    window.dispatchEvent(new Event(SALON_NAME_CHANGED))
+    return salon?.salonName || DEFAULT_SALON_NAME
+  }
+  const { error } = await supabase
+    .from('salons')
+    .update({ name: value, updated_at: new Date().toISOString() })
+    .eq('id', salon.salonId)
+  if (error) throw new Error(error.message || 'Could not update the salon name.')
+  setActiveSalon({ ...salon, salonName: value })
+  window.dispatchEvent(new Event(SALON_NAME_CHANGED))
   return value
 }

@@ -9,6 +9,11 @@ import {
 } from './adminAuth.ts'
 import { addAudit, addSupportNote, listSupportNotes } from './adminOps.ts'
 import {
+  exportTenantBook,
+  restoreTenantBook,
+  salonCloudConfigured,
+} from './salonBook.ts'
+import {
   assembleOverview,
   billingCsv,
   lookupEmail,
@@ -26,6 +31,8 @@ export type AdminAction =
   | 'portal'
   | 'support'
   | 'csv'
+  | 'tenant-export'
+  | 'tenant-restore'
 
 export type AdminDispatch = {
   action: AdminAction
@@ -185,6 +192,51 @@ export async function dispatchAdmin(input: AdminDispatch): Promise<AdminResult> 
         },
         body: billingCsv(overview),
       }
+    }
+
+    if (input.action === 'tenant-export') {
+      if (method !== 'GET') throw new AdminHttpError(405, 'Method not allowed')
+      if (!salonCloudConfigured()) {
+        throw new AdminHttpError(503, 'Supabase is not configured.')
+      }
+      const salonId = (input.query.salonId || '').trim()
+      if (!salonId) throw new AdminHttpError(400, 'Salon id is required.')
+      const backup = await exportTenantBook(salonId)
+      await addAudit({
+        operatorEmail: session.email,
+        action: 'tenant-export',
+        detail: salonId,
+      })
+      return {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Content-Disposition': `attachment; filename="newrecall-tenant-${salonId}.json"`,
+        },
+        body: JSON.stringify(backup, null, 2),
+      }
+    }
+
+    if (input.action === 'tenant-restore') {
+      if (method !== 'POST') throw new AdminHttpError(405, 'Method not allowed')
+      if (!salonCloudConfigured()) {
+        throw new AdminHttpError(503, 'Supabase is not configured.')
+      }
+      const salonId = (input.body.salonId || '').trim()
+      if (!salonId) throw new AdminHttpError(400, 'Salon id is required.')
+      let raw: unknown
+      try {
+        raw = JSON.parse(input.body.backup || '') as unknown
+      } catch {
+        throw new AdminHttpError(400, 'That file is not a NewRecall book.')
+      }
+      await restoreTenantBook(salonId, raw)
+      await addAudit({
+        operatorEmail: session.email,
+        action: 'tenant-restore',
+        detail: salonId,
+      })
+      return json(200, { ok: true })
     }
 
     throw new AdminHttpError(404, 'Not found')

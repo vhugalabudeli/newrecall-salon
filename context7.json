@@ -1,7 +1,7 @@
 {
   "$schema": "https://context7.com/schema/context7.json",
   "projectTitle": "NewRecall Salon",
-  "description": "On-device salon CRM for recall dates, follow-up, Paystack billing, closed-app alerts, and the operator desk.",
+  "description": "Cloud salon CRM for recall dates, follow-up, Paystack billing, closed-app alerts, and the operator desk.",
   "folders": ["docs"],
   "excludeFolders": [
     "src",
@@ -14,15 +14,15 @@
   ],
   "excludeFiles": ["CHANGELOG.md", "package-lock.json"],
   "rules": [
-    "The client book stays in IndexedDB on this device. Do not add a server store for client names or visit history.",
+    "The salon book lives in Supabase Postgres. One salon, many staff. There is no offline Dexie replica.",
     "NewRecall is the product brand. The in-app mark is the salon name from Settings (default Your salon).",
     "Follow-up means Contact is not_yet_contacted or contacted_unreachable and Response is not_yet_booked. Recall date does not decide follow-up.",
     "The bell, due today, and overdue use that follow-up status plus recall date today or in the past.",
     "Closed-app push may store only a push subscription and a daily schedule of titles, bodies, timezone, hour, and prefs — never the full client book.",
     "SMS and WhatsApp use DEFAULT_MESSAGE_TEMPLATE in src/lib/messageTemplate.ts. There is no Settings template editor.",
-    "Entitlement is an open Paystack subscription. Trial is R1 setup (refunded) then R200 per month ZAR after 30 days.",
+    "Entitlement is an open Paystack subscription on the salon owner's billing_email. Trial is R1 setup (refunded) then R200 per month ZAR after 30 days. Staff do not start a second Paystack customer.",
     "Test and live Paystack money must never be mixed. Mode follows sk_test_ vs sk_live_.",
     "/admin is a separate operator desk (cookie nr_admin). It is not a salon login and is not linked from the marketing footer.",
-    "Admin tenant list and cloud backup/restore stay empty until salon books are stored off-device. Do not invent tenant data."
+    "Never put SUPABASE_SERVICE_ROLE_KEY in a VITE_ variable. Staff invites and tenant export/restore use the service role on the server."
   ]
 }

@@ -5,6 +5,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 import { paystackApiPlugin } from './vite.paystack-api.ts'
 import { alertsApiPlugin } from './vite.alerts-api.ts'
 import { adminApiPlugin } from './vite.admin-api.ts'
+import { salonApiPlugin } from './vite.salon-api.ts'
 
 export default defineConfig({
   base: '/',
@@ -14,6 +15,7 @@ export default defineConfig({
     paystackApiPlugin(),
     alertsApiPlugin(),
     adminApiPlugin(),
+    salonApiPlugin(),
     VitePWA({
       registerType: 'prompt',
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],

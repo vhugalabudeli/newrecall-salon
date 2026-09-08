@@ -8,18 +8,19 @@ export function Privacy() {
         salon.newrecall.com.
       </p>
 
-      <h2>On this device</h2>
+      <h2>Your salon book</h2>
       <p>
-        Your salon client book stays on this device, in this browser. Your
-        login stays here too. We do not operate a NewRecall server that stores
-        your client list.
+        Your salon client book is stored in NewRecall’s cloud (Supabase) so
+        the owner and invited staff can share the same clients. The app needs
+        a network connection. We do not use your salon’s client names for
+        advertising.
       </p>
 
       <h2>Account and access</h2>
       <p>
-        If you register, we keep on this device the name, email, optional salon
-        name, and login needed to sign you in here. Paystack uses your email so
-        the subscription is tied to you.
+        If you register, we keep your name, email, salon name, and login so you
+        can sign in. Staff join a salon from an invite. Paystack bills the
+        salon owner’s email, not each staff login.
       </p>
 
       <h2>Payments</h2>
@@ -57,18 +58,17 @@ export function Privacy() {
 
       <h2>How long data stays</h2>
       <p>
-        Local data remains until you delete clients, log out and clear site
-        data, or uninstall the app / clear the browser. Subscription records
-        remain with Paystack and NewRecall for as long as they need them to
-        bill and for legal accounting.
+        Salon records remain until you delete clients or the salon account is
+        closed. Alert preferences stay on this device until you change them.
+        Subscription records remain with Paystack and NewRecall for as long as
+        they need them to bill and for legal accounting.
       </p>
 
       <h2>Your choices</h2>
       <p>
-        You can edit or delete clients in the app, log out in Settings, and
-        cancel a subscription in the customer portal. You can also clear this
-        site’s data in the browser, which removes the local book and login on
-        that device.
+        You can edit or delete clients in the app, export or import a book
+        file in Settings, log out, and cancel a subscription in the customer
+        portal (owners). You can also ask us to help close a salon.
       </p>
 
       <h2>Contact</h2>

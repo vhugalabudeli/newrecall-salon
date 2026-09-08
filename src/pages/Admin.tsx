@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from 'react'
 import { format } from 'date-fns'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import {
@@ -6,11 +6,13 @@ import {
   adminLogin,
   adminLogout,
   downloadBillingCsv,
+  exportAdminTenant,
   fetchAdminLookup,
   fetchAdminOverview,
   fetchAdminSession,
   openAdminPortal,
   repairAdminCheckout,
+  restoreAdminTenant,
 } from '../lib/adminApi'
 import { formatZarFromCents } from '../lib/adminClassify'
 import type { AdminLookup, AdminOverview } from '../lib/adminTypes'
@@ -166,10 +168,13 @@ function AdminDesk({
   const [note, setNote] = useState('')
   const [legal, setLegal] = useState<Array<{ path: string; ok: boolean }>>([])
   const [busy, setBusy] = useState<string | null>(null)
+  const [selectedTenantId, setSelectedTenantId] = useState('')
+  const restoreInputRef = useRef<HTMLInputElement>(null)
 
   async function refresh() {
     const data = await fetchAdminOverview()
     setOverview(data)
+    setSelectedTenantId((current) => current || data.tenants[0]?.salonId || '')
   }
 
   useEffect(() => {
@@ -240,6 +245,37 @@ function AdminDesk({
       await downloadBillingCsv()
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : 'CSV failed.')
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  async function onTenantExport() {
+    if (!selectedTenantId) return
+    setBusy('tenant-export')
+    try {
+      await exportAdminTenant(selectedTenantId)
+      await refresh()
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : 'Could not export that salon.')
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  async function onTenantRestore(file: File | undefined) {
+    if (!file || !selectedTenantId) return
+    const confirmed = window.confirm(
+      'Restore replaces this salon’s book. Continue?',
+    )
+    if (!confirmed) return
+    setBusy('tenant-restore')
+    try {
+      const raw = JSON.parse(await file.text()) as unknown
+      await restoreAdminTenant(selectedTenantId, raw)
+      await refresh()
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : 'Could not restore that salon.')
     } finally {
       setBusy(null)
     }
@@ -586,13 +622,21 @@ function AdminDesk({
 
         <Section id="tenants" title="Tenant list">
           <p className="text-sm text-cocoa-soft">
-            Empty until salon data lives off-device (Supabase). Salon name, owner
-            email, and plan only — never the client book.
+            Salon name, owner email, and plan only — never the client book in
+            this table.
           </p>
           <Table
-            columns={['Salon', 'Owner email', 'Plan', 'Last backup', 'Last restore']}
+            columns={['Salon', 'Owner email', 'Plan', 'Last export', 'Last restore']}
             rows={overview.tenants.map((row) => [
-              row.salonName,
+              <label key={row.salonId} className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="tenant"
+                  checked={selectedTenantId === row.salonId}
+                  onChange={() => setSelectedTenantId(row.salonId)}
+                />
+                {row.salonName}
+              </label>,
               row.ownerEmail,
               row.plan,
               when(row.lastBackupAt),
@@ -603,40 +647,73 @@ function AdminDesk({
 
         <Section id="backups" title="Backups">
           <dl className="grid gap-2 text-sm sm:grid-cols-2">
-            <Fact label="Last backup" value="Not configured" />
-            <Fact label="Result / size" value="—" />
-            <Fact label="Next scheduled backup" value="—" />
-            <Fact label="Point-in-time window" value="—" />
-            <Fact label="Last restore drill" value="—" />
-            <Fact label="Daily backup status" value={overview.backups.dailyStatus} />
-            <Fact label="Retention" value="—" />
+            <Fact
+              label="Platform backups"
+              value={
+                overview.backups.exportEnabled
+                  ? 'Supabase project backups / PITR'
+                  : 'Supabase is not configured'
+              }
+            />
+            <Fact
+              label="Point-in-time window"
+              value={overview.backups.pointInTimeWindow || '—'}
+            />
+            <Fact
+              label="Daily backup status"
+              value={overview.backups.dailyStatus === 'running' ? 'On (Supabase)' : 'Paused'}
+            />
             <Fact
               label="Storage healthy"
               value={
                 overview.backups.storageHealthy === true
-                  ? 'Yes (notes store)'
+                  ? 'Yes'
                   : overview.backups.storageHealthy === false
                     ? 'No'
-                    : 'Unknown (no credentials shown)'
+                    : 'Unknown'
               }
             />
             <Fact
-              label="Missed backup / restore failed"
-              value="Not monitored until cloud backups exist"
+              label="Tenant JSON export"
+              value={overview.backups.exportEnabled ? 'Available' : 'Not configured'}
+            />
+            <Fact
+              label="Tenant JSON restore"
+              value={overview.backups.restoreEnabled ? 'Available' : 'Not configured'}
             />
           </dl>
           <div className="mt-4 flex flex-wrap gap-2">
-            <button type="button" className={btnClass} disabled>
+            <button
+              type="button"
+              className={btnClass}
+              disabled={!overview.backups.exportEnabled || !selectedTenantId || busy !== null}
+              onClick={() => void onTenantExport()}
+            >
               Export this tenant
             </button>
-            <button type="button" className={btnClass} disabled>
+            <button
+              type="button"
+              className={btnClass}
+              disabled={!overview.backups.restoreEnabled || !selectedTenantId || busy !== null}
+              onClick={() => restoreInputRef.current?.click()}
+            >
               Restore this tenant
             </button>
+            <input
+              ref={restoreInputRef}
+              type="file"
+              accept="application/json,.json"
+              className="hidden"
+              onChange={(event) => {
+                const file = event.target.files?.[0]
+                event.target.value = ''
+                void onTenantRestore(file)
+              }}
+            />
           </div>
           <p className="mt-2 text-sm text-cocoa-soft">
-            Export uses the same JSON as Settings when a server book exists.
-            Restore will ask for confirm and write an audit of who, when, and
-            which salon.
+            Export uses the same JSON as Settings. Restore replaces that salon’s
+            book after confirm, and writes an audit of who, when, and which salon.
           </p>
         </Section>
 
