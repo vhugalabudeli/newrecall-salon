@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#c45c6a" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="NewRecall" />
+    <title>NewRecall — Salon CRM</title>
+    <meta
+      name="description"
+      content="Salon CRM. You track who to contact when their last visit is due to lapse."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <!-- Visible without JS so crawlers can verify the live product and legal pages. -->
+    <div id="paddle-review">
+      <p>NewRecall Salon CRM is live. 30-day free trial, then R200 per month. Billed in ZAR through Paystack.</p>
+      <nav aria-label="Legal">
+        <a href="/terms">Terms of Service</a>
+        <a href="/privacy">Privacy Policy</a>
+        <a href="/refunds">Refund Policy</a>
+        <a href="/pricing">Pricing</a>
+      </nav>
+    </div>
+    <script>
+      (function () {
+        var root = document.getElementById('root')
+        var fallback = document.getElementById('paddle-review')
+        if (!root || !fallback) return
+        var hide = function () {
+          if (root.childElementCount) fallback.setAttribute('hidden', '')
+        }
+        hide()
+        new MutationObserver(hide).observe(root, { childList: true })
+      })()
+    </script>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://context7.com/schema/context7.json",
+  "projectTitle": "NewRecall Salon",
+  "description": "On-device salon CRM for follow-ups, recall dates, and closed-app alerts.",
+  "folders": ["docs"],
+  "excludeFolders": [
+    "src",
+    "api",
+    "node_modules",
+    "dist",
+    "public",
+    ".cursor",
+    ".vercel"
+  ],
+  "excludeFiles": ["CHANGELOG.md", "package-lock.json"],
+  "rules": [
+    "The client book stays in IndexedDB on this device. Do not add a server store for client names or visit history.",
+    "Follow-up means Contact is not_yet_contacted or contacted_unreachable and Response is not_yet_booked. Recall date does not decide follow-up.",
+    "Closed-app push may store only a push subscription and a daily schedule of titles, bodies, timezone, and prefs — never the full client book.",
+    "SMS and WhatsApp use DEFAULT_MESSAGE_TEMPLATE in src/lib/messageTemplate.ts. There is no Settings template editor."
+  ]
+}

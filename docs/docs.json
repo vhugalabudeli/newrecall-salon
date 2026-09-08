@@ -1,0 +1,28 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "NewRecall Salon",
+  "description": "On-device salon CRM for who to contact when a visit is due to lapse.",
+  "colors": {
+    "primary": "#C45C6A",
+    "light": "#C45C6A",
+    "dark": "#A34856"
+  },
+  "favicon": "/favicon.svg",
+  "navigation": {
+    "pages": [
+      {
+        "group": "Get started",
+        "pages": ["index", "quickstart", "alerts"]
+      }
+    ]
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "App",
+        "href": "https://salon.newrecall.com"
+      }
+    ]
+  }
+}

@@ -1,0 +1,7 @@
+# NewRecall Salon
+
+> On-device salon CRM for follow-ups, recall dates, and closed-app alerts.
+
+- [Overview](index.mdx): Product model and what stays on the device
+- [Local setup](quickstart.mdx): Install, Paystack env, PWA preview
+- [Closed-app alerts](alerts.mdx): VAPID, Upstash, cron, and schedule upload

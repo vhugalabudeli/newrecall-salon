@@ -1,0 +1,28 @@
+---
+title: Local setup
+description: Run NewRecall on your machine and configure Paystack.
+---
+
+```bash
+npm install
+cp .env.example .env.local
+npm run dev
+```
+
+Open http://localhost:5173/. Register or log in, then start the free trial to open the book.
+
+## Environment
+
+Put your Paystack secret key in `.env.local` as `PAYSTACK_SECRET_KEY` (`sk_test_…` or `sk_live_…`). Checkout uses an access code from the server. Optionally set `PAYSTACK_PLAN_CODE` to an existing monthly ZAR R200 plan; if unset, the app can create a plan named “NewRecall Salon Monthly” on first checkout.
+
+On Vercel, set the same server keys as project environment variables. Production checkout needs the **live** secret key.
+
+To work on the CRM without Paystack, set `VITE_PAYWALL_BYPASS=true` in `.env.local`.
+
+## Installable app
+
+```bash
+npm run build && npm run preview
+```
+
+The build is a PWA. Closed-app alerts work best from an installed PWA (Chrome/Android or iOS Home Screen), not an embedded browser tab without a ready service worker.

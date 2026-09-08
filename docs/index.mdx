@@ -1,0 +1,21 @@
+---
+title: NewRecall Salon
+description: On-device CRM for salon follow-ups and recall dates.
+---
+
+NewRecall is a salon CRM that tracks who to contact when their last visit is due to lapse. The live app is meant to serve on [salon.newrecall.com](https://salon.newrecall.com).
+
+## What stays on the device
+
+The client book lives in IndexedDB in this browser. Login (name, email, hashed password) also stays in browser storage. NewRecall does not run a server that stores the salon’s client list.
+
+## Core ideas
+
+- **Recall date** is derived from last visit, lifespan, and lead time.
+- **Follow-up** (the Clients segment) is status, not date: Contact is `not_yet_contacted` or `contacted_unreachable`, and Response is `not_yet_booked`.
+- **Bell / due-today / overdue** use the same status rule, plus the recall date being today or in the past.
+- **SMS and WhatsApp** use the default message template in code (`src/lib/messageTemplate.ts`). There is no Settings editor for that template.
+
+## Billing
+
+Trials and monthly billing are Paystack (30-day free trial, then R200 / month ZAR). Full card numbers are not stored in the app.

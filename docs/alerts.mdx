@@ -1,0 +1,24 @@
+---
+title: Closed-app alerts
+description: Local notifications while open, Web Push when the PWA is closed.
+---
+
+Local alerts can fire while the app is open. To alert when the PWA is closed (including iPhone installed to Home Screen), configure Web Push.
+
+## Environment
+
+Set these on the server (Vercel Production, Preview, and Development):
+
+- `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` (from `npx web-push generate-vapid-keys`)
+- `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`
+- optional `CRON_SECRET` for `/api/alerts/dispatch`
+
+Vercel runs an hourly cron against `/api/alerts/dispatch`. After changing these values, redeploy so the functions pick them up.
+
+## What is uploaded
+
+The app uploads only a minimal daily schedule: alert titles and bodies for due/overdue, timezone, and preference flags. It does **not** upload the full client book.
+
+## Settings
+
+In Settings, **Due today** and **Overdue** must be on, and the browser must grant notification permission. Closed-app push attaches when the service worker is ready.
