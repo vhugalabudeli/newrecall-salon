@@ -23,7 +23,7 @@ export async function writeSalonName(name: string): Promise<string> {
     .from('salons')
     .update({ name: value, updated_at: new Date().toISOString() })
     .eq('id', salon.salonId)
-  if (error) throw new Error(error.message || 'Could not update the salon name.')
+  if (error) throw new Error(error.message || 'The salon name could not be updated. Try again.')
   setActiveSalon({ ...salon, salonName: value })
   window.dispatchEvent(new Event(SALON_NAME_CHANGED))
   return value

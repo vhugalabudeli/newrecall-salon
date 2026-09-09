@@ -165,7 +165,7 @@ export function ServiceTypeDetail() {
   async function onDeleteType() {
     if (!type) return
     if (inUse) {
-      setTypeError('This type is still used on clients. Remove those first.')
+      setTypeError('This service type is assigned to clients. Update those client records before removing it.')
       return
     }
     const confirmed = window.confirm(`Remove ${type.name} and its services?`)
@@ -187,7 +187,7 @@ export function ServiceTypeDetail() {
           backLabel="Back to service types"
         />
         <p className="rounded-2xl bg-ivory p-4 text-sm text-cocoa-soft ring-1 ring-line">
-          That service type is gone.
+          This service type is no longer available. Return to Service types to choose another one.
         </p>
       </AppPage>
     )

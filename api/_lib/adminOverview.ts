@@ -177,7 +177,7 @@ export async function assembleOverview(): Promise<AdminOverview> {
   overview.backups.restoreEnabled = cloud
   overview.backups.dailyStatus = cloud ? 'running' : 'paused'
   overview.backups.pointInTimeWindow = cloud
-    ? 'Supabase project backups (PITR when enabled)'
+    ? 'Supabase point-in-time recovery, when enabled for the project'
     : null
   overview.backups.lastBackupResult = cloud ? 'ok' : null
   if (cloud) overview.backups.storageHealthy = true
@@ -186,7 +186,7 @@ export async function assembleOverview(): Promise<AdminOverview> {
   } catch (error) {
     overview.paystackError =
       overview.paystackError ||
-      (error instanceof Error ? error.message : 'Could not load salons.')
+      (error instanceof Error ? error.message : 'Salon account information could not be loaded.')
   }
 
   const mode = paystackMode()
@@ -336,7 +336,7 @@ export async function assembleOverview(): Promise<AdminOverview> {
         .filter((row) => isFailedRenewal({ subStatus: row.status }))
         .map((row) => ({
           email: row.email,
-          reason: 'Card declined — subscription needs attention. /app will lock if this is not open.',
+          reason: 'Card declined. Confirm that the subscription is active to preserve the customer’s app access.',
           reference: null as string | null,
           subscriptionCode: row.subscriptionCode,
         })),
@@ -419,7 +419,7 @@ export async function assembleOverview(): Promise<AdminOverview> {
       .reduce((sum, row) => sum + row.amountCents, 0)
     overview.money30d = { ...moneyTotals(gross, refunded), currency: 'ZAR' }
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Paystack request failed.'
+    const message = error instanceof Error ? error.message : 'Paystack information could not be loaded. Try again.'
     overview.paystackError = message
     if (domain === 'live' && isActivationReviewError(message)) {
       overview.activation = { status: 'awaiting_review', liveCards: false }

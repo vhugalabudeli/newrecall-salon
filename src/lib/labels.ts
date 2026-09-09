@@ -49,7 +49,7 @@ export const recallLeadLabels: Record<RecallLead, string> = {
 }
 
 export const bookingStatusLabels: Record<BookingStatus, string> = {
-  not_yet_booked: 'No response yet',
+  not_yet_booked: 'Not booked yet',
   acknowledged: 'Interested',
   booked: 'Booked',
   declined: 'Declined',

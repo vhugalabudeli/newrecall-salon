@@ -266,7 +266,7 @@ export async function renameServiceType(
   if (!trimmed) return { error: 'Enter a service type.' }
   const catalog = readCatalog()
   const type = catalog.types.find((item) => item.id === id)
-  if (!type) return { error: 'That service type is gone.' }
+  if (!type) return { error: 'That service type is no longer available.' }
   if (
     catalog.types.some(
       (item) => item.id !== id && sameName(item.name, trimmed),
@@ -282,7 +282,7 @@ export async function renameServiceType(
 export async function deleteServiceType(id: string): Promise<{ error?: string }> {
   const catalog = readCatalog()
   if (!catalog.types.some((type) => type.id === id)) {
-    return { error: 'That service type is gone.' }
+    return { error: 'That service type is no longer available.' }
   }
   catalog.types = catalog.types.filter((type) => type.id !== id)
   await persist(catalog)
@@ -320,11 +320,11 @@ export async function updateService(
   const catalog = readCatalog()
   const type = catalog.types.find((item) => item.id === typeId)
   const service = type?.services.find((item) => item.id === serviceId)
-  if (!type || !service) return { error: 'That service is gone.' }
+  if (!type || !service) return { error: 'That service is no longer available.' }
   if (isGeneralService(service) && patch.name != null) {
     const trimmed = patch.name.trim()
     if (!sameName(trimmed, GENERAL_SERVICE_NAME)) {
-      return { error: 'General keeps its name.' }
+      return { error: 'The General service name cannot be changed.' }
     }
   }
   if (patch.name != null) {
@@ -352,11 +352,11 @@ export async function deleteService(
 ): Promise<{ error?: string }> {
   const catalog = readCatalog()
   const type = catalog.types.find((item) => item.id === typeId)
-  if (!type) return { error: 'That service type is gone.' }
+  if (!type) return { error: 'That service type is no longer available.' }
   const service = type.services.find((item) => item.id === serviceId)
-  if (!service) return { error: 'That service is gone.' }
+  if (!service) return { error: 'That service is no longer available.' }
   if (isGeneralService(service)) {
-    return { error: 'General stays on every type.' }
+    return { error: 'The General service is required for every service type and cannot be removed.' }
   }
   type.services = type.services.filter((item) => item.id !== serviceId)
   await persist(catalog)

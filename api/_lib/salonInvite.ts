@@ -103,7 +103,7 @@ export async function postInvite(req: VercelRequest, res: VercelResponse) {
     })
     if (inviteError) {
       if (inviteError.code === '23505') {
-        res.status(400).json({ error: 'That email already has an open invite.' })
+        res.status(400).json({ error: 'That email already has a pending invitation.' })
         return
       }
       throw new Error(inviteError.message)
@@ -134,7 +134,7 @@ export async function postInvite(req: VercelRequest, res: VercelResponse) {
     res.status(200).json({ ok: true })
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : 'Could not send the invite.'
+      error instanceof Error ? error.message : 'The staff invitation could not be sent. Try again.'
     res.status(httpErrorStatus(error)).json({ error: message })
   }
 }

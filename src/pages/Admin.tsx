@@ -199,8 +199,8 @@ function AdminDesk({
   const modeLabel = useMemo(() => {
     if (!overview) return ''
     if (overview.mode === 'live') return 'Live key — live totals only'
-    if (overview.mode === 'test') return 'Test key — test totals only; not live money'
-    return 'No Paystack key'
+    if (overview.mode === 'test') return 'Test mode — figures shown are test transactions only'
+    return 'Paystack is not configured'
   }, [overview])
 
   async function onLookup(event: FormEvent) {
@@ -210,7 +210,7 @@ function AdminDesk({
       setLookup(await fetchAdminLookup(lookupEmail))
     } catch (err) {
       setLookup(null)
-      setLookupError(err instanceof Error ? err.message : 'Lookup failed.')
+      setLookupError(err instanceof Error ? err.message : 'The customer lookup could not be completed. Try again.')
     }
   }
 
@@ -224,7 +224,7 @@ function AdminDesk({
       })
       await refresh()
     } catch (err) {
-      setLoadError(err instanceof Error ? err.message : 'Repair failed.')
+      setLoadError(err instanceof Error ? err.message : 'App access could not be repaired. Review the payment and try again.')
     } finally {
       setBusy(null)
     }
@@ -236,7 +236,7 @@ function AdminDesk({
       const link = await openAdminPortal({ email, subscriptionCode })
       window.open(link, '_blank', 'noopener,noreferrer')
     } catch (err) {
-      setLoadError(err instanceof Error ? err.message : 'Could not open billing.')
+      setLoadError(err instanceof Error ? err.message : 'The Paystack billing page could not be opened. Try again.')
     } finally {
       setBusy(null)
     }
@@ -247,7 +247,7 @@ function AdminDesk({
     try {
       await downloadBillingCsv()
     } catch (err) {
-      setLoadError(err instanceof Error ? err.message : 'CSV failed.')
+      setLoadError(err instanceof Error ? err.message : 'The billing report could not be downloaded. Try again.')
     } finally {
       setBusy(null)
     }
@@ -260,7 +260,7 @@ function AdminDesk({
       await exportAdminTenant(selectedTenantId)
       await refresh()
     } catch (err) {
-      setLoadError(err instanceof Error ? err.message : 'Could not export that salon.')
+      setLoadError(err instanceof Error ? err.message : 'The selected salon backup could not be downloaded. Try again.')
     } finally {
       setBusy(null)
     }
@@ -295,11 +295,11 @@ function AdminDesk({
         email: String(data.get('email') || ''),
         note: String(data.get('note') || ''),
       })
-      setNote(result.stored ? 'Note saved.' : result.error || 'Note not stored.')
+      setNote(result.stored ? 'Support note saved.' : result.error || 'The support note could not be saved.')
       form.reset()
       await refresh()
     } catch (err) {
-      setNote(err instanceof Error ? err.message : 'Could not save the note.')
+      setNote(err instanceof Error ? err.message : 'The support note could not be saved. Try again.')
     } finally {
       setBusy(null)
     }
@@ -558,8 +558,8 @@ function AdminDesk({
 
         <Section id="who-has-app" title="Customers with app access">
           <p className="mb-3 text-sm text-cocoa-soft">
-            Accounts with access now: {overview.entitledEmails.length}. By status:
-            none {overview.accessCounts.none}, trial {overview.accessCounts.trial}, paid{' '}
+            Accounts with access now: {overview.entitledEmails.length}. Subscription status:
+            no plan {overview.accessCounts.none}, trial {overview.accessCounts.trial}, paid{' '}
             {overview.accessCounts.paid}, cancelled {overview.accessCounts.cancelled}.
           </p>
           <Table
@@ -576,20 +576,20 @@ function AdminDesk({
                 overview.liveKeyPresent
                   ? 'Production has a live key'
                   : overview.mode === 'test'
-                    ? 'Test key only — live cards are not accepted'
-                    : 'No key set'
+                    ? 'Test key configured — production payments are unavailable'
+                    : 'Paystack secret key is not configured'
               }
             />
             <Fact
               label="Activation"
               value={
                 overview.activation.status === 'approved'
-                  ? 'Approved — live cards'
+                  ? 'Approved for production payments'
                   : overview.activation.status === 'awaiting_review'
-                    ? 'Awaiting Review'
+                    ? 'Awaiting Paystack review'
                     : overview.activation.status === 'test'
-                      ? 'Test mode — live cards are not accepted'
-                      : 'Unknown'
+                      ? 'Test mode — production payments are unavailable'
+                      : 'Activation status is unavailable'
               }
             />
             <Fact
@@ -602,7 +602,7 @@ function AdminDesk({
             />
             <Fact
               label="Plan checks"
-              value={`Name ${overview.plan.nameOk ? 'ok' : 'no'} · R200 ${overview.plan.amountOk ? 'ok' : 'no'} · ZAR ${overview.plan.currencyOk ? 'ok' : 'no'} · code ${overview.plan.code ? 'present' : 'missing'}`}
+              value={`Plan name: ${overview.plan.nameOk ? 'correct' : 'needs attention'} · Price: ${overview.plan.amountOk ? 'R200 confirmed' : 'needs attention'} · Currency: ${overview.plan.currencyOk ? 'ZAR confirmed' : 'needs attention'} · Plan code: ${overview.plan.code ? 'available' : 'missing'}`}
             />
           </dl>
         </Section>
@@ -654,8 +654,8 @@ function AdminDesk({
               label="Platform backups"
               value={
                 overview.backups.exportEnabled
-                  ? 'Supabase project backups / PITR'
-                  : 'Supabase is not configured'
+                  ? 'Supabase project backups with point-in-time recovery'
+                  : 'Supabase backup access is not configured'
               }
             />
             <Fact
@@ -677,11 +677,11 @@ function AdminDesk({
               }
             />
             <Fact
-              label="Tenant JSON export"
+              label="Salon backup export"
               value={overview.backups.exportEnabled ? 'Available' : 'Not configured'}
             />
             <Fact
-              label="Tenant JSON restore"
+              label="Salon backup restore"
               value={overview.backups.restoreEnabled ? 'Available' : 'Not configured'}
             />
           </dl>
@@ -716,7 +716,7 @@ function AdminDesk({
           </div>
           <p className="mt-2 text-sm text-cocoa-soft">
             Export uses the same backup format as Settings. Restore replaces the selected salon’s
-            client data after confirmation and records the operator, time, and salon in the audit log.
+            client data after confirmation and records the administrator, time, and salon in the audit log.
           </p>
         </Section>
 
@@ -728,8 +728,8 @@ function AdminDesk({
                 name="kind"
                 className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm"
               >
-                <option value="book_locked">Book locked</option>
-                <option value="billing">Billing email</option>
+                <option value="book_locked">App access issue</option>
+                <option value="billing">Billing issue</option>
               </select>
             </label>
             <label className="text-sm">
@@ -756,7 +756,7 @@ function AdminDesk({
           {note ? <p className="mt-2 text-sm text-cocoa-soft">{note}</p> : null}
           {!overview.redis.available ? (
             <p className="mt-2 text-sm text-cocoa-soft">
-              Queue and audit are not stored (Redis is not configured).
+              Support notes and audit history cannot be stored because Redis is not configured.
             </p>
           ) : null}
           <h3 className="mt-4 text-sm font-medium">Notes</h3>
@@ -764,7 +764,7 @@ function AdminDesk({
             columns={['When', 'Kind', 'Email', 'Note']}
             rows={overview.support.map((row) => [
               when(row.createdAt),
-              row.kind === 'book_locked' ? 'Book locked' : 'Billing',
+              row.kind === 'book_locked' ? 'App access issue' : 'Billing issue',
               row.email,
               row.note,
             ])}
@@ -785,7 +785,7 @@ function AdminDesk({
   )
 }
 
-const PLAN_HINT = 'NewRecall Salon Monthly, R200 ZAR, code present'
+const PLAN_HINT = 'the NewRecall Salon Monthly plan at R200 in ZAR with a valid plan code'
 const btnClass =
   'rounded-lg bg-blush px-3 py-2 text-sm font-semibold text-ivory hover:bg-blush-dark disabled:opacity-40'
 

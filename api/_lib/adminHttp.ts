@@ -170,7 +170,7 @@ export async function dispatchAdmin(input: AdminDispatch): Promise<AdminResult> 
       if (!note) {
         return json(200, {
           stored: false,
-          error: 'Support notes are not stored (Redis is not configured).',
+          error: 'Support notes cannot be stored because Redis is not configured.',
         })
       }
       return json(200, { stored: true, note })

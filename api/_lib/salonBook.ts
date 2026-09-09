@@ -105,7 +105,7 @@ function parseBookBackup(raw: unknown): BookBackup | { error: string } {
     return { error: 'That file is not a valid NewRecall salon backup.' }
   }
   if (!Array.isArray(data.clients) || !data.clients.every(isClient)) {
-    return { error: 'That book file is damaged.' }
+    return { error: 'That backup file appears to be damaged.' }
   }
   return {
     kind: BACKUP_KIND,
@@ -278,7 +278,7 @@ export async function exportTenantBook(salonId: string): Promise<BookBackup> {
     .eq('id', salonId)
     .maybeSingle()
   throwIf(error, 'Could not load the salon.')
-  if (!salon) throw new Error('That salon is gone.')
+  if (!salon) throw new Error('That salon account is no longer available.')
   const backup = buildBookBackup({
     salonName: String(salon.name || 'Your salon'),
     clients: await loadClients(salonId),
@@ -304,7 +304,7 @@ export async function restoreTenantBook(
     .eq('id', salonId)
     .maybeSingle()
   throwIf(error, 'Could not load the salon.')
-  if (!salon) throw new Error('That salon is gone.')
+  if (!salon) throw new Error('That salon account is no longer available.')
 
   const { error: clearError } = await admin.from('clients').delete().eq('salon_id', salonId)
   throwIf(clearError, 'Could not clear the salon data before restoring the backup.')

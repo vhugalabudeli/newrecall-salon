@@ -213,7 +213,7 @@ export function Settings() {
     try {
       await exportBook()
       setLastExportAt(readLastExportAt())
-      setBackupNote('Book exported.')
+      setBackupNote('Salon backup downloaded.')
     } catch {
       setBackupNote('The salon backup could not be exported. Please try again.')
     }
@@ -226,7 +226,7 @@ export function Settings() {
     )
     if (!replace) return
     const result = await importBook(file)
-    setBackupNote(result.error ?? 'Book imported.')
+    setBackupNote(result.error ?? 'Salon backup imported successfully.')
   }
 
   async function onManageBilling() {

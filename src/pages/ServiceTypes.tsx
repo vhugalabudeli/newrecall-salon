@@ -46,7 +46,7 @@ export function ServiceTypes() {
       <PageHeader
         title="Service types"
         onBack={goBack}
-        backLabel={fromBook ? 'Back to the book' : 'Back to settings'}
+        backLabel={fromBook ? 'Back to client form' : 'Back to settings'}
         onAdd={() => {
           setAdding(true)
           setError('')

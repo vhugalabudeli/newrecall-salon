@@ -35,7 +35,7 @@ export function parseBookBackup(raw: unknown): BookBackup | { error: string } {
     return { error: 'That file is not a valid NewRecall salon backup.' }
   }
   if (!Array.isArray(data.clients) || !data.clients.every(isClient)) {
-    return { error: 'That book file is damaged.' }
+    return { error: 'That backup file appears to be damaged.' }
   }
   return {
     kind: BACKUP_KIND,

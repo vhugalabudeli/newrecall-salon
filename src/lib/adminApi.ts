@@ -15,7 +15,7 @@ async function request<T>(
   const contentType = res.headers.get('content-type') || ''
   if (contentType.includes('text/csv')) {
     const text = await res.text()
-    if (!res.ok) throw new Error('Could not download CSV.')
+    if (!res.ok) throw new Error('The billing report could not be downloaded. Try again.')
     return text as T
   }
   const json: unknown = await res.json().catch(() => ({}))
@@ -95,7 +95,7 @@ export async function downloadBillingCsv(): Promise<void> {
     const error =
       json && typeof json === 'object' && 'error' in json
         ? String((json as { error: unknown }).error)
-        : 'Could not download CSV.'
+        : 'The billing report could not be downloaded. Try again.'
     throw new Error(error)
   }
   const blob = await res.blob()
@@ -119,7 +119,7 @@ export async function exportAdminTenant(salonId: string): Promise<void> {
     const error =
       json && typeof json === 'object' && 'error' in json
         ? String((json as { error: unknown }).error)
-        : 'Could not export that salon.'
+        : 'The selected salon backup could not be downloaded. Try again.'
     throw new Error(error)
   }
   const blob = await res.blob()

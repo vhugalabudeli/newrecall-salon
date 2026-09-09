@@ -75,7 +75,7 @@ export async function inviteStaff(email: string): Promise<{ error?: string }> {
     const error =
       json && typeof json === 'object' && 'error' in json
         ? String((json as { error: unknown }).error)
-        : 'Could not send the invite.'
+        : 'The staff invitation could not be sent. Try again.'
     return { error }
   }
   return {}
