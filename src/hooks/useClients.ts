@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useId, useState } from 'react'
 import { listClients } from '../lib/db'
 import { getActiveSalon } from '../lib/salonSession'
 import { sortByRecall } from '../lib/schedule'
@@ -11,6 +11,7 @@ export function useClients(): {
   ready: boolean
 } {
   const { user } = useAuth()
+  const channelId = useId()
   const salonId = user?.salonId ?? getActiveSalon()?.salonId ?? null
   const [clients, setClients] = useState<Client[]>([])
   const [ready, setReady] = useState(false)
@@ -44,7 +45,7 @@ export function useClients(): {
       }, 200)
     }
     const channel = supabase
-      .channel(`book:${salonId}`)
+      .channel(`book:${salonId}:${channelId}`)
       .on(
         'postgres_changes',
         {
@@ -71,7 +72,7 @@ export function useClients(): {
       window.clearTimeout(timer)
       void supabase.removeChannel(channel)
     }
-  }, [refresh, salonId])
+  }, [channelId, refresh, salonId])
 
   return { clients, ready }
 }
