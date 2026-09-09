@@ -23,7 +23,7 @@ async function request<T>(
     const error =
       json && typeof json === 'object' && 'error' in json
         ? String((json as { error: unknown }).error)
-        : 'Request failed.'
+        : 'The operations request could not be completed. Please try again.'
     throw new Error(error)
   }
   return json as T

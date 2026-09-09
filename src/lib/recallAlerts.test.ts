@@ -39,7 +39,7 @@ function client(name: string): Client {
 
 describe('alert message bodies', () => {
   it('describes due today clients', () => {
-    expect(dueTodayBody([])).toBe('No recalls due today.')
+    expect(dueTodayBody([])).toBe('No follow-ups due today.')
     expect(dueTodayBody([client('Aisha')])).toBe('Aisha is due today.')
     expect(dueTodayBody([client('Aisha'), client('Bo')])).toBe(
       'Aisha and Bo are due today.',
@@ -56,10 +56,10 @@ describe('alert message bodies', () => {
       lastVisitDate: '2026-07-01',
       lifespanWeeks: 8,
     }
-    expect(overdueBody([], today)).toBe('No overdue recalls.')
+    expect(overdueBody([], today)).toBe('No overdue follow-ups.')
     expect(overdueBody([overdue], today)).toMatch(/Naledi is .+ overdue/)
     expect(overdueBody([overdue, client('Other')], today)).toMatch(
-      /2 overdue recalls/,
+      /2 overdue follow-ups/,
     )
   })
 })

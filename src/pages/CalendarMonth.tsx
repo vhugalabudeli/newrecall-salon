@@ -67,14 +67,14 @@ export function CalendarMonth() {
     <AppPage>
       <PageHeader
         title={dayLabel}
-        subtitle={`${dayClients.length} ${dayClients.length === 1 ? 'recall' : 'recalls'}`}
+        subtitle={`${dayClients.length} ${dayClients.length === 1 ? 'follow-up' : 'follow-ups'}`}
         onBack={() => navigate(paths.calendar)}
         backLabel="Back to calendar"
       />
 
       {dayClients.length === 0 ? (
         <p className="rounded-2xl bg-ivory px-4 py-8 text-sm text-cocoa-soft ring-1 ring-line">
-          No clients due this day.
+          No client follow-ups scheduled for this day.
         </p>
       ) : (
         <div className="flex flex-col gap-2">

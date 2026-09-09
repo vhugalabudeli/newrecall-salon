@@ -5,7 +5,7 @@ import { paths } from '../lib/routes'
 import '../styles/landing.css'
 
 export function ThankYou() {
-  useDocumentTitle('Walkthrough request sent — NewRecall Salon')
+  useDocumentTitle('Demo request sent — NewRecall')
 
   return (
     <div className="landing-page" data-page="salon">
@@ -14,16 +14,16 @@ export function ThankYou() {
         <div className="wrap thanks">
           <div className="card">
             <p className="eyebrow">Thank you</p>
-            <h1>We received your walkthrough request.</h1>
+            <h1>Your demo request is on its way.</h1>
             <p className="lead">
-              It is on its way to us. We will follow up by email to schedule a time.
+              Thanks for getting in touch. We’ll email you soon to arrange a time that works.
             </p>
             <div className="cta-row">
               <Link className="btn btn-primary" to={paths.landing}>
                 Back to NewRecall
               </Link>
               <Link className="btn btn-secondary" to={paths.login}>
-                Log in
+                Sign in
               </Link>
             </div>
           </div>

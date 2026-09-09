@@ -17,10 +17,10 @@ export function paywallBypassed(): boolean {
 }
 
 export function accessLabel(info: BillingStatus | null): string {
-  if (!info || !info.entitled) return 'No plan'
+  if (!info || !info.entitled) return 'No active plan'
   if (info.period === 'trial') return 'Free trial'
   if (info.period === 'monthly') return 'Monthly'
-  return 'No plan'
+  return 'No active plan'
 }
 
 async function post<T>(path: string, body: Record<string, string> = {}): Promise<T> {
@@ -38,7 +38,7 @@ async function post<T>(path: string, body: Record<string, string> = {}): Promise
     const error =
       json && typeof json === 'object' && 'error' in json
         ? String((json as { error: unknown }).error)
-        : 'Request failed.'
+        : 'We could not check your subscription. Please try again.'
     throw new Error(error)
   }
   return json as T

@@ -28,11 +28,11 @@ function isClient(value: unknown): value is Client {
 
 export function parseBookBackup(raw: unknown): BookBackup | { error: string } {
   if (!raw || typeof raw !== 'object') {
-    return { error: 'That file is not a NewRecall book.' }
+    return { error: 'That file is not a valid NewRecall salon backup.' }
   }
   const data = raw as Partial<BookBackup>
   if (data.kind !== BACKUP_KIND || data.version !== 1) {
-    return { error: 'That file is not a NewRecall book.' }
+    return { error: 'That file is not a valid NewRecall salon backup.' }
   }
   if (!Array.isArray(data.clients) || !data.clients.every(isClient)) {
     return { error: 'That book file is damaged.' }

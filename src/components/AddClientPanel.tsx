@@ -303,7 +303,7 @@ export function AddClientPanel({ client, onClose }: AddClientPanelProps) {
             {client ? 'Edit client' : 'New client'}
           </p>
           <h2 className="font-display mt-1 text-2xl font-semibold">
-            {client ? client.clientName : 'Add to the book'}
+            {client ? client.clientName : 'Add to client list'}
           </h2>
         </div>
 
@@ -408,9 +408,9 @@ export function AddClientPanel({ client, onClose }: AddClientPanelProps) {
             />
           </Field>
 
-          <Field label="Lifespan">
+          <Field label="Usual return time">
             <SelectTrigger
-              title="Lifespan"
+              title="Usual return time"
               className={inputClass}
               value={draft.lifespanWeeks}
               options={lifespanWeekOptions.map((weeks) => ({
@@ -423,7 +423,7 @@ export function AddClientPanel({ client, onClose }: AddClientPanelProps) {
 
           <fieldset className="space-y-2">
             <legend className="text-sm font-medium">
-              Recall before it lapses
+              Schedule the follow-up
             </legend>
             {recallLeads.map((lead) => (
               <label
@@ -443,7 +443,7 @@ export function AddClientPanel({ client, onClose }: AddClientPanelProps) {
           </fieldset>
 
           <p className="rounded-xl bg-cream px-3 py-2.5 text-sm text-cocoa-soft">
-            Lapses {formatDate(preview.lapse)}. Recall{' '}
+            Expected return: {formatDate(preview.lapse)}. Follow up:{' '}
             {formatDate(preview.recall)}.
           </p>
 

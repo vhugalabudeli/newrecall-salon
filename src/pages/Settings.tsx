@@ -145,7 +145,7 @@ export function Settings() {
       return
     }
     if (!user?.email) {
-      setPermissionNote('Log in to receive alerts when the app is closed.')
+      setPermissionNote('Sign in to receive alerts when the app is closed.')
       return
     }
     const permission = await ensureNotificationPermission()
@@ -181,8 +181,8 @@ export function Settings() {
           title: key === 'dueToday' ? 'Due today' : 'Overdue',
           body:
             push === 'ok'
-              ? 'You will get an alert around 8:00 when recalls need attention.'
-              : 'You will get a local alert when recalls need attention.',
+              ? 'You will get an alert around 8:00 when follow-ups need attention.'
+              : 'You will get a local alert when follow-ups need attention.',
         },
       ],
     })
@@ -215,14 +215,14 @@ export function Settings() {
       setLastExportAt(readLastExportAt())
       setBackupNote('Book exported.')
     } catch {
-      setBackupNote('Could not export the book.')
+      setBackupNote('The salon backup could not be exported. Please try again.')
     }
   }
 
   async function onImportFile(file: File | undefined) {
     if (!file) return
     const replace = window.confirm(
-      'Import replaces the salon book for everyone in this salon. Continue?',
+      'Importing replaces the shared client list and notes for everyone in this salon. Continue?',
     )
     if (!replace) return
     const result = await importBook(file)
@@ -235,7 +235,7 @@ export function Settings() {
     try {
       const status = await fetchBillingStatus()
       if (!status.subscriptionCode) {
-        setPortalError('Could not open billing.')
+        setPortalError('We could not find an active subscription to manage.')
         return
       }
       const link = await openBillingPortal({
@@ -244,7 +244,7 @@ export function Settings() {
       window.open(link, '_blank', 'noopener,noreferrer')
     } catch (error) {
       setPortalError(
-        error instanceof Error ? error.message : 'Could not open billing.',
+        error instanceof Error ? error.message : 'The billing portal could not be opened. Please try again.',
       )
     }
   }
@@ -350,7 +350,7 @@ export function Settings() {
           {backupOpen ? (
             <div className="mt-3 space-y-3">
               <div className="flex items-center justify-between gap-3">
-                <span className="text-sm">Export my book</span>
+                <span className="text-sm">Export salon backup</span>
                 <button
                   type="button"
                   className={fieldActionClassName}
@@ -360,7 +360,7 @@ export function Settings() {
                 </button>
               </div>
               <div className="flex items-center justify-between gap-3">
-                <span className="text-sm">Import my book</span>
+                <span className="text-sm">Import salon backup</span>
                 <button
                   type="button"
                   className={fieldActionClassName}
@@ -503,7 +503,7 @@ function StaffSettings() {
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      void refresh().catch(() => setNote('Could not load staff.'))
+      void refresh().catch(() => setNote('Staff details could not be loaded. Please refresh the page.'))
     }, 0)
     return () => window.clearTimeout(timer)
   }, [])
@@ -526,7 +526,7 @@ function StaffSettings() {
     <section className="rounded-2xl bg-ivory p-4 ring-1 ring-line">
       <h2 className="text-sm font-medium">Staff</h2>
       <p className="mt-1 text-sm text-cocoa-soft">
-        Staff share this salon’s book. They do not start a second trial.
+        Staff share this salon’s clients, services, and follow-ups. They do not need a separate subscription.
       </p>
       <div className="mt-3 flex gap-2">
         <input

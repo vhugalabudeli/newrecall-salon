@@ -22,7 +22,7 @@ export default defineConfig({
       manifest: {
         name: 'NewRecall',
         short_name: 'NewRecall',
-        description: 'Salon CRM',
+        description: 'Client follow-ups for salons',
         theme_color: '#c45c6a',
         background_color: '#f3ebe0',
         display: 'standalone',

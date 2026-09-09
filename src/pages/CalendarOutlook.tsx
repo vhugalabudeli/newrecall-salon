@@ -18,7 +18,7 @@ export function CalendarOutlook() {
 
       {months.length === 0 ? (
         <p className="rounded-2xl bg-ivory px-4 py-8 text-sm text-cocoa-soft ring-1 ring-line">
-          No recalls in the next three months.
+          No follow-ups scheduled for the next three months.
         </p>
       ) : (
         <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
@@ -28,7 +28,7 @@ export function CalendarOutlook() {
               eyebrow={monthPreviewLabels[month.offset]}
               title={month.label}
               total={month.total}
-              empty="No recalls this month."
+              empty="No follow-ups this month."
               rows={month.days.map((day) => ({
                 key: `${month.label}-${day.dayOffset}`,
                 to: paths.calendarDay(day.dayOffset),

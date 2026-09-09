@@ -30,10 +30,10 @@ export function LandingHeader() {
           ) : (
             <>
               <Link className="nav-text" to={paths.login}>
-                Log in
+                Sign in
               </Link>
               <Link className="btn btn-primary" to={paths.register}>
-                Register
+                Start free trial
               </Link>
             </>
           )}

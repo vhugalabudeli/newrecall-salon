@@ -228,7 +228,7 @@ export async function dispatchAdmin(input: AdminDispatch): Promise<AdminResult> 
       try {
         raw = JSON.parse(input.body.backup || '') as unknown
       } catch {
-        throw new AdminHttpError(400, 'That file is not a NewRecall book.')
+        throw new AdminHttpError(400, 'That file is not a valid NewRecall salon backup.')
       }
       await restoreTenantBook(salonId, raw)
       await addAudit({
@@ -245,7 +245,7 @@ export async function dispatchAdmin(input: AdminDispatch): Promise<AdminResult> 
       const httpError = error
       return json(httpError.status, { error: httpError.message })
     }
-    const message = error instanceof Error ? error.message : 'Request failed.'
+    const message = error instanceof Error ? error.message : 'The operations request could not be completed. Please try again.'
     const status = message.includes('Missing PAYSTACK_SECRET_KEY') ? 503 : 400
     return json(status, { error: message })
   }

@@ -484,7 +484,7 @@ export function billingCsv(overview: AdminOverview): string {
     .map((row) =>
       billingCsvLine({
         email: row.email,
-        plan: row.kind === 'r1' ? 'R1 card check' : PLAN_NAME,
+        plan: row.kind === 'r1' ? 'Card verification' : PLAN_NAME,
         amountCents: row.amountCents,
         reference: row.reference,
       }),

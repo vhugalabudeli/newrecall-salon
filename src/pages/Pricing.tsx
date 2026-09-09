@@ -4,39 +4,38 @@ import { paths } from '../lib/routes'
 
 export function Pricing() {
   return (
-    <LegalLayout title="Pricing" eyebrow="Salon CRM">
+    <LegalLayout title="Simple monthly pricing" eyebrow="Pricing">
       <p>
-        NewRecall Salon CRM is a monthly subscription. Register at
-        salon.newrecall.com to start.
+        NewRecall gives your whole salon one shared place to manage client
+        follow-ups. Start with a 30-day free trial, then pay month to month.
       </p>
 
       <h2>Plan</h2>
       <p>
-        <strong>R200 per month</strong> (South African rand), billed through
-        Paystack. New customers start with a <strong>30-day free trial</strong>.
-        A payment method is collected at the start of the trial (R1.00 card
-        verification, refunded). When the trial ends, the subscription renews
-        monthly until you cancel.
+        <strong>R200 per month</strong>, billed in South African rand through
+        Paystack. Your first 30 days are free. Paystack charges R1.00 when you
+        add your card to verify it, then refunds that amount. Unless you cancel,
+        the paid monthly subscription starts when your trial ends.
       </p>
 
       <h2>What is included</h2>
       <p>
-        The salon recall book in the cloud: clients, recall calendar, staff
-        access, and settings. Staff invited by the owner share the same book.
-        The owner’s Paystack subscription unlocks the salon.
+        One salon workspace with your client list, follow-up calendar, services,
+        notes, alerts, backups, and staff access. Invited staff share the owner’s
+        subscription and do not pay separately.
       </p>
 
       <h2>Cancel</h2>
       <p>
-        Cancel anytime before the trial converts, or later, through Manage
-        subscription in Settings. See the{' '}
+        The salon owner can cancel at any time from <strong>Manage subscription</strong>
+        in Settings. See the{' '}
         <Link to={paths.refunds}>refund policy</Link> for how charges and
         refunds work.
       </p>
 
       <p>
         <Link className="btn btn-primary" to={paths.register}>
-          Register
+          Start your free trial
         </Link>
       </p>
     </LegalLayout>

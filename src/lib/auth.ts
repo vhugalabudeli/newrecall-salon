@@ -140,12 +140,12 @@ export async function register(
     }
 
     const user = await loadAuthUser()
-    if (!user) return { ok: false, error: 'Account created, but the salon is not ready yet. Log in again.' }
+    if (!user) return { ok: false, error: 'Your account was created, but the salon setup is still finishing. Please sign in again.' }
     return { ok: true, user }
   } catch (error) {
     return {
       ok: false,
-      error: error instanceof Error ? error.message : 'Could not register.',
+      error: error instanceof Error ? error.message : 'Your account could not be created. Please try again.',
     }
   }
 }
@@ -164,7 +164,7 @@ export async function login(email: string, password: string): Promise<AuthResult
   } catch (error) {
     return {
       ok: false,
-      error: error instanceof Error ? error.message : 'Could not log in.',
+      error: error instanceof Error ? error.message : 'We could not sign you in. Check your details and try again.',
     }
   }
 }

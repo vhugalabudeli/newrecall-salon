@@ -134,7 +134,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     fail(res, 404, 'Not found')
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Request failed.'
+    const message = error instanceof Error ? error.message : 'We could not update notification alerts. Please try again.'
     fail(res, 500, message)
   }
 }

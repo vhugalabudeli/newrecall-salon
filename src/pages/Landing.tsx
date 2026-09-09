@@ -6,10 +6,10 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import { paths } from '../lib/routes'
 import '../styles/landing.css'
 
-const FORM_ACTION = 'https://formsubmit.co/vhugalabudeli@gmail.com'
+const FORM_ACTION = 'https://formsubmit.co/support@newrecall.com'
 
 export function Landing() {
-  useDocumentTitle('NewRecall — Salon CRM')
+  useDocumentTitle('NewRecall — Client follow-ups for salons')
   const { user, ready } = useAuth()
   const thankYouUrl =
     typeof window === 'undefined'
@@ -23,13 +23,13 @@ export function Landing() {
       <main>
         <div className="wrap">
           <section className="hero">
-            <p className="eyebrow">Salon CRM</p>
-            <h1>You track who to contact when their last visit is due to lapse.</h1>
+            <p className="eyebrow">Client follow-ups for salons</p>
+            <h1>Know who is ready to come back — and when to get in touch.</h1>
             <p className="lead">
-              Recall clients when hair, nails, waxing, lashes, massage, tanning, or
-              facials are due — after the last visit’s lifespan. Register or log in
-              to open the book, or request a walkthrough for your salon. The plan
-              is R200 per month after a 30-day free trial.
+              NewRecall keeps your client follow-ups in one shared salon workspace.
+              Add a client’s last visit, choose when they usually return, and see who
+              needs a call or message next. Try it free for 30 days, then pay R200 per
+              month.
             </p>
             <div className="cta-row">
               {ready && user ? (
@@ -40,10 +40,10 @@ export function Landing() {
               ) : (
                 <>
                   <Link className="btn btn-primary" to={paths.register}>
-                    Register
+                    Start your free trial
                   </Link>
                   <Link className="btn btn-secondary" to={paths.login}>
-                    Log in
+                    Sign in
                   </Link>
                 </>
               )}
@@ -52,9 +52,9 @@ export function Landing() {
 
           <section className="section" aria-labelledby="features-heading">
             <div className="section-head">
-              <h2 id="features-heading">Built for salon recall calls</h2>
+              <h2 id="features-heading">Simple follow-ups that bring clients back</h2>
               <p className="muted">
-                Each visit sets the next recall from that service’s lifespan.
+                Set each service’s usual return interval and NewRecall works out the next follow-up date.
               </p>
             </div>
             <div className="feature-grid">
@@ -69,8 +69,8 @@ export function Landing() {
                     />
                   </svg>
                 </span>
-                <h3>Recall calendar</h3>
-                <p>See who is due this week, this month, and further out.</p>
+                <h3>Follow-up calendar</h3>
+                <p>See who needs attention today, this week, and in the months ahead.</p>
               </article>
               <article className="card feature-card">
                 <span className="icon-pill" aria-hidden="true">
@@ -83,11 +83,10 @@ export function Landing() {
                     />
                   </svg>
                 </span>
-                <h3>Lifespan</h3>
+                <h3>Flexible return times</h3>
                 <p>
-                  Each service lasts a set number of weeks after the last visit. Call
-                  on or before it lapses. Booking closes this recall; the next starts
-                  when you enter a new last visit.
+                  Choose how often clients usually return for each service. When a
+                  client books, close the follow-up and start again after their next visit.
                 </p>
               </article>
               <article className="card feature-card">
@@ -103,8 +102,8 @@ export function Landing() {
                 </span>
                 <h3>Hair, nails, and more</h3>
                 <p>
-                  Pick a service type — hair, nail, waxing, eyelash, massage, tanning,
-                  or facials — then track the lifespan that fits that treatment.
+                  Organise hair, nails, waxing, lashes, massage, tanning, and facials
+                  with return intervals that suit each treatment.
                 </p>
               </article>
               <article className="card feature-card">
@@ -118,10 +117,10 @@ export function Landing() {
                     />
                   </svg>
                 </span>
-                <h3>Recall SMS</h3>
+                <h3>Ready-to-send messages</h3>
                 <p>
                   One template. Wording switches when the booking is for someone else.
-                  SMS, WhatsApp, or call from the recall card — messages send from
+                  Send an SMS or WhatsApp message, or call from the follow-up card — everything opens on
                   this device.
                 </p>
               </article>
@@ -133,9 +132,9 @@ export function Landing() {
             id="walkthrough"
             aria-labelledby="walkthrough-heading"
           >
-            <h2 id="walkthrough-heading">Request a walkthrough</h2>
+            <h2 id="walkthrough-heading">Book a demo</h2>
             <p className="muted">
-              Tell us a little about the salon. We will email you to pick a time.
+              Tell us about your salon and we’ll email you to arrange a time.
             </p>
             <form action={FORM_ACTION} method="POST">
               <input type="hidden" name="_subject" value="Walkthrough request: Salon" />
@@ -172,12 +171,12 @@ export function Landing() {
                   <textarea
                     name="message"
                     rows={4}
-                    placeholder="When would you like a walkthrough?"
+                    placeholder="Tell us what you’d like to see in the demo"
                   />
                 </label>
               </div>
               <button className="btn btn-primary" type="submit">
-                Send walkthrough request
+                Book my demo
               </button>
             </form>
           </section>

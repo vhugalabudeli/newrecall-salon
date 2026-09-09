@@ -226,7 +226,7 @@ export function ServiceTypeDetail() {
 
       {fromBook ? (
         <p className="mb-4 rounded-2xl bg-rose-mist/50 px-4 py-3 text-sm text-cocoa">
-          Add the service, then return to the book.
+          Add the service, then return to the client form.
         </p>
       ) : null}
 
@@ -303,9 +303,9 @@ export function ServiceTypeDetail() {
               />
             </label>
             <div className="mt-3">
-              <span className="mb-1 block text-sm font-medium">Lifespan</span>
+              <span className="mb-1 block text-sm font-medium">Usual return time</span>
               <SelectTrigger
-                title="Lifespan"
+                title="Usual return time"
                 className={inputClass}
                 value={weeks}
                 options={lifespanWeekOptions.map((option) => ({
@@ -376,9 +376,9 @@ export function ServiceTypeDetail() {
                   )}
                 </label>
                 <div className="mt-3">
-                  <span className="mb-1 block text-sm font-medium">Lifespan</span>
+                  <span className="mb-1 block text-sm font-medium">Usual return time</span>
                   <SelectTrigger
-                    title="Lifespan"
+                    title="Usual return time"
                     className={inputClass}
                     value={serviceDraftWeeks}
                     options={lifespanWeekOptions.map((option) => ({

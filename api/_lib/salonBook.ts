@@ -98,11 +98,11 @@ function parseCatalog(raw: unknown): ServiceCatalog | undefined {
 
 function parseBookBackup(raw: unknown): BookBackup | { error: string } {
   if (!raw || typeof raw !== 'object') {
-    return { error: 'That file is not a NewRecall book.' }
+    return { error: 'That file is not a valid NewRecall salon backup.' }
   }
   const data = raw as Partial<BookBackup>
   if (data.kind !== BACKUP_KIND || data.version !== 1) {
-    return { error: 'That file is not a NewRecall book.' }
+    return { error: 'That file is not a valid NewRecall salon backup.' }
   }
   if (!Array.isArray(data.clients) || !data.clients.every(isClient)) {
     return { error: 'That book file is damaged.' }
@@ -307,7 +307,7 @@ export async function restoreTenantBook(
   if (!salon) throw new Error('That salon is gone.')
 
   const { error: clearError } = await admin.from('clients').delete().eq('salon_id', salonId)
-  throwIf(clearError, 'Could not clear the salon book.')
+  throwIf(clearError, 'Could not clear the salon data before restoring the backup.')
 
   if (parsed.clients.length > 0) {
     const { error: insertError } = await admin.from('clients').insert(

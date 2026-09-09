@@ -13,7 +13,7 @@ export function LegalLayout({
   eyebrow: string
   children: ReactNode
 }) {
-  useDocumentTitle(`${title} — NewRecall Salon`)
+  useDocumentTitle(`${title} — NewRecall`)
 
   return (
     <div className="landing-page" data-page="salon">
@@ -22,7 +22,7 @@ export function LegalLayout({
         <article className="wrap legal">
           <p className="eyebrow">{eyebrow}</p>
           <h1>{title}</h1>
-          <p className="muted">Last updated 4 September 2026</p>
+          <p className="muted">Last updated 9 September 2026</p>
           {children}
         </article>
       </main>

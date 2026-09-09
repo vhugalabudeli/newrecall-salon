@@ -38,7 +38,7 @@ export function ImportDeviceBook() {
       setNote(result.error ?? 'This device’s book is now in the salon.')
       if (!result.error) setDismissed(true)
     } catch (error) {
-      setNote(error instanceof Error ? error.message : 'Could not import the book.')
+      setNote(error instanceof Error ? error.message : 'The saved client list could not be imported. Please try again.')
     } finally {
       setBusy(false)
     }

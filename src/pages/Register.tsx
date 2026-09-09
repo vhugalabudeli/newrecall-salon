@@ -7,7 +7,7 @@ import { paths } from '../lib/routes'
 import '../styles/landing.css'
 
 export function Register() {
-  useDocumentTitle('Register — NewRecall Salon')
+  useDocumentTitle('Start your free trial — NewRecall')
   const navigate = useNavigate()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -41,10 +41,10 @@ export function Register() {
         <div className="wrap thanks">
           <div className="card">
             <p className="eyebrow">Account</p>
-            <h1>Register</h1>
+            <h1>Create your salon account</h1>
             <p className="lead">
-              Create an account for your salon, then start a free trial. Staff
-              join from an invite and share the same book.
+              Set up your salon, then start your 30-day free trial. You can invite
+              staff to work from the same client list once you’re inside.
             </p>
             <form className="auth-form" onSubmit={onSubmit}>
               <label>
@@ -94,11 +94,11 @@ export function Register() {
               </label>
               {error ? <p className="form-error">{error}</p> : null}
               <button className="btn btn-primary" type="submit" disabled={saving}>
-                {saving ? 'Creating account…' : 'Register'}
+                {saving ? 'Creating your account…' : 'Continue to free trial'}
               </button>
             </form>
             <p className="muted auth-switch">
-              Already have an account? <Link to={paths.login}>Log in</Link>
+              Already have an account? <Link to={paths.login}>Sign in</Link>
             </p>
           </div>
         </div>

@@ -9,7 +9,7 @@ import { readSalonName } from './settings'
 import { formatLifespan, parseVisitDate } from './schedule'
 import type { Client } from '../types'
 
-export const DEFAULT_MESSAGE_TEMPLATE = `Hi {{contact_name}}, it's been {{x_time}} since {{whose_visit}} {{service_name}}. We'd love to get {{book_who}} back in.
+export const DEFAULT_MESSAGE_TEMPLATE = `Hi {{contact_name}}, it may be time for {{book_who}} to book another {{service_name}} appointment. We’d love to see you again.
 
 {{company_name}}`
 

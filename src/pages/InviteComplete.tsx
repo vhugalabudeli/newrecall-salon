@@ -9,7 +9,7 @@ import { paths } from '../lib/routes'
 import '../styles/landing.css'
 
 export function InviteComplete() {
-  useDocumentTitle('Complete staff account — NewRecall Salon')
+  useDocumentTitle('Join your salon — NewRecall')
   const navigate = useNavigate()
   const { user, ready } = useAuth()
   const [name, setName] = useState('')
@@ -46,11 +46,11 @@ export function InviteComplete() {
         <div className="wrap thanks">
           <div className="card">
             <p className="eyebrow">Staff invitation</p>
-            <h1>Complete your account</h1>
+            <h1>Finish setting up your account</h1>
             <p className="lead">
               {user?.role === 'staff'
-                ? `Join ${user.salonName} with your own NewRecall login.`
-                : 'Open the latest invitation email from your salon owner.'}
+                ? `Create your own sign-in for ${user.salonName}. You’ll share the salon workspace with your team.`
+                : 'Open the latest invitation email from your salon owner to continue.'}
             </p>
             {sessionError ? (
               <p className="form-error">{sessionError}</p>
@@ -90,7 +90,7 @@ export function InviteComplete() {
                 </label>
                 {error ? <p className="form-error">{error}</p> : null}
                 <button className="btn btn-primary" type="submit" disabled={saving}>
-                  {saving ? 'Saving account…' : 'Complete account'}
+                  {saving ? 'Setting up your account…' : 'Finish setup'}
                 </button>
               </form>
             )}

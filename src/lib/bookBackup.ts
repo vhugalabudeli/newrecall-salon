@@ -75,7 +75,7 @@ export async function importBook(file: File): Promise<{ error?: string }> {
   try {
     raw = JSON.parse(await file.text()) as unknown
   } catch {
-    return { error: 'That file is not a NewRecall book.' }
+    return { error: 'That file is not a valid NewRecall salon backup.' }
   }
   const parsed = parseBookBackup(raw)
   if ('error' in parsed) return parsed

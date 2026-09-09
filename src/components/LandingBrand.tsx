@@ -24,7 +24,7 @@ export function LandingBrand() {
       </span>
       <span className="brand-copy">
         <strong>NewRecall</strong>
-        <span>Salon CRM</span>
+        <span>Client follow-ups</span>
       </span>
     </Link>
   )

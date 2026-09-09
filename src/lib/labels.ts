@@ -43,14 +43,14 @@ export function clientServiceType(
 }
 
 export const recallLeadLabels: Record<RecallLead, string> = {
-  on_the_day: 'On the day it lapses',
-  day_before: '1 day before it lapses',
-  week_before: '1 week before it lapses',
+  on_the_day: 'On the expected return date',
+  day_before: '1 day before the expected return date',
+  week_before: '1 week before the expected return date',
 }
 
 export const bookingStatusLabels: Record<BookingStatus, string> = {
-  not_yet_booked: 'Not yet responded',
-  acknowledged: 'Acknowledged',
+  not_yet_booked: 'No response yet',
+  acknowledged: 'Interested',
   booked: 'Booked',
   declined: 'Declined',
 }

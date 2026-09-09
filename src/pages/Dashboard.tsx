@@ -30,7 +30,7 @@ export function Dashboard() {
           subtitle={formatRecall(recallDate(viewing))}
           titleClassName="text-blush-dark"
           onBack={() => setViewingId(null)}
-          backLabel="Back to upcoming recalls"
+          backLabel="Back to upcoming follow-ups"
         />
 
         <RecallCard
@@ -51,7 +51,7 @@ export function Dashboard() {
   return (
     <AppPage>
       <PageHeader
-        title="Upcoming recalls"
+        title="Upcoming follow-ups"
         titleClassName="text-blush-dark"
         onAdd={() => setAdding(true)}
       />

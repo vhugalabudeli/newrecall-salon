@@ -159,7 +159,7 @@ export function RecallCard({ client, onEdit }: RecallCardProps) {
         </Row>
       )}
       <Row>
-        <Field label="Recall date">
+        <Field label="Follow-up date">
           <span className="text-cocoa-soft">{formatRecall(due)}</span>
         </Field>
       </Row>

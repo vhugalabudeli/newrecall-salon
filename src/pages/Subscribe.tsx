@@ -14,7 +14,7 @@ import { paths } from '../lib/routes'
 import '../styles/landing.css'
 
 export function Subscribe() {
-  useDocumentTitle('Start free trial — NewRecall Salon')
+  useDocumentTitle('Start your free trial — NewRecall')
   const navigate = useNavigate()
   const { user } = useAuth()
   const { entitled, ready, error: accessError, refresh } = useSubscription()
@@ -34,7 +34,7 @@ export function Subscribe() {
       const result = await openPaystackPopup(checkout.accessCode)
       if (result === 'cancelled') {
         setStatus('cancelled')
-        setMessage('Start the free trial to open the book.')
+        setMessage('Checkout was closed. Start the free trial when you’re ready.')
         return
       }
       const billed = await finishTrialCheckout({
@@ -46,13 +46,13 @@ export function Subscribe() {
         return
       }
       setStatus('error')
-      setMessage('The trial did not unlock access yet. Try again.')
+      setMessage('Your payment was confirmed, but access is still updating. Please try again in a moment.')
     } catch (error) {
       setStatus('error')
       setMessage(
         error instanceof Error
           ? error.message
-          : 'Could not open checkout.',
+          : 'We could not open the secure checkout. Please try again.',
       )
     } finally {
       setBusy(false)
@@ -71,15 +71,15 @@ export function Subscribe() {
         <div className="wrap thanks">
           <div className="card">
             <p className="eyebrow">Subscription</p>
-            <h1>Free for 30 days, then R200 / month</h1>
+            <h1>Try NewRecall free for 30 days</h1>
             <p className="lead">
               {isStaff
-                ? 'This salon is not on a plan yet. Ask the owner to start the free trial. Staff do not create a second Paystack customer.'
-                : 'A South African card is required to start the trial. We charge '}
+                ? 'Your salon does not have an active plan yet. Ask the owner to start the free trial — staff never need a separate subscription.'
+                : 'Add a South African bank card to start. Paystack will charge '}
               {isStaff ? null : (
                 <>
                   <strong>R1.00</strong> now to verify the card, then refund it.
-                  After 30 days the plan is R200 per month until you cancel.
+                  Your trial is free for 30 days, then the plan renews at R200 per month until you cancel.
                 </>
               )}
             </p>
@@ -94,7 +94,7 @@ export function Subscribe() {
                   disabled={busy}
                   onClick={() => void present()}
                 >
-                  {busy ? 'Opening checkout…' : 'Start free trial'}
+                  {busy ? 'Opening secure checkout…' : 'Start my free trial'}
                 </button>
               </div>
             )}

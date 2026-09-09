@@ -102,7 +102,7 @@ export function ClientStatusEditors({ client }: { client: Client }) {
       </div>
       <div className={recallRowClassName}>
         <StatusField
-          label="Response"
+          label="Booking status"
           value={bookingStatusLabels[client.bookingStatus]}
           editing={editing === 'booking'}
           onChangeClick={() => startEdit('booking')}
@@ -112,7 +112,7 @@ export function ClientStatusEditors({ client }: { client: Client }) {
           sheet={
             editing === 'booking' ? (
               <SelectSheet
-                title="Response"
+                title="Booking status"
                 options={bookingOptions}
                 value={client.bookingStatus}
                 confirm

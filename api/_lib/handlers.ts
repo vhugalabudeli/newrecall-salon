@@ -31,7 +31,7 @@ function authHeader(req: VercelRequest): string | undefined {
 }
 
 function sendError(res: VercelResponse, error: unknown) {
-  const message = error instanceof Error ? error.message : 'Request failed.'
+  const message = error instanceof Error ? error.message : 'We could not complete the billing request. Please try again.'
   res.status(httpErrorStatus(error)).json({ error: message })
 }
 

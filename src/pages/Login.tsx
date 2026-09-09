@@ -7,7 +7,7 @@ import { paths } from '../lib/routes'
 import '../styles/landing.css'
 
 export function Login() {
-  useDocumentTitle('Log in — NewRecall Salon')
+  useDocumentTitle('Sign in — NewRecall')
   const navigate = useNavigate()
   const location = useLocation()
   const from =
@@ -38,10 +38,10 @@ export function Login() {
         <div className="wrap thanks">
           <div className="card">
             <p className="eyebrow">Account</p>
-            <h1>Log in</h1>
+            <h1>Welcome back</h1>
             <p className="lead">
-              Use your NewRecall email and password. Staff share the salon book
-              with the owner.
+              Sign in with your NewRecall email and password. Owners and invited
+              staff work from the same salon workspace.
             </p>
             <form className="auth-form" onSubmit={onSubmit}>
               <label>
@@ -68,11 +68,11 @@ export function Login() {
               </label>
               {error ? <p className="form-error">{error}</p> : null}
               <button className="btn btn-primary" type="submit" disabled={saving}>
-                {saving ? 'Logging in…' : 'Log in'}
+                {saving ? 'Signing in…' : 'Sign in'}
               </button>
             </form>
             <p className="muted auth-switch">
-              New here? <Link to={paths.register}>Register</Link>
+              New to NewRecall? <Link to={paths.register}>Start your free trial</Link>
             </p>
           </div>
         </div>

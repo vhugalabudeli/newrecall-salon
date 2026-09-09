@@ -23,7 +23,7 @@ import {
 import type { Client } from '../types'
 
 export function dueTodayBody(clients: Client[]): string {
-  if (clients.length === 0) return 'No recalls due today.'
+  if (clients.length === 0) return 'No follow-ups due today.'
   if (clients.length === 1) return `${clients[0].clientName} is due today.`
   if (clients.length === 2) {
     return `${clients[0].clientName} and ${clients[1].clientName} are due today.`
@@ -32,11 +32,11 @@ export function dueTodayBody(clients: Client[]): string {
 }
 
 export function overdueBody(clients: Client[], today: Date): string {
-  if (clients.length === 0) return 'No overdue recalls.'
+  if (clients.length === 0) return 'No overdue follow-ups.'
   const first = clients[0]
   const span = timeFrameLabel(recallDate(first), today)
   if (clients.length === 1) return `${first.clientName} is ${span}.`
-  return `${clients.length} overdue recalls. ${first.clientName} is ${span}.`
+  return `${clients.length} overdue follow-ups. ${first.clientName} is ${span}.`
 }
 
 function notificationIconUrl(): string {

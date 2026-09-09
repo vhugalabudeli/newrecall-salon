@@ -423,7 +423,7 @@ export async function updateBookingStatus(
     .update({ booking_status: bookingStatus, updated_at: nowIso() })
     .eq('id', id)
     .eq('salon_id', requireSalonId())
-  throwIf(error, 'Could not update response.')
+  throwIf(error, 'Could not update the booking status.')
 }
 
 export async function updateContactStatus(
@@ -497,7 +497,7 @@ export async function replaceAllClients(clients: Client[]): Promise<void> {
     return { ...client, id, notes }
   })
   const { error } = await supabase.from('clients').delete().eq('salon_id', salonId)
-  throwIf(error, 'Could not clear the book.')
+  throwIf(error, 'Could not clear the salon data before importing the backup.')
   if (remapped.length === 0) return
   const { error: insertError } = await supabase
     .from('clients')

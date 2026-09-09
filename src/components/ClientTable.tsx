@@ -200,9 +200,9 @@ export function ClientTable({ clients, ready, onAdd, onUpdate }: ClientTableProp
               <th className="px-3 py-3 font-medium">Name</th>
               <th className="px-3 py-3 font-medium">Phone</th>
               <th className="px-3 py-3 font-medium">Service</th>
-              <th className="px-3 py-3 font-medium">Recall</th>
+              <th className="px-3 py-3 font-medium">Follow-up</th>
               <th className="px-3 py-3 font-medium">Contact</th>
-              <th className="px-3 py-3 font-medium">Response</th>
+              <th className="px-3 py-3 font-medium">Booking status</th>
               <th className="px-3 py-3 font-medium text-right">
                 <span className="sr-only">Update</span>
               </th>

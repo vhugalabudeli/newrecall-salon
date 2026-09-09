@@ -22,20 +22,20 @@ import { paths } from '../lib/routes'
 const SECTIONS = [
   { id: 'lookup', label: 'Lookup' },
   { id: 'subscriptions', label: 'Subscriptions' },
-  { id: 'trial-clock', label: 'Trial clock' },
-  { id: 'r1', label: 'R1 card check' },
+  { id: 'trial-clock', label: 'Trials ending soon' },
+  { id: 'r1', label: 'Card verification' },
   { id: 'transactions', label: 'Transactions' },
   { id: 'refunds', label: 'Refunds' },
   { id: 'disputes', label: 'Disputes' },
   { id: 'failed-renewals', label: 'Failed renewals' },
-  { id: 'abandoned', label: 'Abandoned' },
-  { id: 'money', label: '30-day money' },
-  { id: 'entitlement', label: 'Entitlement' },
-  { id: 'who-has-app', label: 'Who has /app' },
+  { id: 'abandoned', label: 'Incomplete checkouts' },
+  { id: 'money', label: '30-day revenue' },
+  { id: 'entitlement', label: 'Access mismatches' },
+  { id: 'who-has-app', label: 'App access' },
   { id: 'health', label: 'Health' },
   { id: 'legal', label: 'Site legal' },
-  { id: 'recall', label: 'Recall wording' },
-  { id: 'tenants', label: 'Tenants' },
+  { id: 'recall', label: 'Follow-up message' },
+  { id: 'tenants', label: 'Salons' },
   { id: 'backups', label: 'Backups' },
   { id: 'support', label: 'Support' },
 ] as const
@@ -48,7 +48,7 @@ function when(iso: string | null | undefined): string {
 }
 
 export function Admin() {
-  useDocumentTitle('Operator desk — NewRecall')
+  useDocumentTitle('NewRecall operations')
   const [email, setEmail] = useState<string | null>(null)
   const [checking, setChecking] = useState(true)
 
@@ -111,10 +111,10 @@ function AdminLogin({
     <div className="min-h-svh bg-cream px-4 py-16 text-cocoa">
       <div className="mx-auto w-full max-w-md rounded-2xl bg-ivory p-6 ring-1 ring-line">
         <p className="text-sm font-medium text-blush-dark">NewRecall</p>
-        <h1 className="mt-2 font-display text-3xl font-semibold">Operator desk</h1>
+        <h1 className="mt-2 font-display text-3xl font-semibold">NewRecall operations</h1>
         <p className="mt-2 text-sm text-cocoa-soft">
-          Sign in to review billing, health, and support. This is not a salon
-          login.
+          Sign in to manage billing, service health, customer access, and support.
+          Salon accounts cannot sign in here.
         </p>
         <form className="mt-6 space-y-3" onSubmit={onSubmit}>
           <label className="block text-sm">
@@ -180,7 +180,7 @@ function AdminDesk({
   useEffect(() => {
     const timer = window.setTimeout(() => {
       void refresh().catch((err: unknown) => {
-        setLoadError(err instanceof Error ? err.message : 'Could not load the desk.')
+        setLoadError(err instanceof Error ? err.message : 'The operations overview could not be loaded. Try refreshing the page.')
       })
     }, 0)
     void Promise.all(
@@ -269,7 +269,7 @@ function AdminDesk({
   async function onTenantRestore(file: File | undefined) {
     if (!file || !selectedTenantId) return
     const confirmed = window.confirm(
-      'Restore replaces this salon’s book. Continue?',
+      'Restoring this backup replaces the selected salon’s clients, notes, and services. Continue?',
     )
     if (!confirmed) return
     setBusy('tenant-restore')
@@ -278,7 +278,7 @@ function AdminDesk({
       await restoreAdminTenant(selectedTenantId, raw)
       await refresh()
     } catch (err) {
-      setLoadError(err instanceof Error ? err.message : 'Could not restore that salon.')
+      setLoadError(err instanceof Error ? err.message : 'The salon backup could not be restored. Check the file and try again.')
     } finally {
       setBusy(null)
     }
@@ -313,7 +313,7 @@ function AdminDesk({
   if (!overview) {
     return (
       <div className="min-h-svh bg-cream px-4 py-16 text-center text-sm text-cocoa-soft">
-        {loadError ?? 'Loading operator desk…'}
+        {loadError ?? 'Loading NewRecall operations…'}
       </div>
     )
   }
@@ -324,7 +324,7 @@ function AdminDesk({
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3">
           <div>
             <p className="text-xs font-medium tracking-wide text-blush-dark">
-              Operator desk
+              NewRecall operations
             </p>
             <p className="text-sm text-cocoa-soft">{operatorEmail}</p>
           </div>
@@ -380,7 +380,7 @@ function AdminDesk({
           {lookup ? (
             <dl className="mt-4 grid gap-2 text-sm sm:grid-cols-2">
               <Fact label="Plan" value={lookup.period} />
-              <Fact label="Entitled" value={lookup.entitled ? 'Yes — /app' : 'No — Subscribe'} />
+              <Fact label="App access" value={lookup.entitled ? 'Active' : 'Inactive — subscription required'} />
               <Fact label="Next charge" value={when(lookup.nextCharge)} />
               <Fact label="Trial ends" value={when(lookup.trialEndsAt)} />
               <Fact label="Customer" value={lookup.customerCode || '—'} />
@@ -437,9 +437,9 @@ function AdminDesk({
           />
         </Section>
 
-        <Section id="trial-clock" title="Trial clock">
+        <Section id="trial-clock" title="Trials ending soon">
           <p className="mb-3 text-sm text-cocoa-soft">
-            Who is in the 30 days, and who converts on which date (R200 / month ZAR).
+            Trial customers and the date each subscription begins at R200 per month.
           </p>
           <Table
             columns={['Email', 'Converts on', 'Amount']}
@@ -451,7 +451,7 @@ function AdminDesk({
           />
         </Section>
 
-        <Section id="r1" title="R1 card check">
+        <Section id="r1" title="Card verification transactions">
           <Table
             columns={['Email', 'Reference', 'State']}
             rows={overview.setupChecks.map((row) => [
@@ -475,7 +475,7 @@ function AdminDesk({
         </Section>
 
         <Section id="refunds" title="Refunds">
-          <p className="mb-3 text-sm text-cocoa-soft">R1 verification vs R200 month.</p>
+          <p className="mb-3 text-sm text-cocoa-soft">R1 card-verification refunds and R200 monthly subscription refunds.</p>
           <Table
             columns={['Email', 'Kind', 'Amount', 'Status']}
             rows={overview.refunds.map((row) => [
@@ -500,7 +500,7 @@ function AdminDesk({
 
         <Section id="failed-renewals" title="Failed renewals">
           <p className="mb-3 text-sm text-cocoa-soft">
-            Card declined so /app will lock when the subscription is no longer open.
+            Renewals that failed. App access ends when the customer no longer has an active billing period.
           </p>
           <Table
             columns={['Email', 'Reason', 'Reference']}
@@ -512,7 +512,7 @@ function AdminDesk({
           />
         </Section>
 
-        <Section id="abandoned" title="Abandoned checkout">
+        <Section id="abandoned" title="Incomplete checkouts">
           <Table
             columns={['Email', 'Amount', 'Reference']}
             rows={overview.abandoned.map((row) => [
@@ -523,7 +523,7 @@ function AdminDesk({
           />
         </Section>
 
-        <Section id="money" title="30-day money">
+        <Section id="money" title="Revenue in the last 30 days">
           <dl className="grid gap-2 text-sm sm:grid-cols-3">
             <Fact label="Gross" value={formatZarFromCents(overview.money30d.grossCents)} />
             <Fact label="Refunds" value={formatZarFromCents(overview.money30d.refundCents)} />
@@ -534,9 +534,9 @@ function AdminDesk({
           </button>
         </Section>
 
-        <Section id="entitlement" title="Entitlement vs app">
+        <Section id="entitlement" title="Payment and access mismatches">
           <p className="mb-3 text-sm text-cocoa-soft">
-            Paid in Paystack but still on Subscribe — finish the trial complete step.
+            Successful Paystack payments that did not activate app access. Use Repair to retry activation.
           </p>
           <Table
             columns={['Email', 'Reference', 'Repair']}
@@ -556,9 +556,9 @@ function AdminDesk({
           />
         </Section>
 
-        <Section id="who-has-app" title="Who should have /app">
+        <Section id="who-has-app" title="Customers with app access">
           <p className="mb-3 text-sm text-cocoa-soft">
-            Entitled emails right now ({overview.entitledEmails.length}). Access counts:
+            Accounts with access now: {overview.entitledEmails.length}. By status:
             none {overview.accessCounts.none}, trial {overview.accessCounts.trial}, paid{' '}
             {overview.accessCounts.paid}, cancelled {overview.accessCounts.cancelled}.
           </p>
@@ -576,7 +576,7 @@ function AdminDesk({
                 overview.liveKeyPresent
                   ? 'Production has a live key'
                   : overview.mode === 'test'
-                    ? 'Test key only (live cards: no)'
+                    ? 'Test key only — live cards are not accepted'
                     : 'No key set'
               }
             />
@@ -588,7 +588,7 @@ function AdminDesk({
                   : overview.activation.status === 'awaiting_review'
                     ? 'Awaiting Review'
                     : overview.activation.status === 'test'
-                      ? 'Test mode — live cards no'
+                      ? 'Test mode — live cards are not accepted'
                       : 'Unknown'
               }
             />
@@ -617,15 +617,15 @@ function AdminDesk({
           </ul>
         </Section>
 
-        <Section id="recall" title="Recall message wording">
+        <Section id="recall" title="Default client follow-up message">
           <pre className="overflow-x-auto whitespace-pre-wrap rounded-lg bg-cream p-3 text-sm">
             {DEFAULT_MESSAGE_TEMPLATE}
           </pre>
         </Section>
 
-        <Section id="tenants" title="Tenant list">
+        <Section id="tenants" title="Salon accounts">
           <p className="text-sm text-cocoa-soft">
-            Salon name, owner email, and plan only — never the client book in
+            This table shows the salon name, owner email, and plan only. Client details are never shown in
             this table.
           </p>
           <Table
@@ -648,7 +648,7 @@ function AdminDesk({
           />
         </Section>
 
-        <Section id="backups" title="Backups">
+        <Section id="backups" title="Salon backups">
           <dl className="grid gap-2 text-sm sm:grid-cols-2">
             <Fact
               label="Platform backups"
@@ -692,7 +692,7 @@ function AdminDesk({
               disabled={!overview.backups.exportEnabled || !selectedTenantId || busy !== null}
               onClick={() => void onTenantExport()}
             >
-              Export this tenant
+              Export selected salon
             </button>
             <button
               type="button"
@@ -700,7 +700,7 @@ function AdminDesk({
               disabled={!overview.backups.restoreEnabled || !selectedTenantId || busy !== null}
               onClick={() => restoreInputRef.current?.click()}
             >
-              Restore this tenant
+              Restore selected salon
             </button>
             <input
               ref={restoreInputRef}
@@ -715,8 +715,8 @@ function AdminDesk({
             />
           </div>
           <p className="mt-2 text-sm text-cocoa-soft">
-            Export uses the same JSON as Settings. Restore replaces that salon’s
-            book after confirm, and writes an audit of who, when, and which salon.
+            Export uses the same backup format as Settings. Restore replaces the selected salon’s
+            client data after confirmation and records the operator, time, and salon in the audit log.
           </p>
         </Section>
 

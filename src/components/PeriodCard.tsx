@@ -22,7 +22,7 @@ type PeriodCardProps = {
 const PREVIEW_LIMIT = 3
 
 function recallCountLabel(total: number) {
-  return total === 1 ? '1 recall' : `${total} recalls`
+  return total === 1 ? '1 follow-up' : `${total} follow-ups`
 }
 
 const rowClassName =
