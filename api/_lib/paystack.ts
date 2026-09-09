@@ -9,7 +9,7 @@ import {
   periodForTrialEnd,
   trialEndFromDates,
   type PaystackDomain,
-} from '../../src/lib/adminClassify.ts'
+} from '../../src/lib/adminClassify.js'
 
 const PAYSTACK_BASE = 'https://api.paystack.co'
 
@@ -470,7 +470,7 @@ async function createTrialSubscription(
 
 async function setSalonBillingEmail(salonId: string, email: string) {
   try {
-    const { supabaseAdmin } = await import('./supabaseAdmin.ts')
+    const { supabaseAdmin } = await import('./supabaseAdmin.js')
     const admin = supabaseAdmin()
     const { data } = await admin
       .from('salons')

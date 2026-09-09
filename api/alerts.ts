@@ -9,8 +9,8 @@ import {
   saveSubscription,
   type AlertPayload,
   type PushSubscriptionJSON,
-} from './_lib/alerts.ts'
-import { routeAction } from './_lib/routeAction.ts'
+} from './_lib/alerts.js'
+import { routeAction } from './_lib/routeAction.js'
 
 function asPayload(value: unknown): AlertPayload | null {
   if (!value || typeof value !== 'object') return null

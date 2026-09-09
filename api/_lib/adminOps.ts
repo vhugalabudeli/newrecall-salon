@@ -1,6 +1,6 @@
 import { Redis } from '@upstash/redis'
 import { randomUUID } from 'node:crypto'
-import type { AdminAuditEntry, AdminSupportNote } from '../../src/lib/adminTypes.ts'
+import type { AdminAuditEntry, AdminSupportNote } from '../../src/lib/adminTypes.js'
 
 const SUPPORT_KEY = 'admin:support'
 const AUDIT_KEY = 'admin:audit'

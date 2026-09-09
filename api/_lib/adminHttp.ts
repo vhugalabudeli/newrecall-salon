@@ -1,25 +1,25 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { parseBody } from './paystack.ts'
+import { parseBody } from './paystack.js'
 import {
   AdminHttpError,
   adminConfigured,
   clearSessionCookie,
   loginOperator,
   readSession,
-} from './adminAuth.ts'
-import { addAudit, addSupportNote, listSupportNotes } from './adminOps.ts'
+} from './adminAuth.js'
+import { addAudit, addSupportNote, listSupportNotes } from './adminOps.js'
 import {
   exportTenantBook,
   restoreTenantBook,
   salonCloudConfigured,
-} from './salonBook.ts'
+} from './salonBook.js'
 import {
   assembleOverview,
   billingCsv,
   lookupEmail,
   portalFor,
   repairStuck,
-} from './adminOverview.ts'
+} from './adminOverview.js'
 
 export type AdminAction =
   | 'login'

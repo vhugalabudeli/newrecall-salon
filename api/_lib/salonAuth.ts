@@ -1,4 +1,4 @@
-import { supabaseAdmin, userFromBearer } from './supabaseAdmin.ts'
+import { supabaseAdmin, userFromBearer } from './supabaseAdmin.js'
 
 export type SalonRole = 'owner' | 'staff'
 

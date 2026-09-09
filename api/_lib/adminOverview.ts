@@ -16,11 +16,11 @@ import {
   subscriptionListStatus,
   trialEndFromDates,
   isActivationReviewError,
-} from '../../src/lib/adminClassify.ts'
+} from '../../src/lib/adminClassify.js'
 import type {
   AccessBucket,
   PaystackDomain,
-} from '../../src/lib/adminClassify.ts'
+} from '../../src/lib/adminClassify.js'
 import type {
   AdminLookup,
   AdminOverview,
@@ -28,9 +28,9 @@ import type {
   AdminStuckRow,
   AdminSubscriptionRow,
   AdminTransactionRow,
-} from '../../src/lib/adminTypes.ts'
-import { listAudit, listSupportNotes, redisHealth } from './adminOps.ts'
-import { listTenants, salonCloudConfigured } from './salonBook.ts'
+} from '../../src/lib/adminTypes.js'
+import { listAudit, listSupportNotes, redisHealth } from './adminOps.js'
+import { listTenants, salonCloudConfigured } from './salonBook.js'
 import {
   completeTrial,
   customerCodeOf,
@@ -52,7 +52,7 @@ import {
   type PaystackRefund,
   type PaystackSubscription,
   type PaystackTransaction,
-} from './paystack.ts'
+} from './paystack.js'
 
 function modeFilter(domain: string | undefined, mode: PaystackDomain): boolean {
   return rowMatchesMode(domain, mode)

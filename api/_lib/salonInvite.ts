@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { httpErrorStatus } from './paystack.ts'
-import { requireOwner } from './salonAuth.ts'
-import { supabaseAdmin } from './supabaseAdmin.ts'
+import { httpErrorStatus } from './paystack.js'
+import { requireOwner } from './salonAuth.js'
+import { supabaseAdmin } from './supabaseAdmin.js'
 
 function authHeader(req: VercelRequest): string | undefined {
   const value = req.headers.authorization

@@ -1,6 +1,6 @@
-import { statusForEmail } from './paystack.ts'
-import { supabaseAdmin, supabaseConfigured } from './supabaseAdmin.ts'
-import type { Client, Note, NoteRelatedTo } from '../../src/types.ts'
+import { statusForEmail } from './paystack.js'
+import { supabaseAdmin, supabaseConfigured } from './supabaseAdmin.js'
+import type { Client, Note, NoteRelatedTo } from '../../src/types.js'
 
 const BACKUP_KIND = 'newrecall-salon-book'
 const DEFAULT_LIFESPAN_WEEKS = 6
