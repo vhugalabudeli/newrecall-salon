@@ -15,11 +15,25 @@ const checks = [
   ['src/pages/Refunds.tsx', ['Salon CRM', 'vhugalabudeli@gmail.com']],
 ]
 
+const requiredCopy = [
+  ['src/components/LandingFooter.tsx', ['support@newrecall.com']],
+  ['src/pages/Terms.tsx', ['support@newrecall.com']],
+  ['src/pages/Privacy.tsx', ['support@newrecall.com']],
+  ['src/pages/Refunds.tsx', ['support@newrecall.com']],
+]
+
 const failures = []
 for (const [file, phrases] of checks) {
   const source = await readFile(new URL(`../${file}`, import.meta.url), 'utf8')
   for (const phrase of phrases) {
     if (source.includes(phrase)) failures.push(`${file}: ${JSON.stringify(phrase)}`)
+  }
+}
+
+for (const [file, phrases] of requiredCopy) {
+  const source = await readFile(new URL(`../${file}`, import.meta.url), 'utf8')
+  for (const phrase of phrases) {
+    if (!source.includes(phrase)) failures.push(`${file}: missing ${JSON.stringify(phrase)}`)
   }
 }
 

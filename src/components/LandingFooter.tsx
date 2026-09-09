@@ -11,7 +11,7 @@ export function LandingFooter() {
           <Link to={paths.terms}>Terms</Link>
           <Link to={paths.privacy}>Privacy Policy</Link>
           <Link to={paths.refunds}>Refund Policy</Link>
-          <a href="mailto:support@newrecall.com">Contact</a>
+          <a href="mailto:support@newrecall.com">support@newrecall.com</a>
         </nav>
       </div>
     </footer>
