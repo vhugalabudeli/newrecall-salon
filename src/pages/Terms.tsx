@@ -16,7 +16,8 @@ export function Terms() {
       <p>
         NewRecall helps salons keep client details, plan follow-ups, and contact
         clients when they may be ready to return. Salon data is stored online so
-        invited team members can share one workspace. An internet connection is required.
+        invited team members can share one workspace. NewRecall does not source or
+        provide prospective customers or contact lists. An internet connection is required.
       </p>
 
       <h2>Accounts</h2>

@@ -31,6 +31,10 @@ export function Landing() {
               needs a call or message next. Try it free for 30 days, then pay R200 per
               month.
             </p>
+            <p className="muted">
+              Your salon adds its own existing clients. NewRecall does not supply
+              prospective customers or contact lists.
+            </p>
             <div className="cta-row">
               {ready && user ? (
                 <Link className="btn btn-primary" to={paths.dashboard}>

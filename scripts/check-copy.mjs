@@ -4,7 +4,7 @@ const checks = [
   ['index.html', ['Salon CRM', 'open the book', 'due to lapse']],
   ['src/components/LandingBrand.tsx', ['Salon CRM']],
   ['src/components/LandingFooter.tsx', ['Salon CRM', 'vhugalabudeli@gmail.com']],
-  ['src/pages/Landing.tsx', ['Salon CRM', 'open the book', 'Lifespan', 'Recall SMS', 'walkthrough request']],
+  ['src/pages/Landing.tsx', ['Salon CRM', 'open the book', 'Lifespan', 'Recall SMS', 'walkthrough request', 'lead generation']],
   ['src/pages/Register.tsx', ['share the same book']],
   ['src/pages/Login.tsx', ['salon book']],
   ['src/pages/Dashboard.tsx', ['Upcoming recalls']],
@@ -29,4 +29,3 @@ if (failures.length) {
 } else {
   console.log('Public copy terminology check passed.')
 }
-

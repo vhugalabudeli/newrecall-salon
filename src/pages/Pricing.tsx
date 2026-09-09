@@ -22,7 +22,8 @@ export function Pricing() {
       <p>
         One salon workspace with your client list, follow-up calendar, services,
         notes, alerts, backups, and staff access. Invited staff share the owner’s
-        subscription and do not pay separately.
+        subscription and do not pay separately. NewRecall provides the software;
+        each salon adds and manages its own existing clients.
       </p>
 
       <h2>Cancel</h2>
