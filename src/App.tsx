@@ -22,6 +22,7 @@ const Pricing = lazyNamed(() => import('./pages/Pricing'), 'Pricing')
 const Privacy = lazyNamed(() => import('./pages/Privacy'), 'Privacy')
 const Refunds = lazyNamed(() => import('./pages/Refunds'), 'Refunds')
 const Register = lazyNamed(() => import('./pages/Register'), 'Register')
+const InviteComplete = lazyNamed(() => import('./pages/InviteComplete'), 'InviteComplete')
 const ServiceTypeDetail = lazyNamed(() => import('./pages/ServiceTypeDetail'), 'ServiceTypeDetail')
 const ServiceTypes = lazyNamed(() => import('./pages/ServiceTypes'), 'ServiceTypes')
 const Settings = lazyNamed(() => import('./pages/Settings'), 'Settings')
@@ -42,6 +43,7 @@ export default function App() {
         <Route path={paths.refunds} element={<Refunds />} />
         <Route path={paths.pricing} element={<Pricing />} />
         <Route path={paths.admin} element={<Admin />} />
+        <Route path={paths.inviteComplete} element={<InviteComplete />} />
         <Route
           path={paths.login}
           element={

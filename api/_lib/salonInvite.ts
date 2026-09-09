@@ -127,7 +127,7 @@ export async function postInvite(req: VercelRequest, res: VercelResponse) {
     }
 
     const { error: authError } = await admin.auth.admin.inviteUserByEmail(email, {
-      redirectTo: `${origin}/login`,
+      redirectTo: `${origin}/invite/complete`,
       data: { name: '' },
     })
     if (authError) throw new Error(authError.message)
