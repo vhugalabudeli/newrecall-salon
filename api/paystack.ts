@@ -5,8 +5,8 @@ import {
   postInitialize,
   postPortal,
   postStatus,
-} from './_lib/handlers'
-import { routeAction } from './_lib/routeAction'
+} from './_lib/handlers.ts'
+import { routeAction } from './_lib/routeAction.ts'
 
 export default function handler(req: VercelRequest, res: VercelResponse) {
   const action = routeAction(req, '/api/paystack')

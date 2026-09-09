@@ -118,6 +118,7 @@ export async function register(
     if (password.length < 8) {
       return { ok: false, error: 'Use at least 8 characters for the password.' }
     }
+    if (!trimmedSalon) return { ok: false, error: 'Enter the salon name.' }
 
     const { data, error } = await supabase.auth.signUp({
       email: trimmedEmail,
@@ -125,7 +126,7 @@ export async function register(
       options: {
         data: {
           name: trimmedName,
-          salon_name: trimmedSalon || 'Your salon',
+          salon_name: trimmedSalon,
         },
       },
     })

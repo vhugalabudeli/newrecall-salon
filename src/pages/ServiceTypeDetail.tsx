@@ -47,14 +47,17 @@ export function ServiceTypeDetail() {
   const nameInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    setNameDraft(type?.name ?? '')
-    setAdding(fromBook)
-    setError('')
-    setTypeError('')
-    setUpdating(false)
-    setEditingServiceId(null)
-    setServiceEditError('')
-  }, [id, fromBook])
+    const timer = window.setTimeout(() => {
+      setNameDraft(type?.name ?? '')
+      setAdding(fromBook)
+      setError('')
+      setTypeError('')
+      setUpdating(false)
+      setEditingServiceId(null)
+      setServiceEditError('')
+    }, 0)
+    return () => window.clearTimeout(timer)
+  }, [fromBook, id, type?.name])
 
   useEffect(() => {
     if (!updating) return

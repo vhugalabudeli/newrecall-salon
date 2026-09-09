@@ -178,9 +178,11 @@ function AdminDesk({
   }
 
   useEffect(() => {
-    void refresh().catch((err: unknown) => {
-      setLoadError(err instanceof Error ? err.message : 'Could not load the desk.')
-    })
+    const timer = window.setTimeout(() => {
+      void refresh().catch((err: unknown) => {
+        setLoadError(err instanceof Error ? err.message : 'Could not load the desk.')
+      })
+    }, 0)
     void Promise.all(
       [paths.terms, paths.refunds, paths.pricing].map(async (path) => {
         try {
@@ -191,6 +193,7 @@ function AdminDesk({
         }
       }),
     ).then(setLegal)
+    return () => window.clearTimeout(timer)
   }, [])
 
   const modeLabel = useMemo(() => {

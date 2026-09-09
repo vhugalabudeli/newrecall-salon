@@ -48,7 +48,8 @@ export function SelectSheet<T extends string | number>({
   const canSave = draft !== value
 
   useEffect(() => {
-    setDraft(value)
+    const timer = window.setTimeout(() => setDraft(value), 0)
+    return () => window.clearTimeout(timer)
   }, [value])
 
   useEffect(() => {

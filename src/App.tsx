@@ -1,28 +1,39 @@
+import { lazy, Suspense, type ComponentType } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
-import { AppShell } from './components/AppShell'
 import { GuestOnly, RequireAuth, RequireEntitlement } from './components/RequireAuth'
-import { CalendarMonth } from './pages/CalendarMonth'
-import { CalendarOutlook } from './pages/CalendarOutlook'
-import { Clients } from './pages/Clients'
-import { Dashboard } from './pages/Dashboard'
-import { Landing } from './pages/Landing'
-import { Login } from './pages/Login'
-import { Pricing } from './pages/Pricing'
-import { Privacy } from './pages/Privacy'
-import { Refunds } from './pages/Refunds'
-import { Register } from './pages/Register'
-import { ServiceTypeDetail } from './pages/ServiceTypeDetail'
-import { ServiceTypes } from './pages/ServiceTypes'
-import { Settings } from './pages/Settings'
-import { Subscribe } from './pages/Subscribe'
-import { Terms } from './pages/Terms'
-import { ThankYou } from './pages/ThankYou'
-import { Admin } from './pages/Admin'
+import { ScreenWait } from './components/ScreenWait'
 import { paths } from './lib/routes'
+
+function lazyNamed<T extends Record<K, ComponentType>, K extends keyof T>(
+  loader: () => Promise<T>,
+  name: K,
+) {
+  return lazy(async () => ({ default: (await loader())[name] }))
+}
+
+const AppShell = lazyNamed(() => import('./components/AppShell'), 'AppShell')
+const CalendarMonth = lazyNamed(() => import('./pages/CalendarMonth'), 'CalendarMonth')
+const CalendarOutlook = lazyNamed(() => import('./pages/CalendarOutlook'), 'CalendarOutlook')
+const Clients = lazyNamed(() => import('./pages/Clients'), 'Clients')
+const Dashboard = lazyNamed(() => import('./pages/Dashboard'), 'Dashboard')
+const Landing = lazyNamed(() => import('./pages/Landing'), 'Landing')
+const Login = lazyNamed(() => import('./pages/Login'), 'Login')
+const Pricing = lazyNamed(() => import('./pages/Pricing'), 'Pricing')
+const Privacy = lazyNamed(() => import('./pages/Privacy'), 'Privacy')
+const Refunds = lazyNamed(() => import('./pages/Refunds'), 'Refunds')
+const Register = lazyNamed(() => import('./pages/Register'), 'Register')
+const ServiceTypeDetail = lazyNamed(() => import('./pages/ServiceTypeDetail'), 'ServiceTypeDetail')
+const ServiceTypes = lazyNamed(() => import('./pages/ServiceTypes'), 'ServiceTypes')
+const Settings = lazyNamed(() => import('./pages/Settings'), 'Settings')
+const Subscribe = lazyNamed(() => import('./pages/Subscribe'), 'Subscribe')
+const Terms = lazyNamed(() => import('./pages/Terms'), 'Terms')
+const ThankYou = lazyNamed(() => import('./pages/ThankYou'), 'ThankYou')
+const Admin = lazyNamed(() => import('./pages/Admin'), 'Admin')
 
 export default function App() {
   return (
     <BrowserRouter>
+      <Suspense fallback={<ScreenWait label="Loading…" />}>
       <Routes>
         <Route path={paths.landing} element={<Landing />} />
         <Route path={paths.thankYou} element={<ThankYou />} />
@@ -84,6 +95,7 @@ export default function App() {
         </Route>
         <Route path="*" element={<Navigate to={paths.landing} replace />} />
       </Routes>
+      </Suspense>
     </BrowserRouter>
   )
 }

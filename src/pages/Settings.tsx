@@ -91,7 +91,8 @@ export function Settings() {
 
   useEffect(() => {
     if (updatingName) return
-    setNameDraft(salonName)
+    const timer = window.setTimeout(() => setNameDraft(salonName), 0)
+    return () => window.clearTimeout(timer)
   }, [salonName, updatingName])
 
   useEffect(() => {
@@ -106,7 +107,11 @@ export function Settings() {
     const current = readAlertPrefs()
     if (!current.dueToday && !current.overdue) return
     writeAlertPrefs({ dueToday: false, overdue: false })
-    setPermissionNote(notificationPermissionMessage(permission))
+    const timer = window.setTimeout(
+      () => setPermissionNote(notificationPermissionMessage(permission)),
+      0,
+    )
+    return () => window.clearTimeout(timer)
   }, [])
 
   useEffect(() => {
@@ -497,7 +502,10 @@ function StaffSettings() {
   }
 
   useEffect(() => {
-    void refresh().catch(() => setNote('Could not load staff.'))
+    const timer = window.setTimeout(() => {
+      void refresh().catch(() => setNote('Could not load staff.'))
+    }, 0)
+    return () => window.clearTimeout(timer)
   }, [])
 
   async function onInvite() {

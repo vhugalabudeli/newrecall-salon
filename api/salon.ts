@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { postInvite } from './_lib/salonInvite'
-import { routeAction } from './_lib/routeAction'
+import { postInvite } from './_lib/salonInvite.ts'
+import { routeAction } from './_lib/routeAction.ts'
 
 export default function handler(req: VercelRequest, res: VercelResponse) {
   const action = routeAction(req, '/api/salon')

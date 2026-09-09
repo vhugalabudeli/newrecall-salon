@@ -32,8 +32,10 @@ export function useClients(): {
   }, [salonId])
 
   useEffect(() => {
-    void refresh()
-    if (!salonId) return
+    const initialTimer = window.setTimeout(() => void refresh(), 0)
+    if (!salonId) {
+      return () => window.clearTimeout(initialTimer)
+    }
     let timer: number | undefined
     const queue = () => {
       window.clearTimeout(timer)
@@ -65,6 +67,7 @@ export function useClients(): {
       )
       .subscribe()
     return () => {
+      window.clearTimeout(initialTimer)
       window.clearTimeout(timer)
       void supabase.removeChannel(channel)
     }

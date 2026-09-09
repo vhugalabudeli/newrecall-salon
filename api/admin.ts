@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { sendAdmin, type AdminAction } from './_lib/adminHttp'
-import { routeAction } from './_lib/routeAction'
+import { sendAdmin, type AdminAction } from './_lib/adminHttp.ts'
+import { routeAction } from './_lib/routeAction.ts'
 
 const ACTIONS = new Set<AdminAction>([
   'login',

@@ -8,15 +8,11 @@ export function useAuth(): {
   ready: boolean
 } {
   const [user, setUser] = useState<AuthUser | null>(null)
-  const [ready, setReady] = useState(false)
+  const [ready, setReady] = useState(!supabaseConfigured)
 
   useEffect(() => {
     let alive = true
-    if (!supabaseConfigured) {
-      setUser(null)
-      setReady(true)
-      return
-    }
+    if (!supabaseConfigured) return
 
     void loadAuthUser()
       .then((next) => {

@@ -55,7 +55,8 @@ export function useSubscription(): {
 
   useEffect(() => {
     if (!authReady) return
-    void refresh()
+    const timer = window.setTimeout(() => void refresh(), 0)
+    return () => window.clearTimeout(timer)
   }, [authReady, refresh])
 
   return {

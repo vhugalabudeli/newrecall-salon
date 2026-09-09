@@ -6,12 +6,12 @@ import {
   managementLink,
   parseBody,
   statusForEmail,
-} from './paystack'
+} from './paystack.ts'
 import {
   actorFromRequest,
   billingEmailForSalon,
   requireOwner,
-} from './salonAuth'
+} from './salonAuth.ts'
 
 async function readBody(req: VercelRequest): Promise<Record<string, string>> {
   if (typeof req.body === 'string') {

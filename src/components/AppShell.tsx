@@ -26,7 +26,7 @@ export function AppShell() {
   useEffect(() => {
     if (location.hash) return
     mainRef.current?.scrollTo(0, 0)
-  }, [location.pathname])
+  }, [location.hash, location.pathname])
 
   return (
     <div

@@ -7,7 +7,11 @@ export function useSalonName() {
   const [salonName, setSalonNameState] = useState(readSalonName)
 
   useEffect(() => {
-    setSalonNameState(user?.salonName || readSalonName())
+    const timer = window.setTimeout(
+      () => setSalonNameState(user?.salonName || readSalonName()),
+      0,
+    )
+    return () => window.clearTimeout(timer)
   }, [user?.salonName])
 
   useEffect(() => {

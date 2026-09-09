@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useClients } from '../hooks/useClients'
 import { useServiceCatalog } from '../hooks/useServiceCatalog'
@@ -97,6 +97,11 @@ export function AddClientPanel({ client, onClose }: AddClientPanelProps) {
   const forFieldRef = useRef<HTMLDivElement>(null)
   const revealFor = useRef(false)
 
+  const closePanel = useCallback(() => {
+    clearBookDraft()
+    onClose()
+  }, [onClose])
+
   useEffect(() => {
     void ensureTypesForClients(clients)
   }, [clients])
@@ -132,7 +137,7 @@ export function AddClientPanel({ client, onClose }: AddClientPanelProps) {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [onClose])
+  }, [closePanel])
 
   const preview = useMemo(() => {
     const probe: Client = {
@@ -162,11 +167,6 @@ export function AddClientPanel({ client, onClose }: AddClientPanelProps) {
   function patch(update: Partial<ClientDraft>) {
     setDraft((current) => ({ ...current, ...update }))
     setError('')
-  }
-
-  function closePanel() {
-    clearBookDraft()
-    onClose()
   }
 
   function leaveToAdd(path: string) {

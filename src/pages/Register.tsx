@@ -44,9 +44,7 @@ export function Register() {
             <h1>Register</h1>
             <p className="lead">
               Create an account for your salon, then start a free trial. Staff
-              join from an invite and share the same book. Old device-only
-              passwords cannot be moved — register again with the same email
-              and import the book.
+              join from an invite and share the same book.
             </p>
             <form className="auth-form" onSubmit={onSubmit}>
               <label>
@@ -91,7 +89,7 @@ export function Register() {
                   autoComplete="organization"
                   value={salonName}
                   onChange={(event) => setSalonName(event.target.value)}
-                  placeholder="Optional"
+                  required
                 />
               </label>
               {error ? <p className="form-error">{error}</p> : null}
