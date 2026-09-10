@@ -1,15 +1,17 @@
 ---
 title: Operator desk
-description: Password-gated /admin for Paystack lists, tenant export/restore, and support notes.
+description: TOTP-gated /admin for Paystack lists, tenant export/restore, and support notes.
 ---
 
 The operator desk is `/admin` (`src/pages/Admin.tsx`). It is **not** linked from the marketing footer. It is not a salon login and it does not use `AppShell`.
 
 ## Auth
 
-Requires `ADMIN_EMAIL`, `ADMIN_PASSWORD`, and `ADMIN_SESSION_SECRET`. If any are missing, login returns that admin is not configured.
+Requires `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET`, and `ADMIN_TOTP_SECRET` (Base32 secret enrolled in an authenticator app). If any are missing, login returns that admin is not configured.
 
-Sign-in sets httpOnly cookie `nr_admin` (12 hours, SameSite=Lax, Secure on Vercel/production). Session check is HMAC (`api/_lib/adminAuth.ts`).
+Also requires Upstash Redis (`UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`). Sign-in is rate-limited to 5 failures per 15 minutes per IP+email; without Redis, login fails closed.
+
+Sign-in needs email, password, and a current 6-digit TOTP (±1 step). It sets httpOnly cookie `nr_admin` (12 hours, SameSite=Lax, Secure on Vercel/production). Session check is HMAC (`api/_lib/adminAuth.ts`). Admin **POST**s require a same-origin `Origin` header matching the request host.
 
 ## What it shows
 
@@ -23,7 +25,7 @@ Sections include lookup by email, subscriptions, trial clock, R1 card check (a P
 
 Platform backups are Supabase project backups / PITR. The desk reports that those exist rather than running a second backup worker.
 
-**Support** and the **audit log** use Upstash (`admin:support`, `admin:audit`) when Redis is set. Without Redis, billing still works; notes are not stored.
+**Support** and the **audit log** use Upstash (`admin:support`, `admin:audit`). Lists keep at most 200 rows and expire after 365 days.
 
 ## APIs
 

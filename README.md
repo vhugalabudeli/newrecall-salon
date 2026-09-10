@@ -21,7 +21,7 @@ Open http://localhost:5173/. Register or log in, then start the free trial to op
 
 On Vercel, set `PAYSTACK_SECRET_KEY` (and optional `PAYSTACK_PLAN_CODE`) as project environment variables. Production checkout needs the **live** secret key.
 
-The operator desk is at `/admin` (`salon.newrecall.com/admin`). Set `ADMIN_EMAIL`, `ADMIN_PASSWORD`, and `ADMIN_SESSION_SECRET` on Vercel (and in `.env.local` for development). Support notes and the audit log use the same Upstash Redis as closed-app alerts when those variables are set. Tenant export/restore uses the service role.
+The operator desk is at `/admin` (`salon.newrecall.com/admin`). Set `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET`, and `ADMIN_TOTP_SECRET` (Base32 authenticator secret) on Vercel (and in `.env.local` for development). Upstash Redis is required for admin login rate limits, support notes, and the audit log. Tenant export/restore uses the service role.
 
 To work on the CRM without Paystack, set `VITE_PAYWALL_BYPASS=true` in `.env.local`.
 
@@ -33,7 +33,7 @@ Local alerts still fire while the app is open. For alerts when the PWA is closed
 
 - `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` (from `npx web-push generate-vapid-keys`)
 - `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`
-- optional `CRON_SECRET` for `/api/alerts/dispatch`
+- `CRON_SECRET` (required for `/api/alerts/dispatch`)
 
 Vercel runs a daily cron at 06:00 UTC against `/api/alerts/dispatch` (Hobby plan limit). The app uploads only a minimal daily schedule (titles/bodies + prefs), not the full client book.
 

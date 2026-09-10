@@ -15,9 +15,11 @@ Set on the server (Vercel Production, Preview, and Development):
 
 - `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` (`npx web-push generate-vapid-keys`)
 - `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`
-- optional `CRON_SECRET` for `/api/alerts/dispatch`
+- `CRON_SECRET` — required; `/api/alerts/dispatch` rejects requests when it is missing (Vercel cron sends `Authorization: Bearer ${CRON_SECRET}`)
 
 After changing these, redeploy so the functions pick them up. On iPhone, add the salon to the Home Screen so alerts arrive reliably.
+
+Subscribe and schedule use the signed-in salon member’s email from the Supabase bearer token — not a client-supplied email body field. Subscription and schedule keys expire after 90 days without an update.
 
 The schedule hour is **8:00** in the device timezone (`src/lib/pushAlerts.ts`). Vercel Hobby allows one cron per day, so `vercel.json` hits `/api/alerts/dispatch` at **06:00 UTC** (`0 6 * * *`, 08:00 SAST). Dispatch sends in that local hour, and the next hour as catch-up (`api/_lib/alerts.ts`).
 
