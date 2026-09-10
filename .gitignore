@@ -28,3 +28,6 @@ dist-ssr
 
 # Supabase CLI cache
 supabase/.temp/
+
+# Paystack CLI session (created in the cwd of `paystack login`)
+/db.json
