@@ -71,6 +71,7 @@ function scheduleKey(email: string) {
 }
 
 const INDEX_KEY = 'alert:emails'
+const ALERT_RETENTION_SECONDS = 90 * 24 * 60 * 60
 
 export function configureWebPush() {
   webpush.setVapidDetails(
@@ -94,7 +95,7 @@ export async function saveSubscription(
     subscription,
     updatedAt: new Date().toISOString(),
   }
-  await client.set(subKey(key), record)
+  await client.set(subKey(key), record, { ex: ALERT_RETENTION_SECONDS })
   await client.sadd(INDEX_KEY, key)
 }
 
@@ -103,6 +104,17 @@ export async function clearSubscription(email: string): Promise<void> {
   const client = redis()
   await client.del(subKey(key))
   await client.srem(INDEX_KEY, key)
+}
+
+export async function clearAlertsForEmail(email: string): Promise<void> {
+  const key = emailKey(email)
+  if (!key) return
+  const client = redis()
+  await Promise.all([
+    client.del(subKey(key)),
+    client.del(scheduleKey(key)),
+    client.srem(INDEX_KEY, key),
+  ])
 }
 
 export async function saveSchedule(
@@ -129,7 +141,7 @@ export async function saveSchedule(
     overdueSentDay: input.overdueSentDay ?? existing?.overdueSentDay ?? null,
     updatedAt: new Date().toISOString(),
   }
-  await client.set(scheduleKey(key), record)
+  await client.set(scheduleKey(key), record, { ex: ALERT_RETENTION_SECONDS })
   await client.sadd(INDEX_KEY, key)
 }
 
@@ -190,7 +202,10 @@ export async function dispatchDueAlerts(now = new Date()): Promise<{
   for (const email of emails) {
     const schedule = await client.get<AlertScheduleRecord>(scheduleKey(email))
     const subscription = await client.get<AlertSubscriptionRecord>(subKey(email))
-    if (!schedule || !subscription) continue
+    if (!schedule || !subscription) {
+      await client.srem(INDEX_KEY, email)
+      continue
+    }
 
     const { day, hour } = localParts(schedule.timezone || 'UTC', now)
     // Fire in the preferred local hour window (and the next hour as catch-up).
@@ -223,7 +238,7 @@ export async function dispatchDueAlerts(now = new Date()): Promise<{
 
     if (changed) {
       schedule.updatedAt = new Date().toISOString()
-      await client.set(scheduleKey(email), schedule)
+      await client.set(scheduleKey(email), schedule, { ex: ALERT_RETENTION_SECONDS })
     }
   }
 

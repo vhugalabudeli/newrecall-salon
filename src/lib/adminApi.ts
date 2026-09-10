@@ -33,10 +33,10 @@ export function fetchAdminSession(): Promise<{ email: string }> {
   return request('/api/admin/session')
 }
 
-export function adminLogin(email: string, password: string) {
+export function adminLogin(email: string, password: string, totp: string) {
   return request<{ email: string }>('/api/admin/login', {
     method: 'POST',
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ email, password, totp }),
   })
 }
 

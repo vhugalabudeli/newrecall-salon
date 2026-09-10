@@ -1,5 +1,6 @@
 import type { AlertPrefs } from './alertPrefs'
 import type { AlertPayload } from './alertSnapshot'
+import { accessToken } from './auth'
 
 export type PushConfig = {
   configured: boolean
@@ -16,9 +17,13 @@ function urlBase64ToUint8Array(base64String: string): BufferSource {
 }
 
 async function postJson(url: string, body: unknown): Promise<Response> {
+  const token = await accessToken()
   return fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
     body: JSON.stringify(body),
   })
 }

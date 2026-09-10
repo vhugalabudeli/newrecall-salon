@@ -37,7 +37,7 @@ From `.env.example`. Never expose `PAYSTACK_SECRET_KEY`, `SUPABASE_SERVICE_ROLE_
 | `VITE_PAYWALL_BYPASS` | Local only. `true` skips `/subscribe` and treats the session as entitled. |
 | `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` | Closed-app Web Push. Generate with `npx web-push generate-vapid-keys`. |
 | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | Push schedules, and operator support/audit. |
-| `CRON_SECRET` | Optional. If set, `/api/alerts/dispatch` requires `Authorization: Bearer …`. |
+| `CRON_SECRET` | Required for closed-app alerts. `/api/alerts/dispatch` rejects dispatch requests when it is missing. |
 | `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET` | Operator desk at `/admin`. Server only. |
 
 `vercel.json` rewrites all non-`/api` paths to `index.html` and runs a daily cron `0 6 * * *` (06:00 UTC) against `/api/alerts/dispatch`. Hobby accounts cannot use hourly crons.

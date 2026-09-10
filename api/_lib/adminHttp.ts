@@ -7,7 +7,14 @@ import {
   loginOperator,
   readSession,
 } from './adminAuth.js'
-import { addAudit, addSupportNote, listSupportNotes } from './adminOps.js'
+import {
+  addAudit,
+  addSupportNote,
+  assertAdminLoginAllowed,
+  clearAdminLoginFailures,
+  listSupportNotes,
+  recordAdminLoginFailure,
+} from './adminOps.js'
 import {
   exportTenantBook,
   restoreTenantBook,
@@ -40,6 +47,9 @@ export type AdminDispatch = {
   query: Record<string, string>
   body: Record<string, string>
   cookieHeader: string | undefined
+  clientIp?: string
+  host?: string
+  origin?: string
 }
 
 export type AdminResult = {
@@ -50,6 +60,15 @@ export type AdminResult = {
 }
 
 const JSON_HEADER = { 'Content-Type': 'application/json; charset=utf-8' }
+
+export function isSameOrigin(origin: string | undefined, host: string | undefined): boolean {
+  if (!origin || !host) return false
+  try {
+    return new URL(origin).host === host
+  } catch {
+    return false
+  }
+}
 
 function json(status: number, payload: unknown, setCookie?: string): AdminResult {
   return {
@@ -85,9 +104,27 @@ async function readVercelBody(req: VercelRequest): Promise<Record<string, string
 export async function dispatchAdmin(input: AdminDispatch): Promise<AdminResult> {
   const method = input.method.toUpperCase()
   try {
+    if (method === 'POST' && input.host) {
+      if (!isSameOrigin(input.origin, input.host)) {
+        throw new AdminHttpError(403, 'This request did not come from the NewRecall operations console.')
+      }
+    }
     if (input.action === 'login') {
       if (method !== 'POST') throw new AdminHttpError(405, 'Method not allowed')
-      const cookie = loginOperator(input.body.email || '', input.body.password || '')
+      const identity = `${input.clientIp || 'unknown'}:${(input.body.email || '').trim().toLowerCase()}`
+      await assertAdminLoginAllowed(identity)
+      let cookie: string
+      try {
+        cookie = loginOperator(
+          input.body.email || '',
+          input.body.password || '',
+          input.body.totp || '',
+        )
+      } catch (error) {
+        await recordAdminLoginFailure(identity)
+        throw error
+      }
+      await clearAdminLoginFailures(identity)
       const email = input.body.email.trim().toLowerCase()
       await addAudit({
         operatorEmail: email,
@@ -267,6 +304,17 @@ export async function sendAdmin(
     body: await readVercelBody(req),
     cookieHeader:
       typeof req.headers.cookie === 'string' ? req.headers.cookie : undefined,
+    clientIp:
+      typeof req.headers['x-forwarded-for'] === 'string'
+        ? req.headers['x-forwarded-for'].split(',')[0].trim()
+        : undefined,
+    host:
+      typeof req.headers['x-forwarded-host'] === 'string'
+        ? req.headers['x-forwarded-host']
+        : typeof req.headers.host === 'string'
+          ? req.headers.host
+          : undefined,
+    origin: typeof req.headers.origin === 'string' ? req.headers.origin : undefined,
   })
   if (result.setCookie) res.setHeader('Set-Cookie', result.setCookie)
   for (const [key, value] of Object.entries(result.headers)) {

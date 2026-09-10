@@ -56,17 +56,20 @@ export function Privacy() {
 
       <h2>How long data stays</h2>
       <p>
-        Salon records remain until you delete them or ask us to close the salon
-        account, subject to legal and operational retention requirements. Alert
-        preferences stay on your device until you change them. Billing records
-        are kept as long as needed for payments, accounting, disputes, and legal obligations.
+        Salon records remain until the owner deletes the salon account or asks us
+        to close it, subject to billing records that must be retained for accounting,
+        disputes, and legal obligations. Server-side notification subscriptions and
+        schedules expire after 90 days without an update and are removed when alerts
+        are turned off or the salon account is deleted. Support notes and administrative
+        audit history are limited to the latest 200 records and expire after 365 days.
       </p>
 
       <h2>Your choices</h2>
       <p>
         You can edit or delete clients, export or import a salon backup, turn off
-        alerts, and sign out. Owners can manage billing and staff access. Contact
-        us to request access to your personal information, correct it, or close a salon account.
+        alerts, and sign out. Owners can manage billing and staff access or permanently
+        delete the salon account from Settings. Contact us to request access to or
+        correction of your personal information, or for help closing an account.
       </p>
 
       <h2>Contact</h2>

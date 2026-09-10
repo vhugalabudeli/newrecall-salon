@@ -100,6 +100,29 @@ export async function removeStaff(userId: string): Promise<{ error?: string }> {
   return {}
 }
 
+export async function deleteSalonAccount(salonName: string): Promise<{ error?: string }> {
+  const token = await accessToken()
+  if (!token) return { error: 'Sign in required.' }
+  const res = await fetch('/api/salon/delete', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ salonName }),
+  })
+  const json: unknown = await res.json().catch(() => ({}))
+  if (!res.ok) {
+    return {
+      error:
+        json && typeof json === 'object' && 'error' in json
+          ? String((json as { error: unknown }).error)
+          : 'The salon account could not be deleted. Contact support@newrecall.com.',
+    }
+  }
+  return {}
+}
+
 export async function refreshAuthUser(): Promise<AuthUser | null> {
   return loadAuthUser()
 }

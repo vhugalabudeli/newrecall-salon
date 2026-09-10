@@ -40,6 +40,7 @@ import { paths } from '../lib/routes'
 import { DEFAULT_SALON_NAME } from '../lib/settings'
 import {
   cancelInvite,
+  deleteSalonAccount,
   inviteStaff,
   listOpenInvites,
   listSalonMembers,
@@ -70,6 +71,9 @@ export function Settings() {
   const [backupOpen, setBackupOpen] = useState(false)
   const [backupNote, setBackupNote] = useState<string | null>(null)
   const [lastExportAt, setLastExportAt] = useState(readLastExportAt)
+  const [deleteConfirmation, setDeleteConfirmation] = useState('')
+  const [deleteError, setDeleteError] = useState<string | null>(null)
+  const [deletingAccount, setDeletingAccount] = useState(false)
   const importInputRef = useRef<HTMLInputElement>(null)
   const nameCanSave = nameDraft.trim().length > 0
   const isOwner = user?.role === 'owner'
@@ -249,6 +253,23 @@ export function Settings() {
         error instanceof Error ? error.message : 'The billing portal could not be opened. Please try again.',
       )
     }
+  }
+
+  async function onDeleteAccount() {
+    if (!isOwner || deleteConfirmation !== salonName || deletingAccount) return
+    const confirmed = window.confirm(
+      `Permanently delete ${salonName}, its client data, staff access, and account history? This cannot be undone.`,
+    )
+    if (!confirmed) return
+    setDeletingAccount(true)
+    setDeleteError(null)
+    const result = await deleteSalonAccount(deleteConfirmation)
+    if (result.error) {
+      setDeleteError(result.error)
+      setDeletingAccount(false)
+      return
+    }
+    await logoutTo(paths.landing)
   }
 
   return (
@@ -473,6 +494,35 @@ export function Settings() {
             <p className="mt-2 text-sm text-cocoa-soft">{permissionNote}</p>
           ) : null}
         </section>
+
+        {isOwner ? (
+          <section className="rounded-2xl bg-ivory p-4 ring-1 ring-overdue/30">
+            <h2 className="text-sm font-medium text-overdue">Delete salon account</h2>
+            <p className="mt-1 text-sm text-cocoa-soft">
+              This permanently removes the salon workspace, clients, notes, services, staff access,
+              invitations, and NewRecall sign-in accounts. Any active Paystack renewal is cancelled first.
+              Download a backup before continuing if you need to keep the salon records.
+            </p>
+            <label className="mt-3 block text-sm">
+              Enter <strong>{salonName}</strong> to confirm
+              <input
+                className="mt-1 w-full rounded-lg border border-line bg-ivory px-3 py-2.5 text-base outline-none focus:border-overdue md:text-sm"
+                value={deleteConfirmation}
+                onChange={(event) => setDeleteConfirmation(event.target.value)}
+                autoComplete="off"
+              />
+            </label>
+            {deleteError ? <p className="mt-2 text-sm text-overdue">{deleteError}</p> : null}
+            <button
+              type="button"
+              className="mt-3 rounded-lg bg-overdue px-3 py-2 text-sm font-semibold text-ivory disabled:opacity-40"
+              disabled={deleteConfirmation !== salonName || deletingAccount}
+              onClick={() => void onDeleteAccount()}
+            >
+              {deletingAccount ? 'Deleting salon account…' : 'Permanently delete salon account'}
+            </button>
+          </section>
+        ) : null}
 
         <button
           type="button"

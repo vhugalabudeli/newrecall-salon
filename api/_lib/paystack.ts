@@ -82,6 +82,7 @@ export type PaystackTransaction = {
 export type PaystackSubscription = {
   status: string
   subscription_code: string
+  email_token?: string
   amount?: number
   domain?: string
   next_payment_date?: string
@@ -89,6 +90,29 @@ export type PaystackSubscription = {
   created_at?: string
   customer: PaystackCustomer | number
   plan: PaystackPlan | number
+}
+
+export async function cancelRenewalsForEmail(email: string): Promise<void> {
+  secretKey()
+  const normalised = email.trim().toLowerCase()
+  if (!normalised) return
+  const customer = await findCustomer(normalised)
+  if (!customer) return
+  const planCode = await ensurePlanCode()
+  const subscriptions = await subscriptionsForCustomer(customer, planCode)
+  for (const subscription of subscriptions) {
+    if (!['active', 'attention'].includes(subscription.status)) continue
+    if (!subscription.email_token) {
+      throw new Error('The subscription could not be cancelled automatically. Contact support@newrecall.com before deleting this salon.')
+    }
+    await paystack('/subscription/disable', {
+      method: 'POST',
+      body: JSON.stringify({
+        code: subscription.subscription_code,
+        token: subscription.email_token,
+      }),
+    })
+  }
 }
 
 export type PaystackRefund = {

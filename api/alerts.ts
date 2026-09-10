@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import {
   alertsConfigured,
-  clearSubscription,
+  clearAlertsForEmail,
   dispatchDueAlerts,
   getVapidPublicKey,
   parseBody,
@@ -11,6 +11,7 @@ import {
   type PushSubscriptionJSON,
 } from './_lib/alerts.js'
 import { routeAction } from './_lib/routeAction.js'
+import { actorFromRequest } from './_lib/salonAuth.js'
 
 function asPayload(value: unknown): AlertPayload | null {
   if (!value || typeof value !== 'object') return null
@@ -63,12 +64,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return
       }
       const secret = process.env.CRON_SECRET?.trim()
-      if (secret) {
-        const auth = req.headers.authorization ?? ''
-        if (auth !== `Bearer ${secret}`) {
-          fail(res, 401, 'Unauthorized')
-          return
-        }
+      if (!secret) {
+        fail(res, 503, 'Notification dispatch security is not configured.')
+        return
+      }
+      const auth = req.headers.authorization ?? ''
+      if (auth !== `Bearer ${secret}`) {
+        fail(res, 401, 'Unauthorized')
+        return
       }
       res.status(200).json(await dispatchDueAlerts())
       return
@@ -83,11 +86,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return
     }
 
+    const auth = typeof req.headers.authorization === 'string'
+      ? req.headers.authorization
+      : undefined
+    const actor = await actorFromRequest(auth)
+
     if (action === 'subscribe') {
       const body = parseBody(req.body)
-      const email = typeof body.email === 'string' ? body.email : ''
+      const email = actor.email
       if (body.clear === true) {
-        await clearSubscription(email)
+        await clearAlertsForEmail(email)
         res.status(200).json({ ok: true })
         return
       }
@@ -107,7 +115,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (action === 'schedule') {
       const body = parseBody(req.body)
-      const email = typeof body.email === 'string' ? body.email : ''
+      const email = actor.email
       const timezone =
         typeof body.timezone === 'string' && body.timezone
           ? body.timezone

@@ -90,6 +90,7 @@ function AdminLogin({
 }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [totp, setTotp] = useState('')
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
 
@@ -98,7 +99,7 @@ function AdminLogin({
     setSaving(true)
     setError('')
     try {
-      const session = await adminLogin(email, password)
+      const session = await adminLogin(email, password, totp)
       onSignedIn(session.email)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not sign in.')
@@ -125,6 +126,20 @@ function AdminLogin({
               autoComplete="username"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
+              required
+            />
+          </label>
+          <label className="block text-sm">
+            Authentication code
+            <input
+              className="mt-1 w-full rounded-lg border border-line bg-ivory px-3 py-2.5 text-base outline-none focus:border-blush"
+              type="text"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              pattern="[0-9]{6}"
+              maxLength={6}
+              value={totp}
+              onChange={(event) => setTotp(event.target.value.replace(/\D/g, '').slice(0, 6))}
               required
             />
           </label>
