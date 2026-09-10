@@ -241,7 +241,7 @@ export function Settings() {
       const link = await openBillingPortal({
         subscriptionCode: status.subscriptionCode,
       })
-      window.open(link, '_blank', 'noopener,noreferrer')
+      window.location.assign(link)
     } catch (error) {
       setPortalError(
         error instanceof Error ? error.message : 'The billing portal could not be opened. Please try again.',
