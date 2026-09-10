@@ -80,11 +80,13 @@ export function Settings() {
       ? null
       : accessLabel(info)
   const trialLabel =
-    info?.period === 'trial' && info.trialEndsAt
+    info?.entitled && !info.willRenew && info.nextPaymentDate
+      ? `Access continues until ${format(new Date(info.nextPaymentDate), 'd MMM yyyy')}. Your subscription will not renew.`
+      : info?.period === 'trial' && info.trialEndsAt
       ? `Trial until ${format(new Date(info.trialEndsAt), 'd MMM yyyy')}.`
       : null
   const nextPaymentLabel =
-    info?.period === 'monthly' && info.nextPaymentDate
+    info?.willRenew && info.period === 'monthly' && info.nextPaymentDate
       ? `Next payment ${format(new Date(info.nextPaymentDate), 'd MMM yyyy')}.`
       : null
   const typeNames = types.map((type) => type.name).join(', ')

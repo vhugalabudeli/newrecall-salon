@@ -4,6 +4,7 @@ export type BillingPeriod = 'trial' | 'monthly'
 
 export type BillingStatus = {
   entitled: boolean
+  willRenew: boolean
   period: BillingPeriod | 'none'
   trialEndsAt: string | null
   nextPaymentDate: string | null
@@ -18,6 +19,7 @@ export function paywallBypassed(): boolean {
 
 export function accessLabel(info: BillingStatus | null): string {
   if (!info || !info.entitled) return 'No active plan'
+  if (!info.willRenew) return 'Cancelled'
   if (info.period === 'trial') return 'Free trial'
   if (info.period === 'monthly') return 'Monthly'
   return 'No active plan'

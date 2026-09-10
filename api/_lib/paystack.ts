@@ -29,6 +29,7 @@ export type BillingPeriod = 'trial' | 'monthly'
 
 export type BillingStatus = {
   entitled: boolean
+  willRenew: boolean
   period: BillingPeriod | 'none'
   trialEndsAt: string | null
   nextPaymentDate: string | null
@@ -459,6 +460,7 @@ async function createTrialSubscription(
   })
   return {
     entitled: true,
+    willRenew: true,
     period: 'trial',
     trialEndsAt: start.toISOString(),
     nextPaymentDate: start.toISOString(),
@@ -495,6 +497,7 @@ export async function statusForEmail(email: string): Promise<BillingStatus> {
   const normalised = email.trim().toLowerCase()
   const empty: BillingStatus = {
     entitled: false,
+    willRenew: false,
     period: 'none',
     trialEndsAt: null,
     nextPaymentDate: null,
@@ -515,6 +518,7 @@ export async function statusForEmail(email: string): Promise<BillingStatus> {
     : trialEndsAt
   return {
     entitled: true,
+    willRenew: open.status !== 'non-renewing',
     period: periodFor(trialEndsAt),
     trialEndsAt,
     nextPaymentDate,
