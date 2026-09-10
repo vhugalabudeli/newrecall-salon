@@ -12,6 +12,7 @@ import {
 } from './_lib/alerts.js'
 import { routeAction } from './_lib/routeAction.js'
 import { actorFromRequest } from './_lib/salonAuth.js'
+import { requestErrorStatus } from './_lib/httpError.js'
 
 function asPayload(value: unknown): AlertPayload | null {
   if (!value || typeof value !== 'object') return null
@@ -143,6 +144,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     fail(res, 404, 'Not found')
   } catch (error) {
     const message = error instanceof Error ? error.message : 'We could not update notification alerts. Please try again.'
-    fail(res, 500, message)
+    fail(res, requestErrorStatus(error), message)
   }
 }
