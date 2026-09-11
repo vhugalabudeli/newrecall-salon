@@ -5,6 +5,7 @@ export const paths = {
   thankYou: '/thank-you',
   login: '/login',
   register: '/register',
+  resetPassword: '/login/reset',
   inviteComplete: '/invite/complete',
   terms: '/terms',
   privacy: '/privacy',

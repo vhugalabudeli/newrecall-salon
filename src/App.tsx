@@ -18,6 +18,7 @@ const Clients = lazyNamed(() => import('./pages/Clients'), 'Clients')
 const Dashboard = lazyNamed(() => import('./pages/Dashboard'), 'Dashboard')
 const Landing = lazyNamed(() => import('./pages/Landing'), 'Landing')
 const Login = lazyNamed(() => import('./pages/Login'), 'Login')
+const ResetPassword = lazyNamed(() => import('./pages/ResetPassword'), 'ResetPassword')
 const Pricing = lazyNamed(() => import('./pages/Pricing'), 'Pricing')
 const Privacy = lazyNamed(() => import('./pages/Privacy'), 'Privacy')
 const Refunds = lazyNamed(() => import('./pages/Refunds'), 'Refunds')
@@ -44,6 +45,7 @@ export default function App() {
         <Route path={paths.pricing} element={<Pricing />} />
         <Route path={paths.admin} element={<Admin />} />
         <Route path={paths.inviteComplete} element={<InviteComplete />} />
+        <Route path={paths.resetPassword} element={<ResetPassword />} />
         <Route
           path={paths.login}
           element={

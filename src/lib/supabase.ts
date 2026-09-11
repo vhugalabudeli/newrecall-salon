@@ -13,6 +13,27 @@ export const supabase = createClient(url || 'https://placeholder.supabase.co', a
   },
 })
 
+function urlLooksLikeRecovery() {
+  if (typeof window === 'undefined') return false
+  const hash = new URLSearchParams(window.location.hash.replace(/^#/, ''))
+  const query = new URLSearchParams(window.location.search)
+  return hash.get('type') === 'recovery' || query.get('type') === 'recovery'
+}
+
+let passwordRecoveryPending = urlLooksLikeRecovery()
+
+supabase.auth.onAuthStateChange((event) => {
+  if (event === 'PASSWORD_RECOVERY') passwordRecoveryPending = true
+})
+
+export function isPasswordRecoveryPending() {
+  return passwordRecoveryPending
+}
+
+export function clearPasswordRecoveryPending() {
+  passwordRecoveryPending = false
+}
+
 export function requireSupabaseConfig() {
   if (!supabaseConfigured) {
     throw new Error('Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.')
