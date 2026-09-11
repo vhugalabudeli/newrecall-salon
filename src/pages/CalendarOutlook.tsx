@@ -18,7 +18,7 @@ export function CalendarOutlook() {
 
       {months.length === 0 ? (
         <p className="rounded-2xl bg-ivory px-4 py-8 text-sm text-cocoa-soft ring-1 ring-line">
-          No follow-ups scheduled for the next three months.
+          No upcoming follow-ups.
         </p>
       ) : (
         <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
