@@ -5,7 +5,6 @@ import { ImportDeviceBook } from '../components/ImportDeviceBook'
 import { NearDayCards } from '../components/NearDayCards'
 import { PageHeader } from '../components/PageHeader'
 import { RecallCard } from '../components/RecallCard'
-import { ScheduleCards } from '../components/ScheduleCards'
 import { useClients } from '../hooks/useClients'
 import { resumeBookEditId, shouldResumeBookAdd } from '../lib/bookDraft'
 import { paths } from '../lib/routes'
@@ -63,7 +62,6 @@ export function Dashboard() {
           clients={clients}
           onSelectClient={(client) => setViewingId(client.id)}
         />
-        <ScheduleCards />
       </div>
 
       {adding ? <AddClientPanel onClose={() => setAdding(false)} /> : null}
