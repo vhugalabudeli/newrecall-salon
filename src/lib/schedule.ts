@@ -3,6 +3,7 @@ import {
   addMonths,
   addWeeks,
   differenceInCalendarDays,
+  differenceInCalendarMonths,
   differenceInCalendarWeeks,
   eachDayOfInterval,
   endOfMonth,
@@ -363,8 +364,8 @@ export function recallDaysInMonth(
 
 export function recallMonthSummaries(
   clients: Client[],
-  today = new Date(),
-  count = 3,
+  today: Date,
+  count: number,
 ): MonthSummary[] {
   const now = startOfDay(today)
   return Array.from({ length: count }, (_, offset) => {
@@ -390,6 +391,28 @@ export function recallMonthSummaries(
       days,
     }
   })
+}
+
+export function futureRecallMonthSummaries(
+  clients: Client[],
+  today = new Date(),
+): MonthSummary[] {
+  const now = startOfDay(today)
+  const futureClients = clients.filter((client) => recallDate(client) >= now)
+  if (futureClients.length === 0) return []
+
+  const latestRecall = futureClients.reduce((latest, client) => {
+    const due = recallDate(client)
+    return due > latest ? due : latest
+  }, now)
+  const count = differenceInCalendarMonths(
+    startOfMonth(latestRecall),
+    startOfMonth(now),
+  ) + 1
+
+  return recallMonthSummaries(futureClients, now, count).filter(
+    (month) => month.total > 0,
+  )
 }
 
 export function sortByRecall(clients: Client[]): Client[] {

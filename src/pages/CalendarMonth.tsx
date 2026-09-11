@@ -12,8 +12,6 @@ import { clientsOnRecallDate, formatDayLabel, formatRecall, recallDate } from '.
 import type { Client } from '../types'
 
 const MIN_DAY_OFFSET = -90
-const MAX_DAY_OFFSET = 120
-
 export function CalendarMonth() {
   const { offset } = useParams()
   const navigate = useNavigate()
@@ -24,8 +22,7 @@ export function CalendarMonth() {
 
   if (
     !Number.isInteger(dayOffset) ||
-    dayOffset < MIN_DAY_OFFSET ||
-    dayOffset > MAX_DAY_OFFSET
+    dayOffset < MIN_DAY_OFFSET
   ) {
     return <Navigate to={paths.calendar} replace />
   }

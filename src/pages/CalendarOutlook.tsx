@@ -1,16 +1,14 @@
 import { PageHeader } from '../components/PageHeader'
 import { AppPage } from '../components/AppPage'
 import { PeriodCard } from '../components/PeriodCard'
-import { monthPreviewLabels } from '../lib/labels'
+import { monthPreviewLabel } from '../lib/labels'
 import { useClients } from '../hooks/useClients'
 import { paths } from '../lib/routes'
-import { recallMonthSummaries } from '../lib/schedule'
+import { futureRecallMonthSummaries } from '../lib/schedule'
 
 export function CalendarOutlook() {
   const { clients } = useClients()
-  const months = recallMonthSummaries(clients, new Date(), 3).filter(
-    (month) => month.total > 0,
-  )
+  const months = futureRecallMonthSummaries(clients)
 
   return (
     <AppPage wide>
@@ -25,7 +23,7 @@ export function CalendarOutlook() {
           {months.map((month) => (
             <PeriodCard
               key={month.label}
-              eyebrow={monthPreviewLabels[month.offset]}
+              eyebrow={monthPreviewLabel(month.offset)}
               title={month.label}
               total={month.total}
               empty="No follow-ups this month."

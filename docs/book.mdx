@@ -14,8 +14,8 @@ Routes live in `src/lib/routes.ts` and `src/App.tsx`.
 | `/subscribe` | Trial checkout (owners). Staff see that the owner must start the trial. Entitled users go to `/app`. |
 | `/app` | Dashboard: overdue, due today, due this week, later schedule. Owners may see a one-time import of an old on-device book. |
 | `/app/clients` | Book: All, Follow-up, Cleared. Search name, phone, or guest |
-| `/app/calendar` | Next three months that have recalls (week starts Monday) |
-| `/app/calendar/:offset` | One day. Offset is integer days from today, −90 to 120 |
+| `/app/calendar` | All future months that have follow-ups (week starts Monday) |
+| `/app/calendar/:offset` | One day. Offset is an integer number of days from today; past navigation is limited to 90 days |
 | `/app/settings` | Salon name (owner), staff invites (owner), service types, backup, subscription, alerts, log out |
 | `/app/settings/service-types` | Types and services. Lifespan is 2–16 weeks |
 | `/pricing`, `/terms`, `/privacy`, `/refunds` | Legal |

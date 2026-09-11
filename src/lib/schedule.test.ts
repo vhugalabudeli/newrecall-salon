@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   dueToday,
+  futureRecallMonthSummaries,
   isOnDueList,
   overdueClients,
   todayIso,
@@ -102,5 +103,29 @@ describe('dueToday and overdueClients', () => {
 
   it('formats today as ISO date', () => {
     expect(todayIso(today)).toBe('2026-09-08')
+  })
+})
+
+describe('futureRecallMonthSummaries', () => {
+  it('includes scheduled follow-ups beyond three months', () => {
+    const today = new Date(2026, 0, 1)
+    const later = client({
+      id: 'later',
+      lastVisitDate: '2026-05-01',
+      lifespanWeeks: 8,
+    })
+
+    const months = futureRecallMonthSummaries([later], today)
+
+    expect(months).toHaveLength(1)
+    expect(months[0]?.clients.map((item) => item.id)).toEqual(['later'])
+    expect(months[0]?.offset).toBeGreaterThan(2)
+  })
+
+  it('does not include past follow-ups', () => {
+    const today = new Date(2026, 8, 8)
+    const past = client({ lastVisitDate: '2026-01-01', lifespanWeeks: 2 })
+
+    expect(futureRecallMonthSummaries([past], today)).toEqual([])
   })
 })

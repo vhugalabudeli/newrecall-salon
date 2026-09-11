@@ -68,11 +68,11 @@ export const weekPreviewLabels = [
   '3 weeks ahead',
 ]
 
-export const monthPreviewLabels = [
-  'This month',
-  'Next month',
-  '2 months ahead',
-]
+export function monthPreviewLabel(offset: number) {
+  if (offset === 0) return 'This month'
+  if (offset === 1) return 'Next month'
+  return `${offset} months ahead`
+}
 
 export const recallLeads: RecallLead[] = [
   'on_the_day',
