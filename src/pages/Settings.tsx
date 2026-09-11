@@ -38,6 +38,7 @@ import {
 import { showLiveAlert } from '../lib/liveAlert'
 import { paths } from '../lib/routes'
 import { DEFAULT_SALON_NAME } from '../lib/settings'
+import { openWelcomeGuide } from '../lib/welcome'
 import {
   cancelInvite,
   deleteSalonAccount,
@@ -277,7 +278,7 @@ export function Settings() {
       <PageHeader title="Settings" />
 
       <div className="space-y-3">
-        <section className="rounded-2xl bg-ivory p-4 ring-1 ring-line">
+          <section className="rounded-2xl bg-ivory p-4 ring-1 ring-line">
           {updatingName ? (
             <>
               <p className="text-sm font-medium">Salon name</p>
@@ -495,6 +496,20 @@ export function Settings() {
           ) : null}
         </section>
 
+        <section className="rounded-2xl bg-ivory p-4 ring-1 ring-line">
+          <h2 className="text-sm font-medium">Getting started</h2>
+          <p className="mt-1 text-sm text-cocoa-soft">
+            Reopen the welcome guide for a quick overview of your NewRecall workspace.
+          </p>
+          <button
+            type="button"
+            className={`${fieldActionClassName} mt-3`}
+            onClick={openWelcomeGuide}
+          >
+            Open welcome guide
+          </button>
+        </section>
+
         {isOwner ? (
           <section className="rounded-2xl bg-ivory p-4 ring-1 ring-overdue/30">
             <h2 className="text-sm font-medium text-overdue">Delete salon account</h2>
@@ -575,7 +590,7 @@ function StaffSettings() {
   }
 
   return (
-    <section className="rounded-2xl bg-ivory p-4 ring-1 ring-line">
+    <section id="staff" className="rounded-2xl bg-ivory p-4 ring-1 ring-line">
       <h2 className="text-sm font-medium">Staff</h2>
       <p className="mt-1 text-sm text-cocoa-soft">
         Staff share this salon’s clients, services, and follow-ups. They do not need a separate subscription.

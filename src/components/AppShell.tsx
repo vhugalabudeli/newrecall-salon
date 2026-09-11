@@ -9,6 +9,7 @@ import { LiveAlertHost } from './LiveAlertHost'
 import { RecallAlertHost } from './RecallAlertHost'
 import { RecallBell } from './RecallBell'
 import { SwUpdateHost } from './SwUpdateHost'
+import { WelcomeDialog } from './WelcomeDialog'
 
 const links = [
   { to: paths.dashboard, label: 'Dashboard', end: true, icon: DashboardMark },
@@ -42,6 +43,7 @@ export function AppShell() {
         <LiveAlertHost />
         <SwUpdateHost />
         <RecallAlertHost />
+        <WelcomeDialog />
         <AppHeader />
         <main
           ref={mainRef}

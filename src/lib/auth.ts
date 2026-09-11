@@ -12,6 +12,7 @@ export type AuthUser = {
   salonName: string
   role: SalonRole
   billingEmail: string | null
+  welcomeCompletedAt: string | null
 }
 
 export type AuthResult = { ok: true; user: AuthUser } | { ok: false; error: string }
@@ -67,7 +68,11 @@ export async function loadAuthUser(): Promise<AuthUser | null> {
   }
 
   const [{ data: profile }, member] = await Promise.all([
-    supabase.from('profiles').select('name').eq('id', sessionUser.id).maybeSingle(),
+    supabase
+      .from('profiles')
+      .select('name, welcome_completed_at')
+      .eq('id', sessionUser.id)
+      .maybeSingle(),
     waitForMembership(sessionUser.id),
   ])
 
@@ -99,6 +104,10 @@ export async function loadAuthUser(): Promise<AuthUser | null> {
     salonName: salon.salonName,
     role: salon.role,
     billingEmail: salon.billingEmail,
+    welcomeCompletedAt:
+      typeof profile?.welcome_completed_at === 'string'
+        ? profile.welcome_completed_at
+        : null,
   }
 }
 
