@@ -31,6 +31,8 @@ const Subscribe = lazyNamed(() => import('./pages/Subscribe'), 'Subscribe')
 const Terms = lazyNamed(() => import('./pages/Terms'), 'Terms')
 const ThankYou = lazyNamed(() => import('./pages/ThankYou'), 'ThankYou')
 const Admin = lazyNamed(() => import('./pages/Admin'), 'Admin')
+const ChampionJoin = lazyNamed(() => import('./pages/ChampionJoin'), 'ChampionJoin')
+const Rewards = lazyNamed(() => import('./pages/Rewards'), 'Rewards')
 
 export default function App() {
   return (
@@ -62,6 +64,15 @@ export default function App() {
             </GuestOnly>
           }
         />
+        <Route
+          path={paths.champion}
+          element={
+            <GuestOnly>
+              <ChampionJoin />
+            </GuestOnly>
+          }
+        />
+        <Route path={paths.rewards} element={<Rewards />} />
         <Route
           path={paths.subscribe}
           element={

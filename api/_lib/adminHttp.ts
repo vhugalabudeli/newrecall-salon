@@ -27,6 +27,13 @@ import {
   portalFor,
   repairStuck,
 } from './adminOverview.js'
+import {
+  inviteInfluencer,
+  loadReferralAdmin,
+  recordReferralPayout,
+  saveCodeOverride,
+  saveReferralConfig,
+} from './referralAdmin.js'
 
 export type AdminAction =
   | 'login'
@@ -40,6 +47,11 @@ export type AdminAction =
   | 'csv'
   | 'tenant-export'
   | 'tenant-restore'
+  | 'referrals'
+  | 'referral-config'
+  | 'referral-invite'
+  | 'referral-payout'
+  | 'referral-override'
 
 export type AdminDispatch = {
   action: AdminAction
@@ -274,6 +286,72 @@ export async function dispatchAdmin(input: AdminDispatch): Promise<AdminResult> 
         detail: salonId,
       })
       return json(200, { ok: true })
+    }
+
+    if (input.action === 'referrals') {
+      if (method !== 'GET') throw new AdminHttpError(405, 'Method not allowed')
+      return json(200, await loadReferralAdmin())
+    }
+
+    if (input.action === 'referral-config') {
+      if (method !== 'POST') throw new AdminHttpError(405, 'Method not allowed')
+      const payload = await saveReferralConfig({
+        influencerBountyZar: input.body.influencerBountyZar || '',
+        championBountyZar: input.body.championBountyZar || '',
+      })
+      await addAudit({
+        operatorEmail: session.email,
+        action: 'referral-config',
+        detail: `Influencer ${input.body.influencerBountyZar} Champion ${input.body.championBountyZar}`,
+      })
+      return json(200, payload)
+    }
+
+    if (input.action === 'referral-invite') {
+      if (method !== 'POST') throw new AdminHttpError(405, 'Method not allowed')
+      const payload = await inviteInfluencer({
+        name: input.body.name || '',
+        email: input.body.email || '',
+        code: input.body.code || '',
+        overrideZar: input.body.overrideZar || '',
+        host: input.host,
+        origin: input.origin,
+      })
+      await addAudit({
+        operatorEmail: session.email,
+        action: 'referral-invite',
+        detail: `${input.body.email} ${input.body.code}`,
+      })
+      return json(200, payload)
+    }
+
+    if (input.action === 'referral-payout') {
+      if (method !== 'POST') throw new AdminHttpError(405, 'Method not allowed')
+      const payload = await recordReferralPayout({
+        promoCodeId: input.body.promoCodeId || '',
+        amountZar: input.body.amountZar || '',
+        note: input.body.note || '',
+      })
+      await addAudit({
+        operatorEmail: session.email,
+        action: 'referral-payout',
+        detail: `${input.body.promoCodeId} ${input.body.amountZar}`,
+      })
+      return json(200, payload)
+    }
+
+    if (input.action === 'referral-override') {
+      if (method !== 'POST') throw new AdminHttpError(405, 'Method not allowed')
+      const payload = await saveCodeOverride({
+        promoCodeId: input.body.promoCodeId || '',
+        overrideZar: input.body.overrideZar || '',
+      })
+      await addAudit({
+        operatorEmail: session.email,
+        action: 'referral-override',
+        detail: `${input.body.promoCodeId} ${input.body.overrideZar}`,
+      })
+      return json(200, payload)
     }
 
     throw new AdminHttpError(404, 'Not found')

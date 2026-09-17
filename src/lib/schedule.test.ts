@@ -19,7 +19,7 @@ function client(overrides: Partial<Client>): Client {
     serviceType: 'hair',
     service: 'Cut',
     lastVisitDate: '2026-01-01',
-    lifespanWeeks: 8,
+    lifespan: 8,
     recallLead: 'on_the_day',
     bookingStatus: 'not_yet_booked',
     contactStatus: 'not_yet_contacted',
@@ -61,19 +61,19 @@ describe('dueToday and overdueClients', () => {
     const due = client({
       id: 'due',
       lastVisitDate: '2026-07-14',
-      lifespanWeeks: 8,
+      lifespan: 8,
       recallLead: 'on_the_day',
     })
     const future = client({
       id: 'future',
       lastVisitDate: '2026-07-21',
-      lifespanWeeks: 8,
+      lifespan: 8,
       recallLead: 'on_the_day',
     })
     const cleared = client({
       id: 'cleared',
       lastVisitDate: '2026-07-14',
-      lifespanWeeks: 8,
+      lifespan: 8,
       contactStatus: 'contacted',
     })
 
@@ -86,13 +86,13 @@ describe('dueToday and overdueClients', () => {
     const overdue = client({
       id: 'overdue',
       lastVisitDate: '2026-07-01',
-      lifespanWeeks: 8,
+      lifespan: 8,
       recallLead: 'on_the_day',
     })
     const due = client({
       id: 'due',
       lastVisitDate: '2026-07-14',
-      lifespanWeeks: 8,
+      lifespan: 8,
       recallLead: 'on_the_day',
     })
 
@@ -112,7 +112,7 @@ describe('futureRecallMonthSummaries', () => {
     const later = client({
       id: 'later',
       lastVisitDate: '2026-05-01',
-      lifespanWeeks: 8,
+      lifespan: 8,
     })
 
     const months = futureRecallMonthSummaries([later], today)
@@ -124,7 +124,7 @@ describe('futureRecallMonthSummaries', () => {
 
   it('does not include past follow-ups', () => {
     const today = new Date(2026, 8, 8)
-    const past = client({ lastVisitDate: '2026-01-01', lifespanWeeks: 2 })
+    const past = client({ lastVisitDate: '2026-01-01', lifespan: 2 })
 
     expect(futureRecallMonthSummaries([past], today)).toEqual([])
   })

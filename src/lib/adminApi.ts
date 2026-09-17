@@ -139,3 +139,71 @@ export function restoreAdminTenant(salonId: string, backup: unknown) {
     body: JSON.stringify({ salonId, backup: JSON.stringify(backup) }),
   })
 }
+
+export type ReferralAdminRow = {
+  id: string
+  code: string
+  kind: 'influencer' | 'champion'
+  label: string
+  email: string
+  name: string
+  overrideCents: number | null
+  signupCount: number
+  earnedCents: number
+  paidCents: number
+  pendingCents: number
+  lastPayoutAt: string | null
+}
+
+export type ReferralAdminPayload = {
+  influencerBountyCents: number
+  championBountyCents: number
+  rows: ReferralAdminRow[]
+}
+
+export function fetchReferralAdmin(): Promise<ReferralAdminPayload> {
+  return request('/api/admin/referrals')
+}
+
+export function saveReferralConfig(input: {
+  influencerBountyZar: string
+  championBountyZar: string
+}): Promise<ReferralAdminPayload> {
+  return request('/api/admin/referral-config', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  })
+}
+
+export function inviteReferralInfluencer(input: {
+  name: string
+  email: string
+  code: string
+  overrideZar: string
+}): Promise<ReferralAdminPayload> {
+  return request('/api/admin/referral-invite', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  })
+}
+
+export function recordReferralPayout(input: {
+  promoCodeId: string
+  amountZar: string
+  note: string
+}): Promise<ReferralAdminPayload> {
+  return request('/api/admin/referral-payout', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  })
+}
+
+export function saveReferralOverride(input: {
+  promoCodeId: string
+  overrideZar: string
+}): Promise<ReferralAdminPayload> {
+  return request('/api/admin/referral-override', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  })
+}

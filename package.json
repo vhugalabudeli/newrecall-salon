@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "copy:check": "node scripts/check-copy.mjs",
+    "dummy-data": "node --env-file=.env.local scripts/dummy-data.mjs",
     "lint": "oxlint",
     "preview": "vite preview",
     "test": "vitest run",

@@ -27,7 +27,7 @@ function client(name: string): Client {
     serviceType: 'hair',
     service: 'Cut',
     lastVisitDate: '2026-01-01',
-    lifespanWeeks: 8,
+    lifespan: 8,
     recallLead: 'on_the_day',
     bookingStatus: 'not_yet_booked',
     contactStatus: 'not_yet_contacted',
@@ -54,7 +54,7 @@ describe('alert message bodies', () => {
     const overdue = {
       ...client('Naledi'),
       lastVisitDate: '2026-07-01',
-      lifespanWeeks: 8,
+      lifespan: 8,
     }
     expect(overdueBody([], today)).toBe('No overdue follow-ups.')
     expect(overdueBody([overdue], today)).toMatch(/Naledi is .+ overdue/)

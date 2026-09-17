@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { LandingHeader } from '../components/LandingHeader'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
-import { loginAccount } from '../lib/auth'
+import { loginAccount, homePathFor } from '../lib/auth'
 import { loginResetPath, requestPasswordReset } from '../lib/passwordReset'
 import { paths } from '../lib/routes'
 import '../styles/landing.css'
@@ -30,7 +30,11 @@ export function Login() {
       setError(result.error)
       return
     }
-    const next = from.startsWith(paths.dashboard) ? from : paths.dashboard
+    if (result.identity.type === 'referrer') {
+      navigate(paths.rewards, { replace: true })
+      return
+    }
+    const next = from.startsWith(paths.dashboard) ? from : homePathFor(result.identity)
     navigate(next, { replace: true })
   }
 
@@ -105,8 +109,7 @@ export function Login() {
               <>
                 <h1>Welcome back</h1>
                 <p className="lead">
-                  Sign in with your NewRecall email and password. Owners and invited
-                  staff work from the same salon workspace.
+                  Sign in with your NewRecall email and password.
                 </p>
                 <form className="auth-form" onSubmit={onSignIn}>
                   <label>
@@ -149,6 +152,9 @@ export function Login() {
                 </form>
                 <p className="muted auth-switch">
                   New to NewRecall? <Link to={paths.register}>Start your free trial</Link>
+                </p>
+                <p className="muted auth-switch">
+                  Referring salons? <Link to={paths.champion}>Become a Brand Champion</Link>
                 </p>
               </>
             )}

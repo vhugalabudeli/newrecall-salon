@@ -13,8 +13,15 @@ import {
   openAdminPortal,
   repairAdminCheckout,
   restoreAdminTenant,
+  fetchReferralAdmin,
+  inviteReferralInfluencer,
+  recordReferralPayout,
+  saveReferralConfig,
+  saveReferralOverride,
+  type ReferralAdminPayload,
 } from '../lib/adminApi'
 import { formatZarFromCents } from '../lib/adminClassify'
+import { centsToZarInput } from '../lib/promoCode'
 import type { AdminLookup, AdminOverview } from '../lib/adminTypes'
 import { DEFAULT_MESSAGE_TEMPLATE } from '../lib/messageTemplate'
 import { paths } from '../lib/routes'
@@ -37,6 +44,7 @@ const SECTIONS = [
   { id: 'recall', label: 'Follow-up message' },
   { id: 'tenants', label: 'Salons' },
   { id: 'backups', label: 'Backups' },
+  { id: 'promo-rewards', label: 'Promo rewards' },
   { id: 'support', label: 'Support' },
 ] as const
 
@@ -735,6 +743,12 @@ function AdminDesk({
           </p>
         </Section>
 
+        <PromoRewardsSection
+          busy={busy}
+          setBusy={setBusy}
+          setLoadError={setLoadError}
+        />
+
         <Section id="support" title="Support queue">
           <form className="grid gap-2 sm:grid-cols-2" onSubmit={(event) => void onSupport(event)}>
             <label className="text-sm">
@@ -899,5 +913,291 @@ function Table({
         </tbody>
       </table>
     </div>
+  )
+}
+
+function PromoRewardsSection({
+  busy,
+  setBusy,
+  setLoadError,
+}: {
+  busy: string | null
+  setBusy: (value: string | null) => void
+  setLoadError: (value: string | null) => void
+}) {
+  const [payload, setPayload] = useState<ReferralAdminPayload | null>(null)
+  const [influencerZar, setInfluencerZar] = useState('0')
+  const [championZar, setChampionZar] = useState('0')
+  const [inviteName, setInviteName] = useState('')
+  const [inviteEmail, setInviteEmail] = useState('')
+  const [inviteCode, setInviteCode] = useState('')
+  const [inviteOverride, setInviteOverride] = useState('')
+  const [overrides, setOverrides] = useState<Record<string, string>>({})
+  const [payouts, setPayouts] = useState<Record<string, { amount: string; note: string }>>({})
+  const [note, setNote] = useState('')
+
+  function applyPayload(next: ReferralAdminPayload) {
+    setPayload(next)
+    setInfluencerZar(centsToZarInput(next.influencerBountyCents))
+    setChampionZar(centsToZarInput(next.championBountyCents))
+    setOverrides(
+      Object.fromEntries(
+        next.rows.map((row) => [
+          row.id,
+          row.overrideCents == null ? '' : centsToZarInput(row.overrideCents),
+        ]),
+      ),
+    )
+  }
+
+  useEffect(() => {
+    void fetchReferralAdmin()
+      .then(applyPayload)
+      .catch((err: unknown) => {
+        setLoadError(
+          err instanceof Error
+            ? err.message
+            : 'Promo rewards could not be loaded. Try refreshing the page.',
+        )
+      })
+  }, [setLoadError])
+
+  async function onSaveConfig(event: FormEvent) {
+    event.preventDefault()
+    setBusy('referral-config')
+    setNote('')
+    try {
+      applyPayload(
+        await saveReferralConfig({
+          influencerBountyZar: influencerZar,
+          championBountyZar: championZar,
+        }),
+      )
+      setNote('Bounties saved.')
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : 'Bounties could not be saved.')
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  async function onInvite(event: FormEvent) {
+    event.preventDefault()
+    setBusy('referral-invite')
+    setNote('')
+    try {
+      applyPayload(
+        await inviteReferralInfluencer({
+          name: inviteName,
+          email: inviteEmail,
+          code: inviteCode,
+          overrideZar: inviteOverride,
+        }),
+      )
+      setInviteName('')
+      setInviteEmail('')
+      setInviteCode('')
+      setInviteOverride('')
+      setNote('Influencer invite sent.')
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : 'The Influencer invite could not be sent.')
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  async function onOverride(promoCodeId: string) {
+    setBusy(`override:${promoCodeId}`)
+    setNote('')
+    try {
+      applyPayload(
+        await saveReferralOverride({
+          promoCodeId,
+          overrideZar: overrides[promoCodeId] || '',
+        }),
+      )
+      setNote('Override saved.')
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : 'The bounty override could not be saved.')
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  async function onPayout(promoCodeId: string) {
+    const row = payouts[promoCodeId] || { amount: '', note: '' }
+    setBusy(`payout:${promoCodeId}`)
+    setNote('')
+    try {
+      applyPayload(
+        await recordReferralPayout({
+          promoCodeId,
+          amountZar: row.amount,
+          note: row.note,
+        }),
+      )
+      setPayouts((current) => ({ ...current, [promoCodeId]: { amount: '', note: '' } }))
+      setNote('Payout recorded.')
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : 'The payout could not be recorded.')
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  return (
+    <Section id="promo-rewards" title="Promo rewards">
+      <p className="mb-3 text-sm text-cocoa-soft">
+        Brand Champions and Influencers earn a bounty when a salon registers with their
+        code. Price for the salon stays R200 after trial. Record a payout after you send an EFT.
+      </p>
+      <form className="mb-4 grid gap-2 sm:grid-cols-3" onSubmit={(event) => void onSaveConfig(event)}>
+        <label className="text-sm">
+          Influencer bounty (R)
+          <input
+            className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm"
+            inputMode="decimal"
+            value={influencerZar}
+            onChange={(event) => setInfluencerZar(event.target.value)}
+            required
+          />
+        </label>
+        <label className="text-sm">
+          Brand Champion bounty (R)
+          <input
+            className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm"
+            inputMode="decimal"
+            value={championZar}
+            onChange={(event) => setChampionZar(event.target.value)}
+            required
+          />
+        </label>
+        <div className="flex items-end">
+          <button className={btnClass} type="submit" disabled={busy !== null}>
+            Save bounties
+          </button>
+        </div>
+      </form>
+
+      <h3 className="text-sm font-medium">Invite Influencer</h3>
+      <form className="mb-4 mt-2 grid gap-2 sm:grid-cols-2" onSubmit={(event) => void onInvite(event)}>
+        <label className="text-sm">
+          Name
+          <input
+            className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm"
+            value={inviteName}
+            onChange={(event) => setInviteName(event.target.value)}
+            required
+          />
+        </label>
+        <label className="text-sm">
+          Email
+          <input
+            className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm"
+            type="email"
+            value={inviteEmail}
+            onChange={(event) => setInviteEmail(event.target.value)}
+            required
+          />
+        </label>
+        <label className="text-sm">
+          Code
+          <input
+            className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm"
+            value={inviteCode}
+            onChange={(event) => setInviteCode(event.target.value.toUpperCase())}
+            required
+          />
+        </label>
+        <label className="text-sm">
+          Bounty override (R, optional)
+          <input
+            className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm"
+            inputMode="decimal"
+            value={inviteOverride}
+            onChange={(event) => setInviteOverride(event.target.value)}
+          />
+        </label>
+        <button className={btnClass} type="submit" disabled={busy !== null}>
+          Send invite
+        </button>
+      </form>
+      {note ? <p className="mb-3 text-sm text-cocoa-soft">{note}</p> : null}
+
+      <Table
+        columns={[
+          'Code',
+          'Kind',
+          'Email',
+          'Signups',
+          'Pending',
+          'Paid',
+          'Last payout',
+          'Override',
+          'Record payout',
+        ]}
+        rows={(payload?.rows ?? []).map((row) => [
+          row.code,
+          row.label,
+          row.email || row.name,
+          String(row.signupCount),
+          formatZarFromCents(row.pendingCents),
+          formatZarFromCents(row.paidCents),
+          row.lastPayoutAt ? format(Date.parse(row.lastPayoutAt), 'd MMM yyyy') : '—',
+          <span key={`${row.id}-override`} className="flex flex-wrap items-center gap-2">
+            <input
+              className="w-20 rounded-lg border border-line px-2 py-1 text-sm"
+              inputMode="decimal"
+              placeholder="Global"
+              value={overrides[row.id] ?? ''}
+              onChange={(event) =>
+                setOverrides((current) => ({ ...current, [row.id]: event.target.value }))
+              }
+            />
+            <button
+              type="button"
+              className={btnClass}
+              disabled={busy !== null}
+              onClick={() => void onOverride(row.id)}
+            >
+              Save
+            </button>
+          </span>,
+          <span key={`${row.id}-payout`} className="flex flex-wrap items-center gap-2">
+            <input
+              className="w-20 rounded-lg border border-line px-2 py-1 text-sm"
+              inputMode="decimal"
+              placeholder="R"
+              value={payouts[row.id]?.amount ?? ''}
+              onChange={(event) =>
+                setPayouts((current) => ({
+                  ...current,
+                  [row.id]: { amount: event.target.value, note: current[row.id]?.note || '' },
+                }))
+              }
+            />
+            <input
+              className="w-28 rounded-lg border border-line px-2 py-1 text-sm"
+              placeholder="EFT note"
+              value={payouts[row.id]?.note ?? ''}
+              onChange={(event) =>
+                setPayouts((current) => ({
+                  ...current,
+                  [row.id]: { amount: current[row.id]?.amount || '', note: event.target.value },
+                }))
+              }
+            />
+            <button
+              type="button"
+              className={btnClass}
+              disabled={busy !== null || row.pendingCents <= 0}
+              onClick={() => void onPayout(row.id)}
+            >
+              Record payout
+            </button>
+          </span>,
+        ])}
+      />
+    </Section>
   )
 }

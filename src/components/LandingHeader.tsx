@@ -5,16 +5,32 @@ import { paths } from '../lib/routes'
 import { LandingBrand } from './LandingBrand'
 
 export function LandingHeader() {
-  const { user, ready } = useAuth()
+  const { user, referrer, ready } = useAuth()
   const location = useLocation()
   const onSubscribe = location.pathname === paths.subscribe
+  const onRewards = location.pathname === paths.rewards
 
   return (
     <header className="site-header">
       <div className="wrap">
         <LandingBrand />
         <nav className="header-nav" aria-label="Primary">
-          {ready && user && onSubscribe ? (
+          {ready && referrer ? (
+            onRewards ? (
+              <button
+                className="nav-text"
+                type="button"
+                onClick={() => logoutTo(paths.rewards)}
+              >
+                Log out
+              </button>
+            ) : (
+              <Link className="btn btn-primary" to={paths.rewards}>
+                <span className="btn-full">Open rewards</span>
+                <span className="btn-short">Rewards</span>
+              </Link>
+            )
+          ) : ready && user && onSubscribe ? (
             <button
               className="nav-text"
               type="button"
@@ -33,7 +49,8 @@ export function LandingHeader() {
                 Sign in
               </Link>
               <Link className="btn btn-primary" to={paths.register}>
-                Start free trial
+                <span className="btn-full">Start free trial</span>
+                <span className="btn-short">Try free</span>
               </Link>
             </>
           )}

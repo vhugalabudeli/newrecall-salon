@@ -109,6 +109,7 @@ html {
   display: block;
   font-size: 0.75rem;
   color: var(--cocoa-soft);
+  white-space: nowrap;
 }
 
 .landing-page .header-nav{
@@ -549,7 +550,18 @@ html {
   }
 
   .landing-page .header-nav{
-    gap: 0.6rem;
+    flex-wrap: nowrap;
+    flex-shrink: 0;
+    gap: 0.5rem;
+  }
+
+  .landing-page .header-nav .btn{
+    padding-inline: 0.75rem;
+    font-size: 0.88rem;
+  }
+
+  .landing-page .header-nav .nav-text{
+    font-size: 0.85rem;
   }
 
   .landing-page main{
@@ -711,4 +723,96 @@ html {
   .landing-page .cta-row .btn-short{
     display: inline;
   }
+}
+
+.landing-page[data-kind="influencer"]{
+  background:
+    radial-gradient(1200px 480px at 10% -10%, rgba(196, 164, 106, 0.28), transparent 55%),
+    radial-gradient(900px 420px at 110% 8%, rgba(58, 36, 24, 0.12), transparent 50%),
+    var(--cream);
+}
+
+.landing-page[data-kind="influencer"] .btn-primary{
+  background: var(--gold);
+  color: var(--cocoa);
+}
+
+.landing-page[data-kind="influencer"] .btn-primary:hover{
+  background: color-mix(in srgb, var(--gold) 80%, var(--cocoa));
+}
+
+.landing-page[data-kind="influencer"] .eyebrow,
+.landing-page[data-kind="influencer"] .auth-switch a,
+.landing-page[data-kind="influencer"] .text-link{
+  color: var(--cocoa);
+}
+
+.landing-page .rewards-code-block{
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1.2rem;
+}
+
+.landing-page .rewards-code{
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 7vw, 2.6rem);
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  text-align: center;
+}
+
+.landing-page .rewards-copy{
+  width: 100%;
+}
+
+.landing-page .rewards-ledger{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin: 1.4rem 0 0.4rem;
+}
+
+.landing-page .rewards-ledger div{
+  background: color-mix(in srgb, var(--ivory) 70%, var(--rose-mist));
+  border-radius: 1rem;
+  padding: 0.85rem 0.9rem;
+}
+
+.landing-page[data-kind="influencer"] .rewards-ledger div{
+  background: color-mix(in srgb, var(--ivory) 72%, var(--gold));
+}
+
+.landing-page .rewards-ledger dt{
+  font-size: 0.82rem;
+  color: var(--cocoa-soft);
+}
+
+.landing-page .rewards-ledger dd{
+  margin: 0.2rem 0 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.landing-page .rewards-subhead{
+  margin: 1.3rem 0 0.4rem;
+  font-size: 1rem;
+}
+
+.landing-page .rewards-list{
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.landing-page .text-link{
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 700;
+  color: var(--blush-dark);
+  cursor: pointer;
 }

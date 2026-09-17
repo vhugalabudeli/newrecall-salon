@@ -1,4 +1,4 @@
-import { loadAuthUser, type AuthUser } from './auth'
+import { loadIdentity, type SessionIdentity } from './auth'
 import { paths } from './routes'
 import {
   clearPasswordRecoveryPending,
@@ -12,7 +12,7 @@ export type PasswordResetResult =
   | { ok: false; error: string }
 
 export type PasswordResetCompleteResult =
-  | { ok: true; user: AuthUser }
+  | { ok: true; identity: SessionIdentity }
   | { ok: false; error: string }
 
 const EXPIRED_LINK =
@@ -110,14 +110,14 @@ export async function completePasswordReset(input: {
     }
     clearPasswordRecoveryPending()
 
-    const user = await loadAuthUser()
-    if (!user) {
+    const identity = await loadIdentity()
+    if (!identity) {
       return {
         ok: false,
-        error: 'Password saved, but this login is not attached to a salon.',
+        error: 'Password saved, but this login is not attached to a salon or rewards account.',
       }
     }
-    return { ok: true, user }
+    return { ok: true, identity }
   } catch (error) {
     return {
       ok: false,

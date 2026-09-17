@@ -14,6 +14,11 @@ const ACTIONS: Record<string, AdminAction> = {
   '/api/admin/csv': 'csv',
   '/api/admin/tenant-export': 'tenant-export',
   '/api/admin/tenant-restore': 'tenant-restore',
+  '/api/admin/referrals': 'referrals',
+  '/api/admin/referral-config': 'referral-config',
+  '/api/admin/referral-invite': 'referral-invite',
+  '/api/admin/referral-payout': 'referral-payout',
+  '/api/admin/referral-override': 'referral-override',
 }
 
 async function readJson(
@@ -40,6 +45,7 @@ function applyEnv(mode: string) {
     'ADMIN_EMAIL',
     'ADMIN_PASSWORD',
     'ADMIN_SESSION_SECRET',
+    'ADMIN_TOTP_SECRET',
     'UPSTASH_REDIS_REST_URL',
     'UPSTASH_REDIS_REST_TOKEN',
     'SUPABASE_URL',
@@ -94,6 +100,8 @@ export function adminApiPlugin(): Plugin {
             query: queryOf(rawUrl),
             body,
             cookieHeader: req.headers.cookie,
+            host: typeof req.headers.host === 'string' ? req.headers.host : undefined,
+            origin: typeof req.headers.origin === 'string' ? req.headers.origin : undefined,
           })
           res.statusCode = result.status
           if (result.setCookie) res.setHeader('Set-Cookie', result.setCookie)

@@ -6,6 +6,7 @@ import { paystackApiPlugin } from './vite.paystack-api.ts'
 import { alertsApiPlugin } from './vite.alerts-api.ts'
 import { adminApiPlugin } from './vite.admin-api.ts'
 import { salonApiPlugin } from './vite.salon-api.ts'
+import { rewardsApiPlugin } from './vite.rewards-api.ts'
 
 export default defineConfig({
   base: '/',
@@ -16,13 +17,14 @@ export default defineConfig({
     alertsApiPlugin(),
     adminApiPlugin(),
     salonApiPlugin(),
+    rewardsApiPlugin(),
     VitePWA({
       registerType: 'prompt',
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       manifest: {
         name: 'NewRecall',
         short_name: 'NewRecall',
-        description: 'Client follow-ups for salons',
+        description: 'Salon follow-ups',
         theme_color: '#c45c6a',
         background_color: '#f3ebe0',
         display: 'standalone',

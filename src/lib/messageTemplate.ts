@@ -75,7 +75,7 @@ export function timeSinceLastVisit(client: Client, today = new Date()): string {
     startOfDay(today),
     parseVisitDate(client.lastVisitDate),
   )
-  if (weeks < 1) return formatLifespan(client.lifespanWeeks)
+  if (weeks < 1) return formatLifespan(client.lifespan)
   return formatLifespan(weeks)
 }
 

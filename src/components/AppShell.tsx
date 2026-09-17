@@ -19,7 +19,7 @@ const links = [
 ]
 
 export function AppShell() {
-  useDocumentTitle('NewRecall — Client follow-ups for salons')
+  useDocumentTitle('NewRecall — Salon follow-ups')
   const height = useVisibleViewportHeight()
   const location = useLocation()
   const mainRef = useRef<HTMLElement>(null)

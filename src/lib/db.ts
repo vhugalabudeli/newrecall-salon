@@ -7,7 +7,7 @@ import type {
   NoteRelatedTo,
 } from '../types'
 import { deviceCallingCode } from './callingCode'
-import { DEFAULT_LIFESPAN_WEEKS, DEFAULT_SERVICE_TYPE } from './labels'
+import { DEFAULT_LIFESPAN, DEFAULT_SERVICE_TYPE } from './labels'
 import { requireSalonId } from './salonSession'
 import { supabase } from './supabase'
 
@@ -75,9 +75,9 @@ function draftToFields(draft: ClientDraft) {
     ? draft.clientName.trim()
     : draft.guestName.trim()
   const relationship = guestRelationship(draft)
-  const lifespanWeeks = Number.isFinite(draft.lifespanWeeks)
-    ? Math.min(16, Math.max(2, Math.round(draft.lifespanWeeks)))
-    : DEFAULT_LIFESPAN_WEEKS
+  const lifespan = Number.isFinite(draft.lifespan)
+    ? Math.min(16, Math.max(2, Math.round(draft.lifespan)))
+    : DEFAULT_LIFESPAN
 
   return {
     clientName: draft.clientName.trim(),
@@ -89,7 +89,7 @@ function draftToFields(draft: ClientDraft) {
     serviceType: draft.serviceType ?? DEFAULT_SERVICE_TYPE,
     service: draft.service.trim(),
     lastVisitDate: draft.lastVisitDate,
-    lifespanWeeks,
+    lifespan,
     recallLead: draft.recallLead,
   }
 }
@@ -109,7 +109,7 @@ function toClientRow(
     service_type: client.serviceType ?? DEFAULT_SERVICE_TYPE,
     service: client.service,
     last_visit_date: client.lastVisitDate,
-    lifespan_weeks: client.lifespanWeeks,
+    lifespan_weeks: client.lifespan,
     recall_lead: client.recallLead,
     booking_status: client.bookingStatus,
     contact_status: client.contactStatus,
@@ -160,7 +160,7 @@ function assembleClients(
     serviceType: row.service_type,
     service: row.service,
     lastVisitDate: row.last_visit_date,
-    lifespanWeeks: row.lifespan_weeks,
+    lifespan: row.lifespan_weeks,
     recallLead: row.recall_lead,
     bookingStatus: row.booking_status,
     contactStatus: row.contact_status,
@@ -278,7 +278,7 @@ export async function updateClientDetails(
       service_type: fields.serviceType,
       service: fields.service,
       last_visit_date: fields.lastVisitDate,
-      lifespan_weeks: fields.lifespanWeeks,
+      lifespan_weeks: fields.lifespan,
       recall_lead: fields.recallLead,
       ...(visitChanged
         ? {

@@ -14,6 +14,11 @@ const ACTIONS = new Set<AdminAction>([
   'csv',
   'tenant-export',
   'tenant-restore',
+  'referrals',
+  'referral-config',
+  'referral-invite',
+  'referral-payout',
+  'referral-override',
 ])
 
 export default function handler(req: VercelRequest, res: VercelResponse) {

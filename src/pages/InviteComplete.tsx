@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
 import { LandingHeader } from '../components/LandingHeader'
 import { ScreenWait } from '../components/ScreenWait'
 import { useAuth } from '../hooks/useAuth'
@@ -11,7 +11,7 @@ import '../styles/landing.css'
 export function InviteComplete() {
   useDocumentTitle('Join your salon — NewRecall')
   const navigate = useNavigate()
-  const { user, ready } = useAuth()
+  const { user, referrer, ready } = useAuth()
   const [name, setName] = useState('')
   const [password, setPassword] = useState('')
   const [confirmation, setConfirmation] = useState('')
@@ -32,6 +32,7 @@ export function InviteComplete() {
   }
 
   if (!ready) return <ScreenWait label="Opening invitation…" />
+  if (referrer) return <Navigate to={paths.rewards} replace />
 
   const sessionError = !user
     ? 'This invitation link is invalid or expired. Ask the salon owner to send a new invite.'

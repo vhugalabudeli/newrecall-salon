@@ -57,7 +57,7 @@ export type Client = {
   serviceType?: ServiceType
   service: Service
   lastVisitDate: string
-  lifespanWeeks: number
+  lifespan: number
   recallLead: RecallLead
   bookingStatus: BookingStatus
   contactStatus: ContactStatus
@@ -76,6 +76,6 @@ export type ClientDraft = {
   serviceType: ServiceType
   service: Service
   lastVisitDate: string
-  lifespanWeeks: number
+  lifespan: number
   recallLead: RecallLead
 }

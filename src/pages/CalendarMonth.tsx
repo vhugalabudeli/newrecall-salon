@@ -71,7 +71,7 @@ export function CalendarMonth() {
 
       {dayClients.length === 0 ? (
         <p className="rounded-2xl bg-ivory px-4 py-8 text-sm text-cocoa-soft ring-1 ring-line">
-          No client follow-ups scheduled for this day.
+          No salon follow-ups scheduled for this day.
         </p>
       ) : (
         <div className="flex flex-col gap-2">

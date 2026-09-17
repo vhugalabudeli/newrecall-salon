@@ -26,6 +26,17 @@ function isClient(value: unknown): value is Client {
   )
 }
 
+function normalizeClient(raw: Client): Client {
+  const legacy = raw as Client & { lifespanWeeks?: number }
+  const lifespan = Number(
+    legacy.lifespan ?? legacy.lifespanWeeks,
+  )
+  return {
+    ...raw,
+    lifespan: Number.isFinite(lifespan) ? lifespan : raw.lifespan,
+  }
+}
+
 export function parseBookBackup(raw: unknown): BookBackup | { error: string } {
   if (!raw || typeof raw !== 'object') {
     return { error: 'That file is not a valid NewRecall salon backup.' }
@@ -47,7 +58,7 @@ export function parseBookBackup(raw: unknown): BookBackup | { error: string } {
       typeof data.messageTemplate === 'string'
         ? data.messageTemplate
         : DEFAULT_MESSAGE_TEMPLATE,
-    clients: data.clients,
+    clients: data.clients.map(normalizeClient),
     catalog: parseCatalog(data.catalog) ?? undefined,
   }
 }

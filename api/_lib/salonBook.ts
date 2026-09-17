@@ -3,9 +3,9 @@ import { supabaseAdmin, supabaseConfigured } from './supabaseAdmin.js'
 import type { Client, Note, NoteRelatedTo } from '../../src/types.js'
 
 const BACKUP_KIND = 'newrecall-salon-book'
-const DEFAULT_LIFESPAN_WEEKS = 6
+const DEFAULT_LIFESPAN = 6
 
-type CatalogService = { id: string; name: string; lifespanWeeks: number }
+type CatalogService = { id: string; name: string; lifespan: number }
 type CatalogType = { id: string; name: string; services: CatalogService[] }
 type ServiceCatalog = { types: CatalogType[] }
 
@@ -86,11 +86,15 @@ function parseCatalog(raw: unknown): ServiceCatalog | undefined {
     types.push({
       id: type.id,
       name: type.name,
-      services: type.services.map((service) => ({
-        id: String(service.id),
-        name: String(service.name),
-        lifespanWeeks: Number(service.lifespanWeeks) || DEFAULT_LIFESPAN_WEEKS,
-      })),
+      services: type.services.map((service) => {
+        const row = service as CatalogService & { lifespanWeeks?: number }
+        return {
+          id: String(service.id),
+          name: String(service.name),
+          lifespan:
+            Number(row.lifespan ?? row.lifespanWeeks) || DEFAULT_LIFESPAN,
+        }
+      }),
     })
   }
   return { types }
@@ -107,6 +111,14 @@ function parseBookBackup(raw: unknown): BookBackup | { error: string } {
   if (!Array.isArray(data.clients) || !data.clients.every(isClient)) {
     return { error: 'That backup file appears to be damaged.' }
   }
+  const clients = data.clients.map((client) => {
+    const legacy = client as Client & { lifespanWeeks?: number }
+    const lifespan = Number(legacy.lifespan ?? legacy.lifespanWeeks)
+    return {
+      ...client,
+      lifespan: Number.isFinite(lifespan) ? lifespan : DEFAULT_LIFESPAN,
+    }
+  })
   return {
     kind: BACKUP_KIND,
     version: 1,
@@ -115,7 +127,7 @@ function parseBookBackup(raw: unknown): BookBackup | { error: string } {
     salonName: typeof data.salonName === 'string' ? data.salonName : '',
     messageTemplate:
       typeof data.messageTemplate === 'string' ? data.messageTemplate : '',
-    clients: data.clients,
+    clients,
     catalog: parseCatalog(data.catalog),
   }
 }
@@ -207,7 +219,7 @@ async function loadCatalog(salonId: string): Promise<ServiceCatalog> {
         .map((service) => ({
           id: service.id as string,
           name: service.name as string,
-          lifespanWeeks: Number(service.lifespan_weeks) || DEFAULT_LIFESPAN_WEEKS,
+          lifespan: Number(service.lifespan_weeks) || DEFAULT_LIFESPAN,
         })),
     })),
   }
@@ -260,7 +272,7 @@ async function loadClients(salonId: string): Promise<Client[]> {
     serviceType: row.service_type,
     service: row.service,
     lastVisitDate: row.last_visit_date,
-    lifespanWeeks: row.lifespan_weeks,
+    lifespan: row.lifespan_weeks,
     recallLead: row.recall_lead,
     bookingStatus: row.booking_status,
     contactStatus: row.contact_status,
@@ -322,7 +334,7 @@ export async function restoreTenantBook(
         service_type: client.serviceType || 'hair',
         service: client.service,
         last_visit_date: client.lastVisitDate,
-        lifespan_weeks: client.lifespanWeeks,
+        lifespan_weeks: client.lifespan,
         recall_lead: client.recallLead,
         booking_status: client.bookingStatus,
         contact_status: client.contactStatus,
@@ -379,7 +391,7 @@ export async function restoreTenantBook(
           salon_id: salonId,
           type_id: type.id,
           name: service.name,
-          lifespan_weeks: service.lifespanWeeks,
+          lifespan_weeks: service.lifespan,
         })),
       )
       if (services.length > 0) {

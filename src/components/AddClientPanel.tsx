@@ -8,12 +8,12 @@ import {
   updateClientDetails,
 } from '../lib/db'
 import {
-  DEFAULT_LIFESPAN_WEEKS,
+  DEFAULT_LIFESPAN,
   DEFAULT_SERVICE_TYPE,
   clientServiceType,
   recallLeadLabels,
   recallLeads,
-  lifespanWeekOptions,
+  lifespanOptions,
 } from '../lib/labels'
 import {
   callingCodeOptions,
@@ -42,7 +42,7 @@ const emptyDraft = (): ClientDraft => ({
   serviceType: DEFAULT_SERVICE_TYPE,
   service: '',
   lastVisitDate: todayIso(),
-  lifespanWeeks: DEFAULT_LIFESPAN_WEEKS,
+  lifespan: DEFAULT_LIFESPAN,
   recallLead: 'week_before',
 })
 
@@ -59,7 +59,7 @@ function draftFromClient(client: Client): ClientDraft {
     serviceType: clientServiceType(client),
     service: client.service,
     lastVisitDate: client.lastVisitDate,
-    lifespanWeeks: client.lifespanWeeks,
+    lifespan: client.lifespan,
     recallLead: client.recallLead,
   }
 }
@@ -150,7 +150,7 @@ export function AddClientPanel({ client, onClose }: AddClientPanelProps) {
       serviceType: draft.serviceType,
       service: draft.service,
       lastVisitDate: draft.lastVisitDate || todayIso(),
-      lifespanWeeks: draft.lifespanWeeks,
+      lifespan: draft.lifespan,
       recallLead: draft.recallLead,
       bookingStatus: 'not_yet_booked',
       contactStatus: 'not_yet_contacted',
@@ -186,7 +186,7 @@ export function AddClientPanel({ client, onClose }: AddClientPanelProps) {
     patch({
       serviceType,
       service: keep ? draft.service : '',
-      ...(match ? { lifespanWeeks: match.lifespanWeeks } : {}),
+      ...(match ? { lifespan: match.lifespan } : {}),
     })
   }
 
@@ -196,7 +196,7 @@ export function AddClientPanel({ client, onClose }: AddClientPanelProps) {
     ).find((service) => service.name === value)
     patch({
       service: value,
-      ...(match ? { lifespanWeeks: match.lifespanWeeks } : {}),
+      ...(match ? { lifespan: match.lifespan } : {}),
     })
   }
 
@@ -234,7 +234,7 @@ export function AddClientPanel({ client, onClose }: AddClientPanelProps) {
       } else {
         await addClient(draft)
       }
-      await rememberCatalogService(draft.serviceType, draft.service, draft.lifespanWeeks)
+      await rememberCatalogService(draft.serviceType, draft.service, draft.lifespan)
       closePanel()
     } catch {
       setError('Could not save this client. Try again.')
@@ -412,12 +412,12 @@ export function AddClientPanel({ client, onClose }: AddClientPanelProps) {
             <SelectTrigger
               title="Usual return time"
               className={inputClass}
-              value={draft.lifespanWeeks}
-              options={lifespanWeekOptions.map((weeks) => ({
+              value={draft.lifespan}
+              options={lifespanOptions.map((weeks) => ({
                 value: weeks,
                 label: formatLifespan(weeks),
               }))}
-              onChange={(weeks) => patch({ lifespanWeeks: weeks })}
+              onChange={(weeks) => patch({ lifespan: weeks })}
             />
           </Field>
 

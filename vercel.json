@@ -8,6 +8,7 @@
     { "source": "/api/alerts/:action", "destination": "/api/alerts?action=:action" },
     { "source": "/api/paystack/:action", "destination": "/api/paystack?action=:action" },
     { "source": "/api/salon/:action", "destination": "/api/salon?action=:action" },
+    { "source": "/api/rewards/:action", "destination": "/api/rewards?action=:action" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],
   "crons": [

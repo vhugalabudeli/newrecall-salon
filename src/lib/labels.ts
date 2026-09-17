@@ -22,7 +22,7 @@ export function guestSubtitle(client: GuestIdentity) {
 }
 
 /** Default weeks when no remembered lifespan applies. */
-export const DEFAULT_LIFESPAN_WEEKS = 6
+export const DEFAULT_LIFESPAN = 6
 
 export const DEFAULT_SERVICE_TYPE: ServiceType = 'hair'
 
@@ -93,7 +93,7 @@ export const contactStatuses: ContactStatus[] = [
   'contacted',
 ]
 
-export const lifespanWeekOptions = Array.from(
+export const lifespanOptions = Array.from(
   { length: 15 },
   (_, index) => index + 2,
 )

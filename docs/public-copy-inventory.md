@@ -4,10 +4,11 @@ This checklist is the source of truth for NewRecall’s public-launch wording re
 
 ## Product voice
 
-- Positioning: client follow-ups for salons.
+- Positioning: salon follow-ups.
 - Tone: friendly and casual for salon owners and staff; direct and professional for billing, privacy, security, destructive actions, and operations.
-- Preferred terms: client list, salon workspace, follow-up date, usual return time, booking status.
-- Internal names such as `recallDate`, `lifespanWeeks`, database columns, API actions, and legacy routes stay unchanged.
+- Preferred terms: salon follow-ups, follow-up date, how many weeks the service usually lasts (weeks until they’re due), last visit, lead time, booking status, client list, salon workspace / shared salon list.
+- Avoid on public surfaces: usual return interval, return intervals, and bare “how long the service lasts” without “weeks” (easy to misread as appointment length).
+- Internal names such as `recallDate`, `lifespan` (Postgres `lifespan_weeks`), database columns, API actions, and legacy routes stay unchanged. Backups may still contain the older `lifespanWeeks` key; import maps it to `lifespan`.
 
 ## Route coverage
 

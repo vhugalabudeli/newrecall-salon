@@ -37,7 +37,7 @@ export function leadDays(lead: RecallLead): number {
 }
 
 export function lapseDate(client: Client): Date {
-  return addWeeks(parseVisitDate(client.lastVisitDate), client.lifespanWeeks)
+  return addWeeks(parseVisitDate(client.lastVisitDate), client.lifespan)
 }
 
 export function recallDate(client: Client): Date {
@@ -426,10 +426,10 @@ export function sortByRecall(clients: Client[]): Client[] {
 export function lastVisitForRecall(
   today: Date,
   recallOffsetDays: number,
-  lifespanWeeks: number,
+  lifespan: number,
   lead: RecallLead,
 ): string {
   const recall = addDays(startOfDay(today), recallOffsetDays)
   const lapse = addDays(recall, leadDays(lead))
-  return format(subWeeks(lapse, lifespanWeeks), 'yyyy-MM-dd')
+  return format(subWeeks(lapse, lifespan), 'yyyy-MM-dd')
 }

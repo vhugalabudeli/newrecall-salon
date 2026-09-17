@@ -1,10 +1,10 @@
 import type { ServiceType } from '../types'
-import { DEFAULT_LIFESPAN_WEEKS } from './labels'
+import { DEFAULT_LIFESPAN } from './labels'
 
 export type CatalogService = {
   id: string
   name: string
-  lifespanWeeks: number
+  lifespan: number
 }
 
 export type CatalogType = {
@@ -19,13 +19,18 @@ export type ServiceCatalog = {
 
 export function clampWeeks(value: unknown): number {
   const weeks = Number(value)
-  if (!Number.isFinite(weeks)) return DEFAULT_LIFESPAN_WEEKS
+  if (!Number.isFinite(weeks)) return DEFAULT_LIFESPAN
   return Math.min(16, Math.max(2, Math.round(weeks)))
+}
+
+function readLifespan(value: { lifespan?: unknown; lifespanWeeks?: unknown }): number {
+  if (value.lifespan != null) return clampWeeks(value.lifespan)
+  return clampWeeks(value.lifespanWeeks)
 }
 
 function isService(value: unknown): value is CatalogService {
   if (!value || typeof value !== 'object') return false
-  const row = value as Partial<CatalogService>
+  const row = value as Partial<CatalogService> & { lifespanWeeks?: unknown }
   return typeof row.id === 'string' && typeof row.name === 'string'
 }
 
@@ -51,7 +56,9 @@ export function parseCatalog(raw: unknown): ServiceCatalog | null {
       services: type.services.map((service) => ({
         id: service.id,
         name: service.name.trim(),
-        lifespanWeeks: clampWeeks(service.lifespanWeeks),
+        lifespan: readLifespan(
+          service as CatalogService & { lifespanWeeks?: unknown },
+        ),
       })),
     })),
   }

@@ -3,7 +3,7 @@ title: Overview
 description: What NewRecall is, where the book lives, and how the repo is split.
 ---
 
-NewRecall is a salon CRM. You track who to contact when their last visit is due to lapse. The live app is meant to serve on [salon.newrecall.com](https://salon.newrecall.com).
+NewRecall is a salon CRM. You track who to contact when a client is due again — from last visit plus how many weeks that service usually lasts, adjusted by lead. The live app is meant to serve on [salon.newrecall.com](https://salon.newrecall.com).
 
 **NewRecall** is the product brand. The name in the app chrome is the salon name from Settings (default **Your salon**). That salon name is not a second product brand.
 
@@ -19,7 +19,7 @@ Postgres is the source of truth. One salon, many staff. The app needs a network 
 
 | Store | What |
 | --- | --- |
-| Supabase `clients` / `notes` (`src/lib/db.ts`) | Client rows: name, phone, guest, service, last visit, lifespan, lead, contact/response, notes |
+| Supabase `clients` / `notes` (`src/lib/db.ts`) | Client rows: name, phone, guest, service, last visit, lifespan (`lifespan_weeks`), lead, contact/response, notes |
 | Supabase `service_types` / `services` | Catalog |
 | Supabase `salons` / `salon_members` / `salon_invites` | Tenancy and staff |
 | IndexedDB `salon-recall-alerts` | Local notification snapshot (titles, bodies, prefs) — not the full book |

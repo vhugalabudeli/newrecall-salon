@@ -8,8 +8,8 @@ import { useServiceCatalog } from '../hooks/useServiceCatalog'
 import { peekBookDraft, saveBookDraft } from '../lib/bookDraft'
 import {
   clientServiceType,
-  DEFAULT_LIFESPAN_WEEKS,
-  lifespanWeekOptions,
+  DEFAULT_LIFESPAN,
+  lifespanOptions,
 } from '../lib/labels'
 import { formatLifespan } from '../lib/schedule'
 import {
@@ -36,13 +36,13 @@ export function ServiceTypeDetail() {
   const [nameDraft, setNameDraft] = useState(type?.name ?? '')
   const [adding, setAdding] = useState(fromBook)
   const [serviceName, setServiceName] = useState('')
-  const [weeks, setWeeks] = useState(DEFAULT_LIFESPAN_WEEKS)
+  const [weeks, setWeeks] = useState(DEFAULT_LIFESPAN)
   const [error, setError] = useState('')
   const [typeError, setTypeError] = useState('')
   const [updating, setUpdating] = useState(false)
   const [editingServiceId, setEditingServiceId] = useState<string | null>(null)
   const [serviceDraftName, setServiceDraftName] = useState('')
-  const [serviceDraftWeeks, setServiceDraftWeeks] = useState(DEFAULT_LIFESPAN_WEEKS)
+  const [serviceDraftWeeks, setServiceDraftWeeks] = useState(DEFAULT_LIFESPAN)
   const [serviceEditError, setServiceEditError] = useState('')
   const nameInputRef = useRef<HTMLInputElement>(null)
 
@@ -87,7 +87,7 @@ export function ServiceTypeDetail() {
     setUpdating(false)
     setEditingServiceId(service.id)
     setServiceDraftName(service.name)
-    setServiceDraftWeeks(service.lifespanWeeks)
+    setServiceDraftWeeks(service.lifespan)
     setServiceEditError('')
   }
 
@@ -100,7 +100,7 @@ export function ServiceTypeDetail() {
     if (!type || !editingServiceId) return
     const result = await updateService(type.id, editingServiceId, {
       name: serviceDraftName,
-      lifespanWeeks: serviceDraftWeeks,
+      lifespan: serviceDraftWeeks,
     })
     setServiceEditError(result.error ?? '')
     if (result.error) return
@@ -149,7 +149,7 @@ export function ServiceTypeDetail() {
             ...pending.draft,
             serviceType: type.id,
             service: result.name,
-            lifespanWeeks: result.lifespanWeeks,
+            lifespan: result.lifespan,
           },
         })
         navigate(pending.returnTo)
@@ -157,7 +157,7 @@ export function ServiceTypeDetail() {
       }
     }
     setServiceName('')
-    setWeeks(DEFAULT_LIFESPAN_WEEKS)
+    setWeeks(DEFAULT_LIFESPAN)
     setError('')
     setAdding(false)
   }
@@ -308,7 +308,7 @@ export function ServiceTypeDetail() {
                 title="Usual return time"
                 className={inputClass}
                 value={weeks}
-                options={lifespanWeekOptions.map((option) => ({
+                options={lifespanOptions.map((option) => ({
                   value: option,
                   label: formatLifespan(option),
                 }))}
@@ -381,7 +381,7 @@ export function ServiceTypeDetail() {
                     title="Usual return time"
                     className={inputClass}
                     value={serviceDraftWeeks}
-                    options={lifespanWeekOptions.map((option) => ({
+                    options={lifespanOptions.map((option) => ({
                       value: option,
                       label: formatLifespan(option),
                     }))}
@@ -425,7 +425,7 @@ export function ServiceTypeDetail() {
                   <div className="min-w-0">
                     <p className="text-sm font-medium">{service.name}</p>
                     <p className="mt-0.5 text-sm text-cocoa-soft">
-                      {formatLifespan(service.lifespanWeeks)}
+                      {formatLifespan(service.lifespan)}
                     </p>
                   </div>
                   <button

@@ -3,7 +3,7 @@ import type { ServiceType } from '../types'
 
 export type RememberedService = {
   label: string
-  lifespanWeeks: number
+  lifespan: number
   serviceType: ServiceType
 }
 
@@ -12,7 +12,7 @@ const HYDRATED_KEY = 'salon-app-services-hydrated'
 
 type ServiceSource = {
   service: string
-  lifespanWeeks: number
+  lifespan: number
   serviceType?: ServiceType
   updatedAt?: string
 }
@@ -48,9 +48,12 @@ function readMap(): Record<string, RememberedService> {
       const type = asServiceType(entry.serviceType ?? key.split(':')[0])
       const label = entry.label.trim()
       if (!label) continue
+      const legacy = entry as RememberedService & { lifespanWeeks?: number }
+      const weeks = Number(legacy.lifespan ?? legacy.lifespanWeeks)
+      if (!Number.isFinite(weeks)) continue
       next[normalizeKey(type, label)] = {
         label,
-        lifespanWeeks: entry.lifespanWeeks,
+        lifespan: weeks,
         serviceType: type,
       }
     }
@@ -80,23 +83,23 @@ export function lookupRememberedLifespan(
 ): number | null {
   if (!label.trim()) return null
   const entry = readMap()[normalizeKey(type, label)]
-  return entry?.lifespanWeeks ?? null
+  return entry?.lifespan ?? null
 }
 
 export function rememberService(
   label: string,
-  lifespanWeeks: number,
+  lifespan: number,
   type: ServiceType = DEFAULT_SERVICE_TYPE,
 ) {
   const trimmed = label.trim()
   if (!trimmed) return
-  const weeks = Number(lifespanWeeks)
+  const weeks = Number(lifespan)
   if (!Number.isFinite(weeks) || weeks < 1) return
 
   const map = readMap()
   map[normalizeKey(type, trimmed)] = {
     label: trimmed,
-    lifespanWeeks: weeks,
+    lifespan: weeks,
     serviceType: type,
   }
   writeMap(map)
@@ -128,7 +131,7 @@ export function hydrateServiceMemoryFromClients(clients: ServiceSource[]) {
     const type = asServiceType(client.serviceType)
     map[normalizeKey(type, trimmed)] = {
       label: trimmed,
-      lifespanWeeks: client.lifespanWeeks,
+      lifespan: client.lifespan,
       serviceType: type,
     }
   }

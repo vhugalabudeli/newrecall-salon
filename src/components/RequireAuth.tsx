@@ -6,10 +6,11 @@ import type { ReactNode } from 'react'
 import { ScreenWait } from './ScreenWait'
 
 export function RequireAuth({ children }: { children: ReactNode }) {
-  const { user, ready } = useAuth()
+  const { user, referrer, ready } = useAuth()
   const location = useLocation()
 
   if (!ready) return <ScreenWait label="Loading…" />
+  if (referrer) return <Navigate to={paths.rewards} replace />
   if (!user) {
     return <Navigate to={paths.login} replace state={{ from: location.pathname }} />
   }
@@ -25,9 +26,10 @@ export function RequireEntitlement({ children }: { children: ReactNode }) {
 }
 
 export function GuestOnly({ children }: { children: ReactNode }) {
-  const { user, ready } = useAuth()
+  const { user, referrer, ready } = useAuth()
 
   if (!ready) return <ScreenWait label="Loading…" />
+  if (referrer) return <Navigate to={paths.rewards} replace />
   if (user) return <Navigate to={paths.dashboard} replace />
   return children
 }

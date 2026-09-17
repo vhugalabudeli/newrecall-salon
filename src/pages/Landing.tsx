@@ -9,8 +9,8 @@ import '../styles/landing.css'
 const FORM_ACTION = 'https://formsubmit.co/support@newrecall.com'
 
 export function Landing() {
-  useDocumentTitle('NewRecall — Client follow-ups for salons')
-  const { user, ready } = useAuth()
+  useDocumentTitle('NewRecall — Salon follow-ups')
+  const { user, referrer, ready } = useAuth()
   const thankYouUrl =
     typeof window === 'undefined'
       ? paths.thankYou
@@ -23,20 +23,20 @@ export function Landing() {
       <main>
         <div className="wrap">
           <section className="hero">
-            <p className="eyebrow">Client follow-ups for salons</p>
-            <h1>Know who is ready to come back — and when to get in touch.</h1>
+            <p className="eyebrow">Salon follow-ups</p>
+            <h1>Never miss the moment a client is ready to return.</h1>
             <p className="lead">
-              NewRecall keeps your client follow-ups in one shared salon workspace.
-              Add a client’s last visit, choose when they usually return, and see who
-              needs a call or message next. Try it free for 30 days, then pay R200 per
-              month.
-            </p>
-            <p className="muted">
-              Your salon adds its own existing clients. NewRecall does not supply
-              prospective customers or contact lists.
+              Enter each client’s last visit and how many weeks that service
+              usually lasts. NewRecall sets the follow-up date so you know who
+              to contact next. Try free for 30 days, then R200/month.
             </p>
             <div className="cta-row">
-              {ready && user ? (
+              {ready && referrer ? (
+                <Link className="btn btn-primary" to={paths.rewards}>
+                  <span className="btn-full">Open rewards</span>
+                  <span className="btn-short">Rewards</span>
+                </Link>
+              ) : ready && user ? (
                 <Link className="btn btn-primary" to={paths.dashboard}>
                   <span className="btn-full">Open the app</span>
                   <span className="btn-short">Open app</span>
@@ -58,7 +58,8 @@ export function Landing() {
             <div className="section-head">
               <h2 id="features-heading">Simple follow-ups that bring clients back</h2>
               <p className="muted">
-                Set each service’s usual return interval and NewRecall works out the next follow-up date.
+                See who’s due, set timing per service, and keep one shared list
+                for your salon.
               </p>
             </div>
             <div className="feature-grid">
@@ -74,7 +75,10 @@ export function Landing() {
                   </svg>
                 </span>
                 <h3>Follow-up calendar</h3>
-                <p>See who needs attention today, this week, and in the months ahead.</p>
+                <p>
+                  See who needs a call or message today, this week, and in the
+                  months ahead.
+                </p>
               </article>
               <article className="card feature-card">
                 <span className="icon-pill" aria-hidden="true">
@@ -87,10 +91,10 @@ export function Landing() {
                     />
                   </svg>
                 </span>
-                <h3>Flexible return times</h3>
+                <h3>Weeks until they’re due</h3>
                 <p>
-                  Choose how often clients usually return for each service. When a
-                  client books, close the follow-up and start again after their next visit.
+                  Colour, cuts, nails, waxing, and more each get their own
+                  timing — how many weeks until the client is ready again.
                 </p>
               </article>
               <article className="card feature-card">
@@ -104,28 +108,10 @@ export function Landing() {
                     />
                   </svg>
                 </span>
-                <h3>Hair, nails, and more</h3>
+                <h3>One shared salon list</h3>
                 <p>
-                  Organise hair, nails, waxing, lashes, massage, tanning, and facials
-                  with return intervals that suit each treatment.
-                </p>
-              </article>
-              <article className="card feature-card">
-                <span className="icon-pill" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none">
-                    <path
-                      d="M5 7.5h14A1.5 1.5 0 0 1 20.5 9v7A1.5 1.5 0 0 1 19 17.5H9.5L5 20.5V7.5Z"
-                      stroke="currentColor"
-                      strokeWidth="1.8"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </span>
-                <h3>Ready-to-send messages</h3>
-                <p>
-                  One template. Wording switches when the booking is for someone else.
-                  Send an SMS or WhatsApp message, or call from the follow-up card — everything opens on
-                  this device.
+                  Your team works from the same clients and follow-ups. You add
+                  your own clients.
                 </p>
               </article>
             </div>

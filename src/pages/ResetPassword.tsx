@@ -3,12 +3,12 @@ import { Link, useNavigate } from 'react-router-dom'
 import { LandingHeader } from '../components/LandingHeader'
 import { ScreenWait } from '../components/ScreenWait'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
+import { homePathFor } from '../lib/auth'
 import {
   completePasswordReset,
   loginResetPath,
   passwordResetLinkError,
 } from '../lib/passwordReset'
-import { paths } from '../lib/routes'
 import {
   isPasswordRecoveryPending,
   supabase,
@@ -64,7 +64,7 @@ export function ResetPassword() {
       setError(result.error)
       return
     }
-    navigate(paths.dashboard, { replace: true })
+    navigate(homePathFor(result.identity), { replace: true })
   }
 
   if (!ready) return <ScreenWait label="Opening reset link…" />

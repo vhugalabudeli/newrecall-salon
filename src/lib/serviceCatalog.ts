@@ -1,4 +1,4 @@
-import { BUILTIN_SERVICE_TYPES, DEFAULT_LIFESPAN_WEEKS } from './labels'
+import { BUILTIN_SERVICE_TYPES, DEFAULT_LIFESPAN } from './labels'
 import {
   clampWeeks,
   parseCatalog,
@@ -47,7 +47,7 @@ function generalService(): CatalogService {
   return {
     id: crypto.randomUUID(),
     name: GENERAL_SERVICE_NAME,
-    lifespanWeeks: DEFAULT_LIFESPAN_WEEKS,
+    lifespan: DEFAULT_LIFESPAN,
   }
 }
 
@@ -163,7 +163,7 @@ async function persist(catalog: ServiceCatalog) {
       salon_id: salonId,
       type_id: type.id,
       name: service.name,
-      lifespan_weeks: service.lifespanWeeks,
+      lifespan_weeks: service.lifespan,
     })),
   )
   if (rows.length > 0) {
@@ -200,7 +200,7 @@ export async function loadCatalog(salonId: string): Promise<ServiceCatalog> {
         .map((service) => ({
           id: service.id as string,
           name: service.name as string,
-          lifespanWeeks: clampWeeks(service.lifespan_weeks),
+          lifespan: clampWeeks(service.lifespan_weeks),
         })),
     })),
   }
@@ -292,7 +292,7 @@ export async function deleteServiceType(id: string): Promise<{ error?: string }>
 export async function addService(
   typeId: string,
   name: string,
-  lifespanWeeks: number,
+  lifespan: number,
 ): Promise<CatalogService | { error: string }> {
   const trimmed = name.trim()
   if (!trimmed) return { error: 'Enter a service.' }
@@ -305,7 +305,7 @@ export async function addService(
   const service: CatalogService = {
     id: crypto.randomUUID(),
     name: trimmed,
-    lifespanWeeks: clampWeeks(lifespanWeeks),
+    lifespan: clampWeeks(lifespan),
   }
   type.services.push(service)
   await persist(catalog)
@@ -315,7 +315,7 @@ export async function addService(
 export async function updateService(
   typeId: string,
   serviceId: string,
-  patch: { name?: string; lifespanWeeks?: number },
+  patch: { name?: string; lifespan?: number },
 ): Promise<{ error?: string }> {
   const catalog = readCatalog()
   const type = catalog.types.find((item) => item.id === typeId)
@@ -339,8 +339,8 @@ export async function updateService(
     }
     service.name = trimmed
   }
-  if (patch.lifespanWeeks != null) {
-    service.lifespanWeeks = clampWeeks(patch.lifespanWeeks)
+  if (patch.lifespan != null) {
+    service.lifespan = clampWeeks(patch.lifespan)
   }
   await persist(catalog)
   return {}
@@ -366,7 +366,7 @@ export async function deleteService(
 export async function rememberCatalogService(
   typeId: string,
   name: string,
-  lifespanWeeks: number,
+  lifespan: number,
 ) {
   const trimmed = name.trim()
   if (!trimmed) return
@@ -380,13 +380,13 @@ export async function rememberCatalogService(
     sameName(service.name, trimmed),
   )
   if (existing) {
-    existing.lifespanWeeks = clampWeeks(lifespanWeeks)
+    existing.lifespan = clampWeeks(lifespan)
     existing.name = trimmed
   } else {
     type.services.push({
       id: crypto.randomUUID(),
       name: trimmed,
-      lifespanWeeks: clampWeeks(lifespanWeeks),
+      lifespan: clampWeeks(lifespan),
     })
   }
   await persist(catalog)

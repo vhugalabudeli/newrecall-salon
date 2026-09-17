@@ -6,6 +6,8 @@ export const paths = {
   login: '/login',
   register: '/register',
   resetPassword: '/login/reset',
+  champion: '/champion',
+  rewards: '/rewards',
   inviteComplete: '/invite/complete',
   terms: '/terms',
   privacy: '/privacy',

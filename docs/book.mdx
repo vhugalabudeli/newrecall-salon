@@ -26,14 +26,46 @@ Routes live in `src/lib/routes.ts` and `src/App.tsx`.
 
 Shell nav is Dashboard, Clients, Calendar, Settings. The mark in the shell is the salon name.
 
-## Recall date
+## How a client is called back
 
-From `src/lib/schedule.ts`:
+The **recall date** is determined by **how many weeks the last service usually lasts** (until the client is due again), counted from the last visit, then adjusted by lead (how early to get in touch).
 
-- **Lapse** = last visit + lifespan weeks
-- **Recall** = lapse minus lead: on the day (0), 1 day before (1), or 1 week before (7)
+Contact timing is computed in `src/lib/schedule.ts` from fields on the **client row**, not from a live lookup of the service catalog.
 
-Entering a new last visit resets Contact to not yet contacted and Response to not yet booked (`src/lib/db.ts`).
+### Inputs
+
+| Factor | Where it lives | Role |
+| --- | --- | --- |
+| **Last visit date** | Client | Start of the cycle |
+| **How many weeks the service usually lasts** (`lifespan`, 2–16) | Client | Weeks until the client is typically ready again. Stored in Postgres as `lifespan_weeks`. |
+| **Lead** (`recallLead`) | Client | How early to contact before that return point |
+| **Service / service type** | Client + catalog | Which treatment they had; catalog holds **defaults** for weeks until due |
+
+### Service duration: catalog default, client value
+
+- Each **service** in Settings → Service types has a default lifespan (how many weeks that service usually lasts).
+- When staff pick a service on add/edit client, that default **pre-fills** `lifespan` on the client.
+- The value saved on the **client** is what sets the recall date. Staff can override it for that visit without changing the service default.
+- Changing a service’s default later does **not** rewrite existing client rows.
+
+### Math
+
+1. **Lapse** (service has run its course / ready to return) = last visit + how many weeks the last service usually lasts (`lifespan`)
+2. **Recall** (when to get in touch) = lapse minus lead:
+   - on the day → 0 days
+   - day before → 1 day
+   - week before → 7 days
+
+Fewer weeks or earlier lead → sooner. More weeks or on-the-day lead → later.
+
+### Still on the contact list
+
+A client only appears on Follow-up / Due today / Overdue / the bell when the follow-up is still open (`isOnDueList`):
+
+- Contact is `not_yet_contacted` or `contacted_unreachable`
+- and Response is `not_yet_booked`
+
+Entering a new last visit resets Contact to not yet contacted and Response to not yet booked (`src/lib/db.ts`), which starts a new cycle after the next visit.
 
 ## Follow-up vs the bell
 
