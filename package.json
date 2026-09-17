@@ -11,6 +11,7 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "test": "vitest run",
+    "test:integration": "RUN_SUPABASE_INTEGRATION=1 node --env-file=.env.local node_modules/vitest/vitest.mjs run src/integration/rewards.integration.test.ts",
     "test:watch": "vitest"
   },
   "dependencies": {
