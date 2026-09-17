@@ -61,11 +61,26 @@ describe.skipIf(!runIntegration)('rewards integration', () => {
   afterEach(async () => {
     if (!admin) return
     if (salonId) {
-      await admin.from('salons').delete().eq('id', salonId)
+      const { error } = await admin.from('salons').delete().eq('id', salonId)
+      if (error) throw error
       salonId = null
     }
+    const { data: promos, error: promoError } = await admin
+      .from('promo_codes')
+      .select('id')
+      .in('owner_user_id', userIds)
+    if (promoError) throw promoError
+    const promoIds = (promos ?? []).map((promo) => promo.id)
+    if (promoIds.length > 0) {
+      const { error } = await admin
+        .from('referral_payouts')
+        .delete()
+        .in('promo_code_id', promoIds)
+      if (error) throw error
+    }
     for (const userId of userIds.reverse()) {
-      await admin.auth.admin.deleteUser(userId)
+      const { error } = await admin.auth.admin.deleteUser(userId)
+      if (error) throw error
     }
     userIds.length = 0
   })
